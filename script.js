@@ -4,6 +4,7 @@ const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q="
 // --- Theme Toggle Logic ---
 const themeToggleBtn = document.getElementById("themeToggle");
 const currentTheme = localStorage.getItem("theme");
+const scrollProgressEl = document.getElementById("scrollProgress");
 
 // Default to dark theme (cinematic aesthetic)
 if (currentTheme === "light") {
@@ -168,6 +169,167 @@ function smoothParallax() {
 }
 smoothParallax();
 
+// --- Scroll Progress Indicator ---
+let scrollProgressRAF = null;
+function updateScrollProgress() {
+    scrollProgressRAF = null;
+    if (!scrollProgressEl) return;
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    scrollProgressEl.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+}
+
+window.addEventListener('scroll', () => {
+    if (!scrollProgressRAF) {
+        scrollProgressRAF = requestAnimationFrame(updateScrollProgress);
+    }
+}, { passive: true });
+
+window.addEventListener('resize', () => {
+    if (!scrollProgressRAF) {
+        scrollProgressRAF = requestAnimationFrame(updateScrollProgress);
+    }
+});
+
+// --- Hero Text Reveal ---
+function triggerHeroReveal() {
+    const revealItems = document.querySelectorAll('.reveal-item');
+    if (!revealItems.length) return;
+    revealItems.forEach(item => {
+        const delay = parseInt(item.dataset.delay || '0', 10);
+        item.classList.remove('reveal-item--visible');
+        setTimeout(() => item.classList.add('reveal-item--visible'), delay);
+    });
+}
+
+// --- Horizontal Scroll Projects ---
+function initHorizontalScroll() {
+    const container = document.getElementById('projectsScrollContainer');
+    const track = document.getElementById('projectsScrollTrack');
+    if (!container || !track) return;
+    const prevBtn = document.getElementById('projectsPrev');
+    const nextBtn = document.getElementById('projectsNext');
+    const dotsContainer = document.getElementById('projectsDots');
+    const cards = Array.from(track.querySelectorAll('.h-scroll-card'));
+
+    let currentX = 0;
+    let targetX = 0;
+    let maxX = 0;
+    let animId = null;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartTarget = 0;
+
+    function clamp(val) {
+        return Math.max(0, Math.min(val, maxX));
+    }
+
+    function updateTransform() {
+        track.style.transform = `translateX(${-currentX}px)`;
+    }
+
+    function updateDots() {
+        if (!dotsContainer) return;
+        const dots = dotsContainer.querySelectorAll('.h-scroll-dot');
+        if (!dots.length) return;
+        let activeIndex = 0;
+        let smallest = Infinity;
+        cards.forEach((card, index) => {
+            const distance = Math.abs(card.offsetLeft - currentX);
+            if (distance < smallest) {
+                smallest = distance;
+                activeIndex = index;
+            }
+        });
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === activeIndex);
+        });
+    }
+
+    function animate() {
+        const delta = targetX - currentX;
+        if (Math.abs(delta) < 0.5) {
+            currentX = targetX;
+            updateTransform();
+            updateDots();
+            animId = null;
+            return;
+        }
+        currentX += delta * 0.12;
+        updateTransform();
+        updateDots();
+        animId = requestAnimationFrame(animate);
+    }
+
+    function setTarget(value) {
+        targetX = clamp(value);
+        if (!animId) animId = requestAnimationFrame(animate);
+    }
+
+    function updateBounds() {
+        const containerWidth = container.offsetWidth;
+        const trackWidth = track.scrollWidth;
+        maxX = Math.max(0, trackWidth - containerWidth);
+        currentX = clamp(currentX);
+        targetX = clamp(targetX);
+        updateTransform();
+        updateDots();
+    }
+
+    if (dotsContainer) {
+        dotsContainer.innerHTML = '';
+        cards.forEach((card, index) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'h-scroll-dot';
+            dot.setAttribute('aria-label', `Go to project ${index + 1}`);
+            dot.addEventListener('click', () => setTarget(card.offsetLeft));
+            dotsContainer.appendChild(dot);
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => setTarget(targetX - container.offsetWidth * 0.8));
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => setTarget(targetX + container.offsetWidth * 0.8));
+    }
+
+    container.addEventListener('wheel', (event) => {
+        if (window.innerWidth <= 900) return;
+        event.preventDefault();
+        setTarget(targetX + event.deltaY);
+    }, { passive: false });
+
+    container.addEventListener('pointerdown', (event) => {
+        if (window.innerWidth <= 900) return;
+        isDragging = true;
+        dragStartX = event.clientX;
+        dragStartTarget = targetX;
+        container.classList.add('is-dragging');
+        container.setPointerCapture(event.pointerId);
+    });
+
+    container.addEventListener('pointermove', (event) => {
+        if (!isDragging) return;
+        const delta = event.clientX - dragStartX;
+        setTarget(dragStartTarget - delta);
+    });
+
+    container.addEventListener('pointerup', () => {
+        isDragging = false;
+        container.classList.remove('is-dragging');
+    });
+
+    container.addEventListener('pointerleave', () => {
+        isDragging = false;
+        container.classList.remove('is-dragging');
+    });
+
+    window.addEventListener('resize', updateBounds);
+    updateBounds();
+}
 
 // --- Navbar Scroll Effects ---
 (function initNavbarScroll() {
@@ -295,6 +457,8 @@ function getRandomCity() {
 
 window.addEventListener('DOMContentLoaded', () => {
     checkWeather(getRandomCity());
+    updateScrollProgress();
+    initHorizontalScroll();
 
     // --- Portfolio Toggle Logic ---
     const togglePortfolioBtn = document.getElementById('togglePortfolioBtn');
@@ -304,15 +468,26 @@ window.addEventListener('DOMContentLoaded', () => {
         togglePortfolioBtn.addEventListener('click', () => {
             if (portfolioContent.style.display === 'none') {
                 portfolioContent.style.display = 'block';
-                togglePortfolioBtn.textContent = '[-] Hide Portfolio Sections';
+                const icon = togglePortfolioBtn.querySelector('.reveal-btn-icon');
+                const text = togglePortfolioBtn.querySelector('.reveal-btn-text');
+                const sub = togglePortfolioBtn.querySelector('.reveal-btn-sub');
+                if (icon) icon.textContent = '–';
+                if (text) text.textContent = 'Hide Portfolio';
+                if (sub) sub.textContent = 'Scroll to explore';
                 // Trigger resize event to potentially fix parallax/particle offsets if needed
                 window.dispatchEvent(new Event('resize'));
                 // Trigger IntersectionObserver for newly revealed elements
                 document.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible'));
                 setTimeout(() => window.dispatchEvent(new Event('scroll')), 100);
+                setTimeout(() => triggerHeroReveal(), 200);
             } else {
                 portfolioContent.style.display = 'none';
-                togglePortfolioBtn.textContent = '[+] Reveal Portfolio Sections';
+                const icon = togglePortfolioBtn.querySelector('.reveal-btn-icon');
+                const text = togglePortfolioBtn.querySelector('.reveal-btn-text');
+                const sub = togglePortfolioBtn.querySelector('.reveal-btn-sub');
+                if (icon) icon.textContent = '+';
+                if (text) text.textContent = 'Reveal Portfolio';
+                if (sub) sub.textContent = 'Skills · Projects · Education';
             }
         });
     }
@@ -359,6 +534,8 @@ window.addEventListener('DOMContentLoaded', () => {
             scrollRAFId = requestAnimationFrame(updateSectionParallax);
         }
     }, { passive: true });
+
+    triggerHeroReveal();
 });
 
 if (searchBtn) {
