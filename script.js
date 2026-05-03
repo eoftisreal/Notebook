@@ -208,6 +208,9 @@ function initHorizontalScroll() {
     const container = document.getElementById('projectsScrollContainer');
     const track = document.getElementById('projectsScrollTrack');
     if (!container || !track) return;
+    const SCROLL_EASING = 0.12;
+    const SCROLL_DISTANCE_RATIO = 0.8;
+    const MOBILE_BREAKPOINT = 900;
     const prevBtn = document.getElementById('projectsPrev');
     const nextBtn = document.getElementById('projectsNext');
     const dotsContainer = document.getElementById('projectsDots');
@@ -256,7 +259,7 @@ function initHorizontalScroll() {
             animId = null;
             return;
         }
-        currentX += delta * 0.12;
+        currentX += delta * SCROLL_EASING;
         updateTransform();
         updateDots();
         animId = requestAnimationFrame(animate);
@@ -290,20 +293,20 @@ function initHorizontalScroll() {
     }
 
     if (prevBtn) {
-        prevBtn.addEventListener('click', () => setTarget(targetX - container.offsetWidth * 0.8));
+        prevBtn.addEventListener('click', () => setTarget(targetX - container.offsetWidth * SCROLL_DISTANCE_RATIO));
     }
     if (nextBtn) {
-        nextBtn.addEventListener('click', () => setTarget(targetX + container.offsetWidth * 0.8));
+        nextBtn.addEventListener('click', () => setTarget(targetX + container.offsetWidth * SCROLL_DISTANCE_RATIO));
     }
 
     container.addEventListener('wheel', (event) => {
-        if (window.innerWidth <= 900) return;
+        if (window.innerWidth <= MOBILE_BREAKPOINT) return;
         event.preventDefault();
         setTarget(targetX + event.deltaY);
     }, { passive: false });
 
     container.addEventListener('pointerdown', (event) => {
-        if (window.innerWidth <= 900) return;
+        if (window.innerWidth <= MOBILE_BREAKPOINT) return;
         isDragging = true;
         dragStartX = event.clientX;
         dragStartTarget = targetX;
