@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sumit Kumar Sharma - Portfolio</title>
+    <title>Sumit Kumar Sharma — Portfolio</title>
     <meta name="description" content="Portfolio of Sumit Kumar Sharma — Computer Science graduate, frontend developer, and problem solver.">
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Google Fonts loaded via <link> instead of CSS @import to avoid render-blocking chain -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
     <!-- Load pdf-lib library asynchronously (only needed for PDF tool interaction) -->
     <script async src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
@@ -17,6 +17,9 @@
     <script async src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 </head>
 <body>
+
+<!-- Scroll Progress Indicator -->
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
 <!-- Atmospheric Overlays -->
 <div class="scan-lines"></div>
@@ -31,8 +34,8 @@
 </div>
 
 <!-- Corner Technical Markers -->
-<div class="corner-marker top-left">PORTFOLIO // V3.0</div>
-<div class="corner-marker top-right">2026.03.07</div>
+<div class="corner-marker top-left">PORTFOLIO // V4.0</div>
+<div class="corner-marker top-right">2026.05.03</div>
 
 <!-- Background Glowing Orbs for Cinematic Lighting -->
 <div class="background-orbs" id="parallax-bg">
@@ -80,7 +83,7 @@
 <!-- Main Portfolio Content -->
 <main>
     <!-- Tools Section (Always Visible) -->
-    <section class="tools-section reveal">
+    <section class="tools-section reveal" id="tools">
         <div class="section-marker">// Active Tools</div>
         <h2 class="section-title">Live <span>Systems</span></h2>
 
@@ -367,9 +370,11 @@
 
     <div class="tech-divider"></div>
 
-    <div class="portfolio-toggle-container" style="text-align: center; margin: 40px 0;">
-        <button id="togglePortfolioBtn" class="glass-panel" style="padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border: 1px solid var(--glass-border); color: var(--text-primary); background: rgba(20, 20, 25, 0.6); font-family: 'Orbitron', sans-serif; transition: all 0.3s ease;">
-            [+] Reveal Portfolio Sections
+    <div class="portfolio-toggle-container">
+        <button id="togglePortfolioBtn" class="portfolio-reveal-btn glass-panel">
+            <span class="reveal-btn-icon" aria-hidden="true">+</span>
+            <span class="reveal-btn-text">Reveal Portfolio</span>
+            <span class="reveal-btn-sub">Skills · Projects · Education</span>
         </button>
     </div>
 
@@ -377,12 +382,25 @@
     <!-- Hero Section -->
     <section class="hero" id="parallax-hero">
         <div class="hero-content">
-            <div class="section-marker">// Introduction</div>
-            <h3>Hello, I'm</h3>
-            <h1 class="site-title">Sumit Kumar Sharma</h1>
-            <p>Computer Science graduate with a solid foundation in programming, software development, and problem-solving. A quick learner and collaborative team player seeking a challenging opportunity in the IT industry.</p>
+            <div class="hero-eyebrow reveal-item" data-delay="0">
+                <span class="eyebrow-dash" aria-hidden="true"></span>
+                <span class="section-marker hero-section-marker">// Introduction</span>
+            </div>
+            <h3 class="hero-greeting reveal-item" data-delay="80">Hello, I'm</h3>
+            <h1 class="site-title">
+                <span class="title-line reveal-item" data-delay="160">
+                    <span class="title-word">Sumit</span>
+                </span>
+                <span class="title-line reveal-item" data-delay="260">
+                    <span class="title-word">Kumar</span>
+                </span>
+                <span class="title-line title-line--accent reveal-item" data-delay="360">
+                    <span class="title-word">Sharma</span>
+                </span>
+            </h1>
+            <p class="hero-desc reveal-item" data-delay="500">Computer Science graduate with a solid foundation in programming, software development, and problem-solving. A quick learner and collaborative team player seeking a challenging opportunity in the IT industry.</p>
 
-            <div class="contact-badges">
+            <div class="contact-badges reveal-item" data-delay="640">
                 <a href="tel:+919876543210" class="badge">📞 +91 98765 43210</a>
                 <a href="mailto:sumitsharma@example.com" class="badge">✉️ Email Me</a>
                 <a href="https://linkedin.com/in/coinrx" target="_blank" rel="noopener noreferrer" class="badge">🔗 LinkedIn</a>
@@ -416,6 +434,12 @@
                 <span style="font-size: 18px;">✨</span> Design
             </div>
         </div>
+
+        <!-- Scroll hint indicator -->
+        <div class="hero-scroll-cue reveal-item" data-delay="900" aria-hidden="true">
+            <div class="scroll-cue-line"></div>
+            <span class="scroll-cue-label">Scroll</span>
+        </div>
     </section>
 
     <div class="tech-divider"></div>
@@ -426,21 +450,25 @@
         <h2 class="section-title">Technical <span>Skills</span></h2>
         <div class="skills-grid">
             <div class="skill-card glass-panel">
+                <div class="skill-number">01</div>
                 <div class="skill-icon">🖥️</div>
                 <h4>Frontend Web</h4>
                 <p style="font-size: 13px; color: var(--text-secondary); letter-spacing: 1px;">HTML, CSS, JavaScript</p>
             </div>
             <div class="skill-card glass-panel">
+                <div class="skill-number">02</div>
                 <div class="skill-icon">⚙️</div>
-                <h4>Backend & Systems</h4>
+                <h4>Backend &amp; Systems</h4>
                 <p style="font-size: 13px; color: var(--text-secondary); letter-spacing: 1px;">Python, C/C++</p>
             </div>
             <div class="skill-card glass-panel">
+                <div class="skill-number">03</div>
                 <div class="skill-icon">🎨</div>
-                <h4>Design & Media</h4>
+                <h4>Design &amp; Media</h4>
                 <p style="font-size: 13px; color: var(--text-secondary); letter-spacing: 1px;">Photoshop, Video Editing</p>
             </div>
             <div class="skill-card glass-panel">
+                <div class="skill-number">04</div>
                 <div class="skill-icon">📊</div>
                 <h4>Tools</h4>
                 <p style="font-size: 13px; color: var(--text-secondary); letter-spacing: 1px;">Microsoft Office Suite</p>
@@ -450,7 +478,94 @@
 
     <div class="tech-divider"></div>
 
-    <!-- Split Content: Education & Projects -->
+    <!-- Horizontal Scroll Projects Showcase -->
+    <section class="h-scroll-section reveal" id="projects">
+        <div class="section-marker">// Built Systems</div>
+        <h2 class="section-title">Featured <span>Projects</span></h2>
+
+        <div class="h-scroll-outer">
+            <div class="h-scroll-container" id="projectsScrollContainer">
+                <div class="h-scroll-track" id="projectsScrollTrack">
+
+                    <div class="h-scroll-card glass-panel">
+                        <div class="card-number">01</div>
+                        <h4 class="card-title">Bank Management System</h4>
+                        <p class="card-desc">A robust system for managing bank accounts and financial transactions with complete data persistence.</p>
+                        <ul class="card-list">
+                            <li>Built using C++, featuring account creation</li>
+                            <li>Transaction handling and file storage</li>
+                            <li>Modular OOP architecture</li>
+                        </ul>
+                        <div class="card-tags">
+                            <span class="tech-tag">C++</span>
+                            <span class="tech-tag">File I/O</span>
+                            <span class="tech-tag">OOP</span>
+                        </div>
+                    </div>
+
+                    <div class="h-scroll-card glass-panel">
+                        <div class="card-number">02</div>
+                        <h4 class="card-title">Weather App</h4>
+                        <p class="card-desc">Real-time weather application that fetches live data and is integrated directly into this portfolio's navigation bar.</p>
+                        <ul class="card-list">
+                            <li>Developed using vanilla JavaScript</li>
+                            <li>Real-time data via OpenWeather API</li>
+                            <li><strong>Live in this portfolio's navbar!</strong></li>
+                        </ul>
+                        <div class="card-tags">
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">REST API</span>
+                            <span class="tech-tag">Geolocation</span>
+                        </div>
+                    </div>
+
+                    <div class="h-scroll-card glass-panel">
+                        <div class="card-number">03</div>
+                        <h4 class="card-title">PDF Tools Suite</h4>
+                        <p class="card-desc">Fully client-side PDF manipulation tools — rotate, resize, combine and analyze PDFs directly in the browser.</p>
+                        <ul class="card-list">
+                            <li>PDF rotation, combining, resizing</li>
+                            <li>Full diagnostic analysis &amp; fixer</li>
+                            <li>100% client-side, no upload needed</li>
+                        </ul>
+                        <div class="card-tags">
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">pdf-lib</span>
+                            <span class="tech-tag">pako</span>
+                        </div>
+                    </div>
+
+                    <div class="h-scroll-card glass-panel">
+                        <div class="card-number">04</div>
+                        <h4 class="card-title">Link Resolver</h4>
+                        <p class="card-desc">Automated tool to bypass verifications and extract final download links from supported URL shorteners.</p>
+                        <ul class="card-list">
+                            <li>Python-based backend server</li>
+                            <li>Automated verification bypass</li>
+                            <li>Extracts final download links</li>
+                        </ul>
+                        <div class="card-tags">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">Selenium</span>
+                            <span class="tech-tag">Flask</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Horizontal scroll navigation -->
+            <div class="h-scroll-nav" aria-label="Project navigation">
+                <button class="h-scroll-btn h-scroll-prev" id="projectsPrev" aria-label="Previous project">&#8592;</button>
+                <div class="h-scroll-dots" id="projectsDots" role="tablist" aria-label="Project cards"></div>
+                <button class="h-scroll-btn h-scroll-next" id="projectsNext" aria-label="Next project">&#8594;</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="tech-divider"></div>
+
+    <!-- Split Content: Education & More -->
     <div class="content-split">
         <!-- Left: Education & Certifications -->
         <div class="left-col">
@@ -505,16 +620,16 @@
                     <p>Engaging in chess regularly to enhance strategic thinking skills.</p>
                 </div>
                 <div class="timeline-item">
-                    <h4>Film Analysis & Creation</h4>
+                    <h4>Film Analysis &amp; Creation</h4>
                     <p>Analyzing global cinema, scripting, directing, and editing short films.</p>
                 </div>
             </section>
         </div>
 
-        <!-- Right: Projects -->
+        <!-- Right: Additional Project Details -->
         <div class="right-col">
-            <div class="section-marker">// Built Systems</div>
-            <h2 class="section-title">Featured <span>Projects</span></h2>
+            <div class="section-marker">// Detail View</div>
+            <h2 class="section-title">Project <span>Highlights</span></h2>
 
             <div class="project-card glass-panel reveal">
                 <h4>Bank Management System</h4>
