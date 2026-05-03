@@ -1,3 +1,8 @@
 node_modules/
 server.log
 nohup.out
+__pycache__/
+*.pyc
+*.pyo
+logs/
+resolver_config.json
