@@ -17,7 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 ENV CHROME_BIN=/usr/bin/chromium \
-    CHROMEDRIVER_PATH=/usr/bin/chromedriver
+    CHROMEDRIVER_PATH=/usr/bin/chromedriver \
+    PORT=8080
 
 EXPOSE 8080
 
