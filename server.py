@@ -23,10 +23,18 @@ def chrome_options():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
+    chrome_bin = os.environ.get("CHROME_BIN")
+    if chrome_bin:
+        options.binary_location = chrome_bin
     return options
 
 def get_driver():
-    return webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options())
+    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+    if chromedriver_path:
+        service = ChromeService(chromedriver_path)
+    else:
+        service = ChromeService(ChromeDriverManager().install())
+    return webdriver.Chrome(service=service, options=chrome_options())
 
 # =========================================
 # Scanner Helper (Finds all options)
@@ -228,4 +236,6 @@ def api_resolve():
 
 if __name__ == '__main__':
     # Start on port 3000 to match typical portfolio setups
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    port = int(os.environ.get("PORT", 3000))
+    debug = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
+    app.run(host='0.0.0.0', port=port, debug=debug)
