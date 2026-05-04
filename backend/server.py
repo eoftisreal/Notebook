@@ -223,7 +223,10 @@ def api_resolve():
     results = []
 
     for task in tasks:
-        results.append(worker(task))
+        try:
+            results.append(worker(task))
+        except Exception as e:
+            results.append({"index": task[1], "status": "error", "message": str(e)})
 
     return jsonify({"results": results})
 

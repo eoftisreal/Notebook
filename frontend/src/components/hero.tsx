@@ -124,7 +124,7 @@ export default function Hero() {
               src="/ampersand.png"
               alt="CoinRx 3D Logo"
               fill
-              sizes="(max-width: 1024px) 0px, 50vw"
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-contain scale-110"
               priority
             />
