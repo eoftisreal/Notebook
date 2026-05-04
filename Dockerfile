@@ -1,3 +1,13 @@
+# ── Stage 1: Build the Next.js static site ──────────────────────────────────
+FROM node:20-slim AS frontend-builder
+
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ .
+RUN npm run build
+
+# ── Stage 2: Python / Flask server ───────────────────────────────────────────
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -15,6 +25,9 @@ COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ .
+
+# Copy the pre-built Next.js static export into the location Flask expects
+COPY --from=frontend-builder /frontend/out ./out
 
 ENV CHROME_BIN=/usr/bin/chromium \
     CHROMEDRIVER_PATH=/usr/bin/chromedriver \

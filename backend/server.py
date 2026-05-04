@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
+from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,7 +11,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-app = Flask(__name__)
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "out")
+
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="")
 CORS(app)
 
 # =========================================
@@ -198,7 +201,23 @@ def worker(task):
 
 @app.route('/', methods=['GET'])
 def index():
-    return jsonify({"status": "ok", "message": "Server is running"})
+    return send_from_directory(STATIC_DIR, "index.html")
+
+@app.route('/<path:path>', methods=['GET'])
+def static_files(path):
+    # send_from_directory uses safe_join internally, preventing path traversal.
+    # Try exact file first (JS, CSS, images, _next assets, etc.)
+    try:
+        return send_from_directory(STATIC_DIR, path)
+    except NotFound:
+        pass
+    # Try Next.js page directory's index.html (e.g. /tools → /tools/index.html)
+    try:
+        return send_from_directory(STATIC_DIR, path + "/index.html")
+    except NotFound:
+        pass
+    # Fallback to root index.html for client-side routing
+    return send_from_directory(STATIC_DIR, "index.html")
 
 @app.route('/api/health', methods=['GET'])
 def api_health():
