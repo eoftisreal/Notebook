@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -8,10 +8,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from multiprocessing import Pool
 import time
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__)
 CORS(app)
 
 # =========================================
@@ -197,9 +196,9 @@ def worker(task):
 # API Endpoints
 # =========================================
 
-@app.route('/')
-def index():
-    return send_from_directory('.', 'index.html')
+@app.route('/api/health', methods=['GET'])
+def api_health():
+    return jsonify({"status": "ok"})
 
 @app.route('/api/scan', methods=['POST'])
 def api_scan():
@@ -223,19 +222,12 @@ def api_resolve():
     tasks = [(url, idx) for idx in indices]
     results = []
 
-    # We use sequential processing here to be safer with resources
-    # instead of full multiprocessing pool, or limit pool size
-    try:
-        # Limited to 2 processes to avoid choking the server on standard environments
-        with Pool(processes=min(len(tasks), 2)) as pool:
-            results = pool.map(worker, tasks)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    for task in tasks:
+        results.append(worker(task))
 
     return jsonify({"results": results})
 
 if __name__ == '__main__':
-    # Start on port 3000 to match typical portfolio setups
-    port = int(os.environ.get("PORT", 3000))
+    port = int(os.environ.get("PORT", 8080))
     debug = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
     app.run(host='0.0.0.0', port=port, debug=debug)
