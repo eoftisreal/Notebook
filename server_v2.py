@@ -44,6 +44,8 @@ import json
 import logging
 import os
 import re
+import subprocess
+import sys
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -950,6 +952,59 @@ def api_progress(job_id: str) -> Response:
 
     return Response(generate(), mimetype="text/event-stream",
                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+# ── Python Code Runner ────────────────────────────────────────────────────
+
+_MAX_OUTPUT_BYTES = 50_000  # cap stdout/stderr at 50,000 bytes each
+_DEFAULT_RUN_TIMEOUT = 30   # seconds
+
+
+@app.route("/api/run", methods=["POST"])
+def api_run_code() -> Response:
+    """Execute arbitrary Python code in a subprocess and return its output.
+
+    Request body::
+
+        {
+          "code": "print('hello')",
+          "timeout": 30          // optional, 5–60 seconds
+        }
+
+    Response::
+
+        {
+          "stdout": "hello\\n",
+          "stderr": "",
+          "returncode": 0
+        }
+    """
+    data: dict[str, Any] = request.get_json(force=True) or {}
+    code: str = data.get("code") or ""
+    if not code.strip():
+        return jsonify({"error": "No code provided."}), 400
+
+    try:
+        timeout = int(data.get("timeout", _DEFAULT_RUN_TIMEOUT))
+        timeout = max(5, min(60, timeout))
+    except (TypeError, ValueError):
+        timeout = _DEFAULT_RUN_TIMEOUT
+
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        stdout = result.stdout[:_MAX_OUTPUT_BYTES]
+        stderr = result.stderr[:_MAX_OUTPUT_BYTES]
+        return jsonify({"stdout": stdout, "stderr": stderr, "returncode": result.returncode})
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": f"Code execution timed out after {timeout} seconds."}), 408
+    except (OSError, ValueError) as exc:
+        log.error("❌ /api/run error: %s", exc)
+        return jsonify({"error": "An internal error occurred during code execution."}), 500
 
 
 # ---------------------------------------------------------------------------

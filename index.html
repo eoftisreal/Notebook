@@ -12,6 +12,11 @@
     <!-- Google Fonts loaded via <link> instead of CSS @import to avoid render-blocking chain -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
+    <!-- CodeMirror for Python code editor (bundled locally) -->
+    <link rel="stylesheet" href="vendor/codemirror/codemirror.css">
+    <link rel="stylesheet" href="vendor/codemirror/theme/dracula.css">
+    <script src="vendor/codemirror/codemirror.js"></script>
+    <script src="vendor/codemirror/mode/python/python.js"></script>
     <!-- Load pdf-lib library asynchronously (only needed for PDF tool interaction) -->
     <script async src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
     <!-- Load pako for stream decompression in PDF Fixer (FlateDecode) -->
@@ -88,31 +93,39 @@
         <div class="section-marker">// Active Tools</div>
         <h2 class="section-title">Live <span>Systems</span></h2>
 
-        <!-- Link Resolver Interactive Project -->
+        <!-- Python Code Runner Interactive Project -->
         <div class="project-card glass-panel">
-            <h4>Link Resolver & By-passer</h4>
-            <div class="desc">Automated tool to bypass verifications and extract final download links from supported URLs.</div>
+            <h4>Python Code Runner</h4>
+            <div class="desc">Cloud notebook — write and execute Python code directly in your browser. Supports Selenium, requests, and standard library modules.</div>
 
-            <div class="resolver-tool-ui" style="margin-top: 15px;">
+            <div class="pyrunner-tool-ui" style="margin-top: 15px;">
                 <div class="option-group" style="margin-bottom: 8px;">
-                    <label for="resolverServerUrl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Backend server URL (e.g. http://localhost:3000)</label>
-                    <input type="text" id="resolverServerUrl" placeholder="http://localhost:3000" style="width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 13px;">
-                </div>
-                <div class="option-group">
-                    <input type="text" id="resolverUrl" placeholder="Paste your link here" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif;">
-                </div>
-                <button id="resolverScanBtn" style="margin-top: 10px; width: 100%;">Scan URL</button>
-                <div id="resolverScanStatus" style="margin-top: 10px; font-size: 14px; color: var(--accent-orange);"></div>
-
-                <div id="resolverButtonsList" style="margin-top: 15px; display: none;">
-                    <p style="font-weight: bold; margin-bottom: 10px;">Select buttons to resolve:</p>
-                    <div id="resolverCheckboxes" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;"></div>
-                    <button id="resolverResolveBtn" style="margin-top: 10px; width: 100%;">Resolve Selected</button>
+                    <label for="pyRunnerServerUrl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Backend server URL (e.g. http://localhost:3000)</label>
+                    <input type="text" id="pyRunnerServerUrl" placeholder="http://localhost:3000" style="width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 13px;">
                 </div>
 
-                <div id="resolverResults" style="margin-top: 15px; display: none; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 4px; border: 1px solid var(--glass-border);">
-                    <p style="font-weight: bold; margin-bottom: 10px; color: var(--accent-orange);">Results:</p>
-                    <div id="resolverResultsContent"></div>
+                <div class="option-group" style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-size: 12px; color: var(--text-muted);">Python code</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="pyRunnerTimeout" style="font-size: 11px; color: var(--text-muted);">Timeout (s):</label>
+                            <input type="number" id="pyRunnerTimeout" value="30" min="5" max="60" style="width: 55px; padding: 2px 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-size: 12px;">
+                        </div>
+                    </div>
+                    <textarea id="pyRunnerCode" style="display:none;"></textarea>
+                    <div id="pyRunnerEditor" style="border: 1px solid var(--glass-border); border-radius: 4px; font-size: 13px; min-height: 180px;"></div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button id="pyRunnerRunBtn" style="flex: 1;">&#9654; Run</button>
+                    <button id="pyRunnerClearBtn" style="flex: 0 0 auto; padding: 8px 14px; background: rgba(255,255,255,0.05);">&#10005; Clear</button>
+                </div>
+
+                <div id="pyRunnerStatus" style="margin-top: 8px; font-size: 13px; color: var(--accent-orange); min-height: 18px;"></div>
+
+                <div id="pyRunnerOutput" style="margin-top: 10px; display: none; border: 1px solid var(--glass-border); border-radius: 4px; overflow: hidden;" role="log" aria-live="polite" aria-label="Code execution output">
+                    <div id="pyRunnerStdout" style="padding: 12px; background: rgba(0,0,0,0.35); font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow-y: auto; color: #e0e0e0;"></div>
+                    <div id="pyRunnerStderr" style="display: none; padding: 12px; background: rgba(255,60,60,0.08); border-top: 1px solid rgba(255,80,80,0.3); font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; max-height: 160px; overflow-y: auto; color: #ff8a80;"></div>
                 </div>
             </div>
         </div>
@@ -538,17 +551,17 @@
 
                     <div class="h-scroll-card glass-panel">
                         <div class="card-number">04</div>
-                        <h4 class="card-title">Link Resolver</h4>
-                        <p class="card-desc">Automated tool to bypass verifications and extract final download links from supported URL shorteners.</p>
+                        <h4 class="card-title">Python Code Runner</h4>
+                        <p class="card-desc">Cloud notebook to write and execute Python code in the browser — supports Selenium, requests, and standard library.</p>
                         <ul class="card-list">
                             <li>Python-based backend server</li>
-                            <li>Automated verification bypass</li>
-                            <li>Extracts final download links</li>
+                            <li>Real-time stdout / stderr output</li>
+                            <li>Selenium & requests ready</li>
                         </ul>
                         <div class="card-tags">
                             <span class="tech-tag">Python</span>
-                            <span class="tech-tag">Selenium</span>
                             <span class="tech-tag">Flask</span>
+                            <span class="tech-tag">CodeMirror</span>
                         </div>
                     </div>
 

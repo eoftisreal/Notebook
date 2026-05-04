@@ -2787,3 +2787,22 @@ body[data-theme="light"] {
     #particle-canvas { display: none; }
     .background-orbs { filter: blur(60px); }
 }
+
+
+/* --- Python Code Runner / CodeMirror overrides --- */
+.pyrunner-tool-ui .CodeMirror {
+    height: auto;
+    min-height: 180px;
+    background: rgba(30, 20, 50, 0.85);
+    color: #f8f8f2;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    border-radius: 4px;
+}
+.pyrunner-tool-ui .CodeMirror-scroll {
+    min-height: 180px;
+}
+.pyrunner-tool-ui .CodeMirror-gutters {
+    background: rgba(20, 10, 35, 0.9);
+    border-right: 1px solid var(--glass-border);
+}
