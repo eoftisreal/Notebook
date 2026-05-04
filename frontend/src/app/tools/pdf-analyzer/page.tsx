@@ -48,7 +48,7 @@ export default function PdfAnalyzerPage() {
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const bytes = await pdfDoc.save({ useObjectStreams: true });
-      const blob = new Blob([bytes], { type: "application/pdf" });
+      const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
