@@ -196,6 +196,10 @@ def worker(task):
 # API Endpoints
 # =========================================
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({"status": "ok", "message": "Server is running"})
+
 @app.route('/api/health', methods=['GET'])
 def api_health():
     return jsonify({"status": "ok"})
