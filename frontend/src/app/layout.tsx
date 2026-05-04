@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CoinRx - Premium Tools Ecosystem",
-  description: "A futuristic creative SaaS platform for advanced utility tools.",
+  title: "eoftisreal – Tools",
+  description: "A personal portal for PDF tools, Link Resolver, and portfolio.",
 };
 
 export default function RootLayout({
@@ -31,20 +31,8 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1 flex flex-col relative">{children}</main>
 
-        <footer className="py-12 border-t border-white/10 text-center text-slate-500 text-sm mt-auto relative z-10 bg-[#0f172a]">
-          <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center font-bold text-white text-xs">
-                C
-              </div>
-              <span className="font-bold text-slate-300">CoinRx</span>
-            </div>
-            <p>© {new Date().getFullYear()} CoinRx Ecosystem. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-orange-500 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-orange-500 transition-colors">Terms</a>
-            </div>
-          </div>
+        <footer className="py-8 border-t border-white/10 text-center text-slate-500 text-sm mt-auto relative z-10 bg-[#0f172a]">
+          <p>© {new Date().getFullYear()} eoftisreal. Personal tools portal.</p>
         </footer>
       </body>
     </html>
