@@ -578,169 +578,106 @@ if (locationBtn) {
 }
 
 
-// --- Link Resolver Logic ---
-const resolverServerUrlInput = document.getElementById('resolverServerUrl');
-const resolverUrlInput = document.getElementById('resolverUrl');
-const resolverScanBtn = document.getElementById('resolverScanBtn');
-const resolverScanStatus = document.getElementById('resolverScanStatus');
-const resolverButtonsList = document.getElementById('resolverButtonsList');
-const resolverCheckboxes = document.getElementById('resolverCheckboxes');
-const resolverResolveBtn = document.getElementById('resolverResolveBtn');
-const resolverResults = document.getElementById('resolverResults');
-const resolverResultsContent = document.getElementById('resolverResultsContent');
+// --- Python Code Runner Logic ---
+let _pyEditor = null;
 
-function getResolverServerBase() {
-    return (resolverServerUrlInput ? resolverServerUrlInput.value.trim() : '').replace(/\/$/, '');
+function _initPyEditor() {
+    const ta = document.getElementById('pyRunnerCode');
+    const editorDiv = document.getElementById('pyRunnerEditor');
+    if (!ta || !editorDiv || _pyEditor) return;
+
+    _pyEditor = CodeMirror(editorDiv, {
+        value: '# Write your Python code here\nprint("Hello from the cloud notebook!")\n',
+        mode: 'python',
+        theme: 'dracula',
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        lineWrapping: false,
+        autofocus: false,
+        extraKeys: {
+            Tab: (cm) => cm.replaceSelection('    ', 'end'),
+        },
+    });
 }
 
-if (resolverScanBtn) {
-    resolverScanBtn.addEventListener('click', async () => {
-        const url = resolverUrlInput.value.trim();
-        if (!url) {
-            resolverScanStatus.textContent = "Please enter a valid URL.";
+document.addEventListener('DOMContentLoaded', _initPyEditor);
+
+function _getPyServerBase() {
+    const inp = document.getElementById('pyRunnerServerUrl');
+    return inp ? inp.value.trim().replace(/\/$/, '') : '';
+}
+
+const pyRunnerRunBtn = document.getElementById('pyRunnerRunBtn');
+const pyRunnerClearBtn = document.getElementById('pyRunnerClearBtn');
+const pyRunnerStatus = document.getElementById('pyRunnerStatus');
+const pyRunnerOutput = document.getElementById('pyRunnerOutput');
+const pyRunnerStdout = document.getElementById('pyRunnerStdout');
+const pyRunnerStderr = document.getElementById('pyRunnerStderr');
+
+if (pyRunnerRunBtn) {
+    pyRunnerRunBtn.addEventListener('click', async () => {
+        if (!_pyEditor) return;
+        const code = _pyEditor.getValue();
+        if (!code.trim()) {
+            pyRunnerStatus.textContent = 'Please enter some Python code first.';
             return;
         }
 
-        const serverBase = getResolverServerBase();
+        const serverBase = _getPyServerBase();
+        if (!serverBase) {
+            pyRunnerStatus.textContent = 'Please enter the backend server URL.';
+            return;
+        }
 
-        resolverScanStatus.textContent = "Scanning page (this may take a few seconds)...";
-        resolverScanBtn.disabled = true;
-        resolverButtonsList.style.display = 'none';
-        resolverResults.style.display = 'none';
+        const timeoutVal = Math.max(5, Math.min(60, parseInt(document.getElementById('pyRunnerTimeout')?.value || '30', 10)));
+
+        pyRunnerStatus.textContent = '⏳ Running…';
+        pyRunnerRunBtn.disabled = true;
+        pyRunnerOutput.style.display = 'none';
+        pyRunnerStdout.textContent = '';
+        pyRunnerStderr.textContent = '';
+        pyRunnerStderr.style.display = 'none';
 
         try {
-            const response = await fetch(`${serverBase}/api/scan`, {
+            const resp = await fetch(`${serverBase}/api/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({ code, timeout: timeoutVal }),
             });
 
-            const data = await response.json();
+            const data = await resp.json();
 
             if (data.error) {
-                resolverScanStatus.textContent = "Error: " + data.error;
-            } else if (data.buttons && data.buttons.length > 0) {
-                resolverScanStatus.textContent = `Found ${data.buttons.length} buttons.`;
-                resolverCheckboxes.innerHTML = '';
-
-                data.buttons.forEach((btn, index) => {
-                    const div = document.createElement('div');
-                    div.style.marginBottom = '8px';
-                    div.style.display = 'flex';
-                    div.style.alignItems = 'center';
-
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.id = `btn_${index}`;
-                    checkbox.value = btn.id;
-                    checkbox.style.marginRight = '10px';
-
-                    const label = document.createElement('label');
-                    label.htmlFor = `btn_${index}`;
-                    label.textContent = `${btn.text} (Y-Pos: ${btn.y})`;
-                    label.style.cursor = 'pointer';
-                    label.style.fontSize = '14px';
-
-                    div.appendChild(checkbox);
-                    div.appendChild(label);
-                    resolverCheckboxes.appendChild(div);
-                });
-
-                resolverButtonsList.style.display = 'block';
+                pyRunnerStatus.textContent = '❌ ' + data.error;
             } else {
-                resolverScanStatus.textContent = "No valid buttons found on this page.";
+                const rc = data.returncode ?? 0;
+                pyRunnerStatus.textContent = rc === 0 ? '✅ Finished (exit 0)' : `⚠️ Finished (exit ${rc})`;
+                pyRunnerOutput.style.display = 'block';
+                pyRunnerStdout.textContent = data.stdout || '(no output)';
+                if (data.stderr && data.stderr.trim()) {
+                    pyRunnerStderr.textContent = data.stderr;
+                    pyRunnerStderr.style.display = 'block';
+                }
             }
-        } catch (error) {
-            resolverScanStatus.textContent = "Error connecting to server. Make sure the backend (server.py) is running and the server URL above is correct.";
-            console.error(error);
+        } catch (err) {
+            pyRunnerStatus.textContent = 'Error connecting to server. Make sure the backend (server_v2.py) is running and the URL above is correct.';
+            console.error(err);
         } finally {
-            resolverScanBtn.disabled = false;
+            pyRunnerRunBtn.disabled = false;
         }
     });
 }
 
-if (resolverResolveBtn) {
-    resolverResolveBtn.addEventListener('click', async () => {
-        const url = resolverUrlInput.value.trim();
-        const selectedCheckboxes = document.querySelectorAll('#resolverCheckboxes input[type="checkbox"]:checked');
-
-        if (selectedCheckboxes.length === 0) {
-            alert("Please select at least one button to resolve.");
-            return;
-        }
-
-        const indices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
-        const serverBase = getResolverServerBase();
-
-        resolverResolveBtn.disabled = true;
-        resolverScanStatus.textContent = "Resolving links... This may take up to a minute.";
-        resolverResults.style.display = 'none';
-        resolverResultsContent.innerHTML = '';
-
-        try {
-            const response = await fetch(`${serverBase}/api/resolve`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url, indices: indices })
-            });
-
-            const data = await response.json();
-
-            if (data.error) {
-                resolverScanStatus.textContent = "Error: " + data.error;
-            } else if (data.results) {
-                resolverScanStatus.textContent = "Resolution complete.";
-                resolverResults.style.display = 'block';
-
-                data.results.forEach(res => {
-                    const div = document.createElement('div');
-                    div.style.marginBottom = '10px';
-                    div.style.padding = '10px';
-                    div.style.background = 'rgba(255,255,255,0.05)';
-                    div.style.borderRadius = '4px';
-
-                    const title = document.createElement('div');
-                    title.style.fontWeight = 'bold';
-                    title.textContent = `Button: ${res.text || 'Unknown'} (Index ${res.index})`;
-                    div.appendChild(title);
-
-                    const content = document.createElement('div');
-                    content.style.marginTop = '5px';
-                    content.style.wordBreak = 'break-all';
-
-                    if (res.status === 'success') {
-                        const safeUrl = (typeof res.url === 'string' && /^https?:\/\//i.test(res.url)) ? res.url : '';
-                        const link = document.createElement('a');
-                        link.setAttribute('href', safeUrl);
-                        link.target = '_blank';
-                        link.rel = 'noopener noreferrer';
-                        link.style.color = '#64B5F6';
-                        link.textContent = safeUrl || res.url;
-                        const successLabel = document.createElement('span');
-                        successLabel.style.color = '#4CAF50';
-                        successLabel.textContent = '✅ Success: ';
-                        content.appendChild(successLabel);
-                        content.appendChild(link);
-                    } else {
-                        content.textContent = '';
-                        const errLabel = document.createElement('span');
-                        errLabel.style.color = '#F44336';
-                        errLabel.textContent = '❌ Error: ';
-                        const errMsg = document.createTextNode(res.message);
-                        content.appendChild(errLabel);
-                        content.appendChild(errMsg);
-                    }
-                    div.appendChild(content);
-
-                    resolverResultsContent.appendChild(div);
-                });
-            }
-        } catch (error) {
-            resolverScanStatus.textContent = "Error connecting to server. Make sure the backend (server.py) is running and the server URL above is correct.";
-            console.error(error);
-        } finally {
-            resolverResolveBtn.disabled = false;
-        }
+if (pyRunnerClearBtn) {
+    pyRunnerClearBtn.addEventListener('click', () => {
+        if (_pyEditor) _pyEditor.setValue('');
+        pyRunnerStatus.textContent = '';
+        pyRunnerOutput.style.display = 'none';
+        pyRunnerStdout.textContent = '';
+        pyRunnerStderr.textContent = '';
+        pyRunnerStderr.style.display = 'none';
     });
 }
 
