@@ -261,8 +261,7 @@ p {
     filter: none;
 }
 
-[data-theme="dark"] .weather-icon-small,
-:root:not([data-theme="light"]) .weather-icon-small {
+body:not([data-theme="light"]) .weather-icon-small {
     filter: brightness(0.9) saturate(1.2);
 }
 
@@ -357,7 +356,7 @@ p {
     filter: none;
 }
 
-:root:not([data-theme="light"]) .search-compact button img {
+body:not([data-theme="light"]) .search-compact button img {
     filter: invert(1);
 }
 
@@ -450,6 +449,11 @@ main > .content-split {
     margin-bottom: 20px;
     color: var(--text-primary);
     letter-spacing: -0.03em;
+}
+
+/* CSS-driven line break for hero name (accessible, responsive) */
+.name-break {
+    display: block;
 }
 
 .hero-content p {
@@ -1787,12 +1791,7 @@ button {
     font-family: 'Inter', sans-serif;
 }
 
-/* ============================================================ */
-/* Resolver Tool                                                */
-/* ============================================================ */
-.resolver-tool-ui {
-    /* inherits from project-card styles */
-}
+/* Resolver tool inherits project-card styles — no additional rules needed */
 
 /* ============================================================ */
 /* Footer                                                       */
