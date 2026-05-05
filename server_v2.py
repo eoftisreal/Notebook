@@ -991,17 +991,29 @@ def api_run_code() -> Response:
         timeout = _DEFAULT_RUN_TIMEOUT
 
     try:
-        result = subprocess.run(
-            [sys.executable, "-c", code],
-            capture_output=True,
+        with subprocess.Popen(
+            [sys.executable, "-u", "-c", code],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
             text=True,
-            timeout=timeout,
-        )
-        stdout = result.stdout[:_MAX_OUTPUT_BYTES]
-        stderr = result.stderr[:_MAX_OUTPUT_BYTES]
-        return jsonify({"stdout": stdout, "stderr": stderr, "returncode": result.returncode})
-    except subprocess.TimeoutExpired:
-        return jsonify({"error": f"Code execution timed out after {timeout} seconds."}), 408
+        ) as proc:
+            try:
+                stdout, stderr = proc.communicate(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                try:
+                    stdout, stderr = proc.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    stdout, stderr = "", ""
+                return jsonify({
+                    "error": f"Code execution timed out after {timeout} seconds.",
+                    "stdout": stdout[:_MAX_OUTPUT_BYTES],
+                    "stderr": stderr[:_MAX_OUTPUT_BYTES],
+                }), 408
+        stdout = stdout[:_MAX_OUTPUT_BYTES]
+        stderr = stderr[:_MAX_OUTPUT_BYTES]
+        return jsonify({"stdout": stdout, "stderr": stderr, "returncode": proc.returncode})
     except (OSError, ValueError) as exc:
         log.error("❌ /api/run error: %s", exc)
         return jsonify({"error": "An internal error occurred during code execution."}), 500
