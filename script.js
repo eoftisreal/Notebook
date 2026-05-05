@@ -667,6 +667,7 @@ if (pyRunnerRunBtn) {
         }
 
         const timeoutVal = Math.max(5, Math.min(120, parseInt(document.getElementById('pyRunnerTimeout')?.value || '30', 10)));
+        const stdinVal = (document.getElementById('pyRunnerStdin')?.value || '');
 
         pyRunnerStatus.textContent = '⏳ Running…';
         pyRunnerRunBtn.disabled = true;
@@ -679,7 +680,7 @@ if (pyRunnerRunBtn) {
             const resp = await fetch(`${serverBase}/api/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, timeout: timeoutVal }),
+                body: JSON.stringify({ code, timeout: timeoutVal, stdin: stdinVal }),
             });
 
             const data = await resp.json();
@@ -717,6 +718,8 @@ if (pyRunnerRunBtn) {
 if (pyRunnerClearBtn) {
     pyRunnerClearBtn.addEventListener('click', () => {
         if (_pyEditor) _pyEditor.setValue('');
+        const stdinEl = document.getElementById('pyRunnerStdin');
+        if (stdinEl) stdinEl.value = '';
         pyRunnerStatus.textContent = '';
         pyRunnerOutput.style.display = 'none';
         pyRunnerStdout.textContent = '';

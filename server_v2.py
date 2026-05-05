@@ -991,6 +991,11 @@ def api_run_code() -> Response:
     except (TypeError, ValueError):
         timeout = _DEFAULT_RUN_TIMEOUT
 
+    stdin_text: str = data.get("stdin") or ""
+    # Ensure stdin ends with a newline so the last input() call gets a full line
+    if stdin_text and not stdin_text.endswith("\n"):
+        stdin_text += "\n"
+
     try:
         # Inherit the full server environment so the subprocess can find
         # CHROME_BIN, CHROMEDRIVER_PATH, etc. for Selenium code.
@@ -998,12 +1003,12 @@ def api_run_code() -> Response:
             [sys.executable, "-u", "-c", code],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.PIPE,
             text=True,
             env=os.environ.copy(),
         ) as proc:
             try:
-                stdout, stderr = proc.communicate(timeout=timeout)
+                stdout, stderr = proc.communicate(input=stdin_text or None, timeout=timeout)
             except subprocess.TimeoutExpired:
                 proc.kill()
                 try:
