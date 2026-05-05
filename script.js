@@ -724,7 +724,7 @@ if (pyRunnerRunBtn) {
         const magicPackages = [];
         for (const line of codeLines) {
             const trimmed = line.trim();
-            if (/^!pip\s+install\b/i.test(trimmed) || /^!\s+pip\s+install\b/i.test(trimmed)) {
+            if (/^!\s*pip\s+install\b/i.test(trimmed)) {
                 // Extract package tokens (skip flags that start with -)
                 const tokens = trimmed.replace(/^!\s*/, '').split(/\s+/);
                 let afterInstall = false;
