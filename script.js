@@ -712,7 +712,48 @@ if (pyRunnerRunBtn) {
         const timeoutVal = Math.max(5, Math.min(120, parseInt(document.getElementById('pyRunnerTimeout')?.value || '30', 10)));
         const stdinVal = (document.getElementById('pyRunnerStdin')?.value || '');
         const packagesRaw = (document.getElementById('pyRunnerPackages')?.value || '').trim();
-        const packages = packagesRaw ? packagesRaw.split(/[\s,]+/).filter(Boolean) : [];
+        let packages = packagesRaw ? packagesRaw.split(/[\s,]+/).filter(Boolean) : [];
+
+        // ── Pre-process the code before sending ──────────────────────────────
+        // Strip Jupyter/IPython "!" magic lines (e.g. !pip install selenium).
+        // "!pip install ..." lines → extract package names and add to packages.
+        // Other "!command" lines → replace with a Python comment so they don't
+        //   cause a SyntaxError but line numbers remain correct.
+        const codeLines = code.split('\n');
+        const cleanedLines = [];
+        const magicPackages = [];
+        for (const line of codeLines) {
+            const trimmed = line.trim();
+            if (/^!pip\s+install\b/i.test(trimmed) || /^!\s+pip\s+install\b/i.test(trimmed)) {
+                // Extract package tokens (skip flags that start with -)
+                const tokens = trimmed.replace(/^!\s*/, '').split(/\s+/);
+                let afterInstall = false;
+                for (const tok of tokens) {
+                    if (tok.toLowerCase() === 'install') { afterInstall = true; continue; }
+                    if (afterInstall && tok && !tok.startsWith('-')) magicPackages.push(tok);
+                }
+                cleanedLines.push('# (magic) ' + trimmed);
+            } else if (trimmed.startsWith('!')) {
+                cleanedLines.push('# (shell) ' + trimmed);
+            } else {
+                cleanedLines.push(line);
+            }
+        }
+        const processedCode = cleanedLines.join('\n');
+        packages = [...new Set([...packages, ...magicPackages])];
+
+        // Warn the user when code uses input() but no stdin has been provided
+        const hasInputCall = /\binput\s*\(/.test(processedCode);
+        if (hasInputCall && !stdinVal.trim()) {
+            const stdinArea = document.getElementById('pyRunnerStdin');
+            if (stdinArea) {
+                stdinArea.style.outline = '2px solid var(--accent-orange, #ff6a00)';
+                setTimeout(() => { stdinArea.style.outline = ''; }, 3000);
+            }
+            pyRunnerStatus.textContent = '⚠️ Your code calls input() — fill in the Standard input box above before running, then click Run again.';
+            pyRunnerRunBtn.disabled = false;
+            return;
+        }
 
         pyRunnerStatus.textContent = packages.length ? '📦 Installing packages…' : '⏳ Running…';
         pyRunnerRunBtn.disabled = true;
@@ -725,7 +766,7 @@ if (pyRunnerRunBtn) {
             const resp = await fetch(`${serverBase}/api/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, timeout: timeoutVal, stdin: stdinVal, packages }),
+                body: JSON.stringify({ code: processedCode, timeout: timeoutVal, stdin: stdinVal, packages }),
             });
 
             if (packages.length) pyRunnerStatus.textContent = '⏳ Running…';
