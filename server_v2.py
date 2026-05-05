@@ -44,8 +44,10 @@ import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -961,6 +963,28 @@ _DEFAULT_RUN_TIMEOUT = 30   # seconds
 _MAX_RUN_TIMEOUT = 120      # hard ceiling (Selenium tests can be slow)
 
 
+_VALID_PKG_RE = re.compile(
+    r"^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?"  # package name
+    r"(\s*[><=!~^]{1,3}\s*[A-Za-z0-9.*+!-]+)?$"    # optional version specifier
+)
+_MAX_PACKAGES = 20
+
+
+def _validate_packages(raw: list[Any]) -> tuple[list[str], str]:
+    """Return (validated_list, error_message).  error_message is '' when OK."""
+    if len(raw) > _MAX_PACKAGES:
+        return [], f"Too many packages requested (max {_MAX_PACKAGES})."
+    pkgs: list[str] = []
+    for item in raw:
+        name = str(item).strip()
+        if not name:
+            continue
+        if not _VALID_PKG_RE.match(name):
+            return [], f"Invalid package name: {name!r}"
+        pkgs.append(name)
+    return pkgs, ""
+
+
 @app.route("/api/run", methods=["POST"])
 def api_run_code() -> Response:
     """Execute arbitrary Python code in a subprocess and return its output.
@@ -969,7 +993,12 @@ def api_run_code() -> Response:
 
         {
           "code": "print('hello')",
-          "timeout": 30          // optional, 5–60 seconds
+          "timeout": 30,          // optional, 5–120 seconds
+          "stdin": "some input",  // optional, fed to input() calls line-by-line
+          "packages": ["requests", "numpy==1.26.4"]  // optional, installed to a
+                                                     // temporary directory before
+                                                     // the code runs and cleaned
+                                                     // up afterwards
         }
 
     Response::
@@ -991,6 +1020,58 @@ def api_run_code() -> Response:
     except (TypeError, ValueError):
         timeout = _DEFAULT_RUN_TIMEOUT
 
+    stdin_text: str = data.get("stdin") or ""
+    # Ensure stdin ends with a newline so the last input() call gets a full line
+    if stdin_text and not stdin_text.endswith("\n"):
+        stdin_text += "\n"
+
+    # ── Optional package installation ────────────────────────────────────────
+    raw_packages = data.get("packages") or []
+    if isinstance(raw_packages, str):
+        # Accept a comma/space-separated string as a convenience
+        raw_packages = [p for p in re.split(r"[,\s]+", raw_packages) if p]
+    packages, pkg_err = _validate_packages(raw_packages)
+    if pkg_err:
+        return jsonify({"error": pkg_err}), 400
+
+    tmp_pkg_dir: str | None = None
+    install_stdout = ""
+    install_stderr = ""
+
+    if packages:
+        tmp_pkg_dir = tempfile.mkdtemp(prefix="pyrunner_pkgs_")
+        try:
+            pip_proc = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "--quiet",
+                 "--target", tmp_pkg_dir, "--disable-pip-version-check",
+                 "--no-warn-script-location", *packages],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                env=os.environ.copy(),
+            )
+            install_stdout = pip_proc.stdout[:_MAX_OUTPUT_BYTES]
+            install_stderr = pip_proc.stderr[:_MAX_OUTPUT_BYTES]
+            if pip_proc.returncode != 0:
+                shutil.rmtree(tmp_pkg_dir, ignore_errors=True)
+                return jsonify({
+                    "error": "Package installation failed.",
+                    "stdout": install_stdout,
+                    "stderr": install_stderr,
+                    "returncode": pip_proc.returncode,
+                }), 500
+        except subprocess.TimeoutExpired:
+            shutil.rmtree(tmp_pkg_dir, ignore_errors=True)
+            return jsonify({"error": "Package installation timed out."}), 408
+
+        # Prepend path injection so the temp packages are importable
+        path_injection = (
+            f"import sys as _sys\n"
+            f"_sys.path.insert(0, {tmp_pkg_dir!r})\n"
+            f"del _sys\n"
+        )
+        code = path_injection + code
+
     try:
         # Inherit the full server environment so the subprocess can find
         # CHROME_BIN, CHROMEDRIVER_PATH, etc. for Selenium code.
@@ -998,12 +1079,12 @@ def api_run_code() -> Response:
             [sys.executable, "-u", "-c", code],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.PIPE,
             text=True,
             env=os.environ.copy(),
         ) as proc:
             try:
-                stdout, stderr = proc.communicate(timeout=timeout)
+                stdout, stderr = proc.communicate(input=stdin_text or None, timeout=timeout)
             except subprocess.TimeoutExpired:
                 proc.kill()
                 try:
@@ -1021,6 +1102,9 @@ def api_run_code() -> Response:
     except (OSError, ValueError) as exc:
         log.error("❌ /api/run error: %s", exc)
         return jsonify({"error": "An internal error occurred during code execution."}), 500
+    finally:
+        if tmp_pkg_dir:
+            shutil.rmtree(tmp_pkg_dir, ignore_errors=True)
 
 
 # ---------------------------------------------------------------------------
