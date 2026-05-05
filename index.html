@@ -100,8 +100,8 @@
 
             <div class="pyrunner-tool-ui" style="margin-top: 15px;">
                 <div class="option-group" style="margin-bottom: 8px;">
-                    <label for="pyRunnerServerUrl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Backend server URL (e.g. http://localhost:3000)</label>
-                    <input type="text" id="pyRunnerServerUrl" placeholder="http://localhost:3000" style="width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 13px;">
+                    <label for="pyRunnerServerUrl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Backend server URL <span style="opacity:0.6;">(auto-detected — change only if using a remote backend)</span></label>
+                    <input type="text" id="pyRunnerServerUrl" placeholder="Auto-detecting…" style="width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 13px;">
                 </div>
 
                 <div class="option-group" style="margin-bottom: 8px;">
@@ -109,7 +109,7 @@
                         <label style="font-size: 12px; color: var(--text-muted);">Python code</label>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label for="pyRunnerTimeout" style="font-size: 11px; color: var(--text-muted);">Timeout (s):</label>
-                            <input type="number" id="pyRunnerTimeout" value="30" min="5" max="60" style="width: 55px; padding: 2px 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-size: 12px;">
+                            <input type="number" id="pyRunnerTimeout" value="30" min="5" max="120" style="width: 55px; padding: 2px 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-size: 12px;">
                         </div>
                     </div>
                     <textarea id="pyRunnerCode" style="display:none;"></textarea>

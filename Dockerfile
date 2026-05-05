@@ -22,4 +22,4 @@ ENV CHROME_BIN=/usr/bin/chromium \
 
 EXPOSE 8080
 
-CMD ["python", "server.py"]
+CMD ["python", "server_v2.py"]

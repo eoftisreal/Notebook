@@ -958,6 +958,7 @@ def api_progress(job_id: str) -> Response:
 
 _MAX_OUTPUT_BYTES = 50_000  # cap stdout/stderr at 50,000 bytes each
 _DEFAULT_RUN_TIMEOUT = 30   # seconds
+_MAX_RUN_TIMEOUT = 120      # hard ceiling (Selenium tests can be slow)
 
 
 @app.route("/api/run", methods=["POST"])
@@ -986,17 +987,20 @@ def api_run_code() -> Response:
 
     try:
         timeout = int(data.get("timeout", _DEFAULT_RUN_TIMEOUT))
-        timeout = max(5, min(60, timeout))
+        timeout = max(5, min(_MAX_RUN_TIMEOUT, timeout))
     except (TypeError, ValueError):
         timeout = _DEFAULT_RUN_TIMEOUT
 
     try:
+        # Inherit the full server environment so the subprocess can find
+        # CHROME_BIN, CHROMEDRIVER_PATH, etc. for Selenium code.
         with subprocess.Popen(
             [sys.executable, "-u", "-c", code],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             text=True,
+            env=os.environ.copy(),
         ) as proc:
             try:
                 stdout, stderr = proc.communicate(timeout=timeout)
