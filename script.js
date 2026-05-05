@@ -581,6 +581,30 @@ if (locationBtn) {
 // --- Python Code Runner Logic ---
 let _pyEditor = null;
 
+const _PY_STORAGE_CODE = 'pyRunner_code';
+const _PY_STORAGE_STDIN = 'pyRunner_stdin';
+const _PY_STORAGE_PKGS  = 'pyRunner_packages';
+
+let _pyAutoSaveTimer = null;
+
+function _pyAutoSave() {
+    if (!_pyEditor) return;
+    try {
+        localStorage.setItem(_PY_STORAGE_CODE, _pyEditor.getValue());
+        const stdinEl = document.getElementById('pyRunnerStdin');
+        if (stdinEl) localStorage.setItem(_PY_STORAGE_STDIN, stdinEl.value);
+        const pkgsEl = document.getElementById('pyRunnerPackages');
+        if (pkgsEl) localStorage.setItem(_PY_STORAGE_PKGS, pkgsEl.value);
+        const ind = document.getElementById('pyRunnerSaveIndicator');
+        if (ind) { ind.textContent = '💾 auto-saved'; setTimeout(() => { ind.textContent = ''; }, 2000); }
+    } catch (_) { /* localStorage may be unavailable in private mode */ }
+}
+
+function _pyScheduleSave() {
+    clearTimeout(_pyAutoSaveTimer);
+    _pyAutoSaveTimer = setTimeout(_pyAutoSave, 800);
+}
+
 function _initPyEditor() {
     const ta = document.getElementById('pyRunnerCode');
     const editorDiv = document.getElementById('pyRunnerEditor');
@@ -610,8 +634,12 @@ function _initPyEditor() {
         'print("Hello from the cloud notebook!")',
     ].join('\n');
 
+    // Restore saved code from localStorage (fall back to default)
+    let savedCode = defaultCode;
+    try { savedCode = localStorage.getItem(_PY_STORAGE_CODE) || defaultCode; } catch (_) {}
+
     _pyEditor = CodeMirror(editorDiv, {
-        value: defaultCode,
+        value: savedCode,
         mode: 'python',
         theme: 'dracula',
         lineNumbers: true,
@@ -624,6 +652,9 @@ function _initPyEditor() {
             Tab: (cm) => cm.replaceSelection('    ', 'end'),
         },
     });
+
+    // Auto-save on every change
+    _pyEditor.on('change', _pyScheduleSave);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -634,6 +665,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlInp && !urlInp.value.trim()) {
         urlInp.value = window.location.origin;
     }
+    // Restore stdin and packages from localStorage
+    try {
+        const stdinEl = document.getElementById('pyRunnerStdin');
+        if (stdinEl) stdinEl.value = localStorage.getItem(_PY_STORAGE_STDIN) || '';
+        const pkgsEl = document.getElementById('pyRunnerPackages');
+        if (pkgsEl) pkgsEl.value = localStorage.getItem(_PY_STORAGE_PKGS) || '';
+    } catch (_) {}
+    // Save stdin/packages on change
+    const stdinInput = document.getElementById('pyRunnerStdin');
+    if (stdinInput) stdinInput.addEventListener('input', _pyScheduleSave);
+    const packagesInput = document.getElementById('pyRunnerPackages');
+    if (packagesInput) packagesInput.addEventListener('input', _pyScheduleSave);
 });
 
 function _getPyServerBase() {
@@ -668,8 +711,10 @@ if (pyRunnerRunBtn) {
 
         const timeoutVal = Math.max(5, Math.min(120, parseInt(document.getElementById('pyRunnerTimeout')?.value || '30', 10)));
         const stdinVal = (document.getElementById('pyRunnerStdin')?.value || '');
+        const packagesRaw = (document.getElementById('pyRunnerPackages')?.value || '').trim();
+        const packages = packagesRaw ? packagesRaw.split(/[\s,]+/).filter(Boolean) : [];
 
-        pyRunnerStatus.textContent = '⏳ Running…';
+        pyRunnerStatus.textContent = packages.length ? '📦 Installing packages…' : '⏳ Running…';
         pyRunnerRunBtn.disabled = true;
         pyRunnerOutput.style.display = 'none';
         pyRunnerStdout.textContent = '';
@@ -680,8 +725,10 @@ if (pyRunnerRunBtn) {
             const resp = await fetch(`${serverBase}/api/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, timeout: timeoutVal, stdin: stdinVal }),
+                body: JSON.stringify({ code, timeout: timeoutVal, stdin: stdinVal, packages }),
             });
+
+            if (packages.length) pyRunnerStatus.textContent = '⏳ Running…';
 
             const data = await resp.json();
 
@@ -720,11 +767,19 @@ if (pyRunnerClearBtn) {
         if (_pyEditor) _pyEditor.setValue('');
         const stdinEl = document.getElementById('pyRunnerStdin');
         if (stdinEl) stdinEl.value = '';
+        const pkgsEl = document.getElementById('pyRunnerPackages');
+        if (pkgsEl) pkgsEl.value = '';
         pyRunnerStatus.textContent = '';
         pyRunnerOutput.style.display = 'none';
         pyRunnerStdout.textContent = '';
         pyRunnerStderr.textContent = '';
         pyRunnerStderr.style.display = 'none';
+        // Also clear localStorage
+        try {
+            localStorage.removeItem(_PY_STORAGE_CODE);
+            localStorage.removeItem(_PY_STORAGE_STDIN);
+            localStorage.removeItem(_PY_STORAGE_PKGS);
+        } catch (_) {}
     });
 }
 

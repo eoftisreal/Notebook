@@ -106,7 +106,7 @@
 
                 <div class="option-group" style="margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-size: 12px; color: var(--text-muted);">Python code</label>
+                        <label style="font-size: 12px; color: var(--text-muted);">Python code <span id="pyRunnerSaveIndicator" style="font-size: 11px; opacity: 0.55; margin-left: 6px;"></span></label>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label for="pyRunnerTimeout" style="font-size: 11px; color: var(--text-muted);">Timeout (s):</label>
                             <input type="number" id="pyRunnerTimeout" value="30" min="5" max="120" style="width: 55px; padding: 2px 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-size: 12px;">
@@ -114,6 +114,11 @@
                     </div>
                     <textarea id="pyRunnerCode" style="display:none;"></textarea>
                     <div id="pyRunnerEditor" style="border: 1px solid var(--glass-border); border-radius: 4px; font-size: 13px; min-height: 180px;"></div>
+                </div>
+
+                <div class="option-group" style="margin-bottom: 8px;">
+                    <label for="pyRunnerPackages" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Extra packages <span style="opacity:0.6;">(pip install — comma or space separated, e.g. <code style="font-size:11px;">numpy pandas==2.2.0</code>)</span></label>
+                    <input type="text" id="pyRunnerPackages" placeholder="e.g. numpy requests beautifulsoup4" style="width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; box-sizing: border-box;">
                 </div>
 
                 <div class="option-group" style="margin-bottom: 8px; margin-top: 10px;">
