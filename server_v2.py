@@ -1025,16 +1025,50 @@ def api_run_code() -> Response:
     if stdin_text and not stdin_text.endswith("\n"):
         stdin_text += "\n"
 
+    # ── Strip Jupyter/IPython magic "!" lines from code ───────────────────────
+    # Lines starting with "!" are IPython shell escapes (e.g. "!pip install x").
+    # They are not valid Python syntax and would cause an immediate SyntaxError.
+    # We handle "!pip install ..." by extracting the packages and adding them to
+    # the install list; all other "!" lines are replaced with a comment so the
+    # rest of the code can still run.
+    magic_packages: list[str] = []
+    cleaned_lines: list[str] = []
+    for raw_line in code.splitlines():
+        stripped = raw_line.strip()
+        if stripped.startswith("!pip install") or stripped.startswith("! pip install"):
+            # e.g.  !pip install -q selenium requests
+            # Extract tokens that are not flags (don't start with -)
+            tokens = re.split(r"\s+", stripped)
+            # skip "!", "pip", "install" and any flag tokens
+            pkg_start = False
+            for tok in tokens:
+                if tok.lower() == "install":
+                    pkg_start = True
+                    continue
+                if pkg_start and tok and not tok.startswith("-"):
+                    magic_packages.append(tok)
+            # Replace the line with a comment so line numbers stay meaningful
+            cleaned_lines.append(f"# (magic) {raw_line.strip()}")
+        elif stripped.startswith("!"):
+            # Other shell-escape lines: comment them out
+            cleaned_lines.append(f"# (shell) {raw_line.strip()}")
+        else:
+            cleaned_lines.append(raw_line)
+    code = "\n".join(cleaned_lines)
+
     # ── Optional package installation ────────────────────────────────────────
     raw_packages = data.get("packages") or []
     if isinstance(raw_packages, str):
         # Accept a comma/space-separated string as a convenience
         raw_packages = [p for p in re.split(r"[,\s]+", raw_packages) if p]
+    # Merge any packages extracted from "!pip install" magic lines
+    raw_packages = list(raw_packages) + magic_packages
     packages, pkg_err = _validate_packages(raw_packages)
     if pkg_err:
         return jsonify({"error": pkg_err}), 400
 
     tmp_pkg_dir: str | None = None
+    tmp_script: str | None = None
     install_stdout = ""
     install_stderr = ""
 
@@ -1073,10 +1107,21 @@ def api_run_code() -> Response:
         code = path_injection + code
 
     try:
+        # Write code to a temporary .py file instead of passing via "-c".
+        # This is required for multiprocessing.Pool (and other modules that
+        # need to re-import __main__) to work correctly: when Python is
+        # started with "-c <code>" the worker processes have no file to
+        # re-import, but a named temp file works fine.
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".py", prefix="pyrunner_script_", delete=False
+        ) as tmp_f:
+            tmp_f.write(code)
+            tmp_script = tmp_f.name
+
         # Inherit the full server environment so the subprocess can find
         # CHROME_BIN, CHROMEDRIVER_PATH, etc. for Selenium code.
         with subprocess.Popen(
-            [sys.executable, "-u", "-c", code],
+            [sys.executable, "-u", tmp_script],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdin=subprocess.PIPE,
@@ -1103,6 +1148,11 @@ def api_run_code() -> Response:
         log.error("❌ /api/run error: %s", exc)
         return jsonify({"error": "An internal error occurred during code execution."}), 500
     finally:
+        if tmp_script:
+            try:
+                os.unlink(tmp_script)
+            except OSError:
+                pass
         if tmp_pkg_dir:
             shutil.rmtree(tmp_pkg_dir, ignore_errors=True)
 
