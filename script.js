@@ -586,8 +586,32 @@ function _initPyEditor() {
     const editorDiv = document.getElementById('pyRunnerEditor');
     if (!ta || !editorDiv || _pyEditor) return;
 
+    const defaultCode = [
+        '# Python Code Runner — supports standard library, requests, selenium, and more.',
+        '# Selenium quick-start (runs headless Chrome on the server):',
+        '#',
+        '# from selenium import webdriver',
+        '# from selenium.webdriver.chrome.options import Options',
+        '# from selenium.webdriver.chrome.service import Service',
+        '# import os',
+        '#',
+        '# opts = Options()',
+        '# opts.add_argument("--headless")',
+        '# opts.add_argument("--no-sandbox")',
+        '# opts.add_argument("--disable-dev-shm-usage")',
+        '# chrome_bin = os.environ.get("CHROME_BIN")',
+        '# if chrome_bin: opts.binary_location = chrome_bin',
+        '# svc = Service(os.environ.get("CHROMEDRIVER_PATH", ""))',
+        '# driver = webdriver.Chrome(service=svc, options=opts)',
+        '# driver.get("https://example.com")',
+        '# print(driver.title)',
+        '# driver.quit()',
+        '',
+        'print("Hello from the cloud notebook!")',
+    ].join('\n');
+
     _pyEditor = CodeMirror(editorDiv, {
-        value: '# Write your Python code here\nprint("Hello from the cloud notebook!")\n',
+        value: defaultCode,
         mode: 'python',
         theme: 'dracula',
         lineNumbers: true,
@@ -602,7 +626,15 @@ function _initPyEditor() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', _initPyEditor);
+document.addEventListener('DOMContentLoaded', () => {
+    _initPyEditor();
+    // Pre-fill the backend URL with the current origin so it works out of the box
+    // when the Flask backend (server_v2.py) is serving the page.
+    const urlInp = document.getElementById('pyRunnerServerUrl');
+    if (urlInp && !urlInp.value.trim()) {
+        urlInp.value = window.location.origin;
+    }
+});
 
 function _getPyServerBase() {
     const inp = document.getElementById('pyRunnerServerUrl');
@@ -634,7 +666,7 @@ if (pyRunnerRunBtn) {
             return;
         }
 
-        const timeoutVal = Math.max(5, Math.min(60, parseInt(document.getElementById('pyRunnerTimeout')?.value || '30', 10)));
+        const timeoutVal = Math.max(5, Math.min(120, parseInt(document.getElementById('pyRunnerTimeout')?.value || '30', 10)));
 
         pyRunnerStatus.textContent = '⏳ Running…';
         pyRunnerRunBtn.disabled = true;
@@ -674,7 +706,7 @@ if (pyRunnerRunBtn) {
                 }
             }
         } catch (err) {
-            pyRunnerStatus.textContent = 'Error connecting to server. Make sure the backend (server_v2.py) is running and the URL above is correct.';
+            pyRunnerStatus.textContent = '❌ Cannot reach the backend server. Make sure server_v2.py is running at: ' + serverBase;
             console.error(err);
         } finally {
             pyRunnerRunBtn.disabled = false;
