@@ -618,7 +618,10 @@ const pyRunnerStderr = document.getElementById('pyRunnerStderr');
 
 if (pyRunnerRunBtn) {
     pyRunnerRunBtn.addEventListener('click', async () => {
-        if (!_pyEditor) return;
+        if (!_pyEditor) {
+            if (pyRunnerStatus) pyRunnerStatus.textContent = '⚠️ Editor not ready. Please refresh the page.';
+            return;
+        }
         const code = _pyEditor.getValue();
         if (!code.trim()) {
             pyRunnerStatus.textContent = 'Please enter some Python code first.';
@@ -651,6 +654,15 @@ if (pyRunnerRunBtn) {
 
             if (data.error) {
                 pyRunnerStatus.textContent = '❌ ' + data.error;
+                // Show any partial output that was captured before the error
+                if (data.stdout !== undefined || data.stderr !== undefined) {
+                    pyRunnerOutput.style.display = 'block';
+                    pyRunnerStdout.textContent = data.stdout || '(no stdout)';
+                    if (data.stderr && data.stderr.trim()) {
+                        pyRunnerStderr.textContent = data.stderr;
+                        pyRunnerStderr.style.display = 'block';
+                    }
+                }
             } else {
                 const rc = data.returncode ?? 0;
                 pyRunnerStatus.textContent = rc === 0 ? '✅ Finished (exit 0)' : `⚠️ Finished (exit ${rc})`;
