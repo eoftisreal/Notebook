@@ -1,14 +1,45 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { apiGet, Product } from '@/lib/api';
 import AddToCartButton from '@/components/AddToCartButton';
+import { useSearchParams } from 'next/navigation';
 
-export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+import { Suspense } from 'react';
 
-  let product: Product | null = null;
-  try {
-    product = await apiGet<Product>(`/products/${id}`);
-  } catch {
-    product = null;
+function ProductDetailContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    async function fetchProduct() {
+      if (!id) {
+        if (active) setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await apiGet<Product>(`/products/${id}`);
+        if (active) setProduct(data);
+      } catch {
+        if (active) setProduct(null);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    fetchProduct();
+
+    return () => { active = false; };
+  }, [id]);
+
+  if (loading) {
+    return <p className="rounded-xl bg-white p-6 shadow">Loading product...</p>;
   }
 
   if (!product) {
@@ -36,5 +67,13 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
         <AddToCartButton productId={product._id} title={product.title} price={product.price} />
       </div>
     </div>
+  );
+}
+
+export default function ProductDetail() {
+  return (
+    <Suspense fallback={<p className="rounded-xl bg-white p-6 shadow">Loading product...</p>}>
+      <ProductDetailContent />
+    </Suspense>
   );
 }
