@@ -22,12 +22,12 @@ const requestMagicSchema = z.object({
 router.post('/magic-link/request', validate(requestMagicSchema), async (req, res, next) => {
   try {
     const { email, name } = req.validated.body;
-    const token = crypto.randomBytes(36).toString('hex');
+    const magicToken = crypto.randomBytes(36).toString('hex');
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-    await MagicLink.create({ email, token, expiresAt });
+    await MagicLink.create({ email, token: magicToken, expiresAt });
 
-    const magicUrl = `${env.appUrl}/auth/callback?token=${encodeURIComponent(token)}`;
+    const magicUrl = `${env.appUrl}/auth/callback?token=${encodeURIComponent(magicToken)}`;
     const mail = await sendMagicLinkEmail(email, magicUrl);
 
     res.status(202).json({ message: 'Magic link sent', delivery: mail });

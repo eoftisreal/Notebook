@@ -6,6 +6,15 @@ const steps = ['Address', 'Delivery', 'Payment'];
 
 export default function CheckoutPage() {
   const [step, setStep] = useState(0);
+  const [message, setMessage] = useState('');
+
+  function handleNext() {
+    if (step === steps.length - 1) {
+      setMessage('Order placed. Complete payment via Razorpay checkout using the backend /api/checkout/create endpoint.');
+      return;
+    }
+    setStep((current) => Math.min(current + 1, steps.length - 1));
+  }
 
   return (
     <div className="space-y-6">
@@ -36,8 +45,9 @@ export default function CheckoutPage() {
       </section>
       <div className="flex gap-3">
         <button disabled={step === 0} onClick={() => setStep((current) => current - 1)} className="rounded border px-5 py-2 disabled:opacity-50">Back</button>
-        <button onClick={() => setStep((current) => Math.min(current + 1, steps.length - 1))} className="rounded bg-pink-600 px-5 py-2 font-semibold text-white">Next</button>
+        <button onClick={handleNext} className="rounded bg-pink-600 px-5 py-2 font-semibold text-white">{step === steps.length - 1 ? 'Place Order' : 'Next'}</button>
       </div>
+      {message ? <p className="rounded-xl bg-emerald-100 p-3 text-sm text-emerald-900">{message}</p> : null}
     </div>
   );
 }
