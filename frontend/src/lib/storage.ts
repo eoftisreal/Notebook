@@ -5,8 +5,8 @@ export type CartItem = {
   quantity: number;
 };
 
-export const CART_KEY = 'indiemart_cart';
-export const TOKEN_KEY = 'indiemart_token';
+export const CART_KEY = 'kapdakraft_cart';
+export const TOKEN_KEY = 'kapdakraft_token';
 
 function hasWindow() {
   return typeof window !== 'undefined';

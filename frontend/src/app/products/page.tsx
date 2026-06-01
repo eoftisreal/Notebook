@@ -52,7 +52,7 @@ function ProductListingContent() {
       <form className="grid gap-3 rounded-2xl bg-white p-4 shadow sm:grid-cols-3">
         <input name="q" defaultValue={q || ''} placeholder="Search artwork" className="rounded-lg border px-3 py-2" />
         <input name="category" defaultValue={category || ''} placeholder="Category" className="rounded-lg border px-3 py-2" />
-        <button className="rounded-lg bg-slate-900 px-4 py-2 font-semibold text-white">Apply Filters</button>
+        <button className="rounded-lg bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white">Apply Filters</button>
       </form>
       {loading ? (
         <p>Loading products...</p>

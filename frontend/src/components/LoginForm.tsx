@@ -32,7 +32,7 @@ export default function LoginForm() {
       <p className="mt-2 text-sm text-slate-600">Use your email and we’ll send a secure magic sign-in link.</p>
       <form onSubmit={submit} className="mt-4 space-y-3">
         <input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="w-full rounded border px-3 py-2" />
-        <button className="w-full rounded bg-slate-900 px-4 py-2 font-semibold text-white">Send Magic Link</button>
+        <button className="w-full rounded bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white">Send Magic Link</button>
       </form>
       {message ? <p className="mt-3 text-sm">{message}</p> : null}
     </div>

@@ -21,7 +21,7 @@ export default function CheckoutForm() {
       <h1 className="text-3xl font-black">Checkout</h1>
       <div className="flex gap-2">
         {steps.map((name, index) => (
-          <div key={name} className={`rounded-full px-4 py-2 text-sm font-semibold ${index <= step ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}`}>
+          <div key={name} className={`rounded-full px-4 py-2 text-sm font-semibold ${index <= step ? 'bg-brand-purple hover:bg-brand-pink text-white' : 'bg-slate-200 text-slate-700'}`}>
             {index + 1}. {name}
           </div>
         ))}
