@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import Link from 'next/link';
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
@@ -52,7 +53,7 @@ export default function SignupForm() {
       </form>
       {message ? <p className="mt-3 text-sm">{message}</p> : null}
       <div className="mt-4 text-center text-sm">
-        <a href="/auth/login" className="text-brand-purple hover:underline">Already have an account? Log in</a>
+        <Link href="/auth/login" className="text-brand-purple hover:underline">Already have an account? Log in</Link>
       </div>
     </div>
   );
