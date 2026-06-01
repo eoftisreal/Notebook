@@ -15,10 +15,10 @@ export default function ProductCard({ product }: { product: Product }) {
         ) : null}
       </div>
       <div className="space-y-1 p-4">
-        <h3 className="line-clamp-1 font-bold text-slate-900">{product.title}</h3>
+        <h3 className="line-clamp-1 font-bold text-brand-dark">{product.title}</h3>
         <p className="text-sm text-slate-600">By {product.artistName}</p>
         <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-900">₹{product.price}</span>
+          <span className="font-bold text-brand-dark">₹{product.price}</span>
           {product.compareAtPrice ? <span className="text-xs text-slate-400 line-through">₹{product.compareAtPrice}</span> : null}
         </div>
       </div>
