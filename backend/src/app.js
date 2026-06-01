@@ -12,6 +12,7 @@ const checkoutRoutes = require('./routes/checkout');
 const orderRoutes = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
+const path = require('path');
 
 const app = express();
 
@@ -35,6 +36,21 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Serve frontend static files in production
+if (env.nodeEnv === 'production') {
+  const frontendPath = path.join(__dirname, '../../frontend/out');
+  app.use(express.static(frontendPath));
+
+  app.get('*', (req, res, next) => {
+    // If it's an API request that wasn't matched above, let it pass to notFound
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    // Otherwise, send the frontend index.html
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
