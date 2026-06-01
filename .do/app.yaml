@@ -1,13 +1,15 @@
 name: ecommerce
 services:
-  - name: web
+  - name: backend
     github:
       branch: main
       deploy_on_push: true
-      repo: YOUR_USERNAME/ecommerce-platform
-    source_dir: .
-    dockerfile_path: Dockerfile
+      repo: eoftisreal/eoftisreal.github.io
+    source_dir: backend
+    run_command: npm start
     http_port: 4000
+    routes:
+      - path: /api
     envs:
       - key: MONGODB_URI
         scope: RUN_TIME
@@ -45,6 +47,19 @@ services:
       - key: NODE_ENV
         scope: RUN_TIME
         value: production
+
+static_sites:
+  - name: frontend
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: eoftisreal/eoftisreal.github.io
+    source_dir: frontend
+    build_command: npm run build
+    output_dir: out
+    routes:
+      - path: /
+    envs:
       - key: NEXT_PUBLIC_API_URL
         scope: BUILD_TIME
         value: https://coinrx.me/api
