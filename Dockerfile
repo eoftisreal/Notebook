@@ -1,8 +1,8 @@
 # Stage 1: Build the frontend
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend ./
@@ -25,8 +25,8 @@ COPY --from=backend-deps /app/backend/node_modules ./backend/node_modules
 COPY backend/package*.json ./backend/
 COPY backend/src ./backend/src
 
-# Copy frontend build artifacts
-COPY --from=frontend-builder /app/frontend/out ./frontend/out
+# Copy frontend build artifacts (now in dist instead of out)
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 WORKDIR /app/backend
 ENV NODE_ENV=production
