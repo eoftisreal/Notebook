@@ -43,15 +43,44 @@ app.use('/api/admin', adminRoutes);
 
 // Serve frontend static files in production
 if (env.nodeEnv === 'production') {
+  const fs = require('fs');
   const frontendPath = path.join(__dirname, '../../frontend/out');
   app.use(express.static(frontendPath));
 
   app.get('*', (req, res, next) => {
-    // If it's an API request that wasn't matched above, let it pass to notFound
     if (req.path.startsWith('/api')) {
       return next();
     }
-    // Otherwise, send the frontend index.html
+
+    // Handle Next.js static routing
+    // 1. Try exact path with .html extension (e.g. /products -> /products.html)
+    const htmlPath = path.join(frontendPath, `${req.path}.html`);
+    if (fs.existsSync(htmlPath)) {
+      return res.sendFile(htmlPath);
+    }
+
+    // 2. Try exact path as a directory index (e.g. /products/ -> /products/index.html)
+    const indexPath = path.join(frontendPath, req.path, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+
+    // 3. Dynamic routes (Next.js exports dynamic routes like /products/[id].html)
+    // For specific known dynamic routes, we can handle them manually
+    if (req.path.startsWith('/products/') && req.path.split('/').length === 3) {
+      const productDynamic = path.join(frontendPath, 'products', '[id].html');
+      if (fs.existsSync(productDynamic)) {
+         return res.sendFile(productDynamic);
+      }
+    }
+    if (req.path.startsWith('/orders/') && req.path.split('/').length === 3) {
+      const orderDynamic = path.join(frontendPath, 'orders', '[id].html');
+      if (fs.existsSync(orderDynamic)) {
+         return res.sendFile(orderDynamic);
+      }
+    }
+
+    // 4. Fallback to root index.html (useful for 404s or client-side routing)
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }

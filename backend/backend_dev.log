@@ -14,3 +14,10 @@ Failed to connect to database on startup. Server is still running. Failed to con
 MongoDB connection error connect ECONNREFUSED 127.0.0.1:27017
 [0mPOST /api/auth/signup [0m-[0m - ms - -[0m
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/server.js`[39m
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+Backend listening on :4000
+MongoDB disconnected
+Failed to connect to database on startup. Server is still running. Failed to connect to MongoDB at mongodb://127.0.0.1:27017/ecommerce: connect ECONNREFUSED 127.0.0.1:27017
+MongoDB connection error connect ECONNREFUSED 127.0.0.1:27017
