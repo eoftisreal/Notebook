@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { setAuthToken } from '@/lib/storage';
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function AuthCallbackPage() {
   const [message, setMessage] = useState('Verifying magic link...');

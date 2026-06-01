@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { addCartItem } from '@/lib/storage';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 export default function AddToCartButton({ productId, title, price }: Props) {
   return (
     <Link
-      href="/cart"
+      to="/cart"
       onClick={() => {
         addCartItem({ productId, title, unitPrice: price });
       }}

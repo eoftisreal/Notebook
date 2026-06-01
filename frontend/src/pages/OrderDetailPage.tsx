@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'react-router-dom';
 
 type Order = {
   _id: string;
@@ -13,8 +13,7 @@ type Order = {
 import { Suspense } from 'react';
 
 function OrderTrackingContent() {
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id');
+  const { id } = useParams();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);

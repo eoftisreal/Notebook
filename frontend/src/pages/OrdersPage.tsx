@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/storage';
 
@@ -11,7 +11,7 @@ type Order = {
   createdAt: string;
 };
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -60,7 +60,7 @@ export default function OrdersPage() {
             <p className="font-bold">Order #{order._id.slice(-6)}</p>
             <p className="text-sm text-slate-600">Status: {order.status}</p>
             <p className="text-sm text-slate-600">Total: ₹{order.total}</p>
-            <Link href={`/orders/detail?id=${order._id}`} className="mt-2 inline-block rounded border px-3 py-1 text-sm">Track Order</Link>
+            <Link to={`/orders/${order._id}`} className="mt-2 inline-block rounded border px-3 py-1 text-sm">Track Order</Link>
           </article>
         ))}
       </div>
