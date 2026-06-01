@@ -21,7 +21,7 @@ const requestMagicSchema = z.object({
 
 router.post('/magic-link/request', validate(requestMagicSchema), async (req, res, next) => {
   try {
-    const { email, name } = req.validated.body;
+    const { email } = req.validated.body;
     const magicToken = crypto.randomBytes(36).toString('hex');
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -31,6 +31,46 @@ router.post('/magic-link/request', validate(requestMagicSchema), async (req, res
     const mail = await sendMagicLinkEmail(email, magicUrl);
 
     res.status(202).json({ message: 'Magic link sent', delivery: mail });
+  } catch (error) {
+    if (error.code === 11000) {
+      error.statusCode = 429;
+      error.message = 'Please wait before requesting another magic link';
+    }
+    next(error);
+  }
+});
+
+const signupSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    name: z.string().min(1),
+  }),
+  query: z.object({}),
+  params: z.object({}),
+});
+
+router.post('/signup', validate(signupSchema), async (req, res, next) => {
+  try {
+    const { email, name } = req.validated.body;
+
+    // Create the user immediately so we can store the name.
+    // If the user already exists, this could just update or be a no-op depending on preference.
+    // We'll update the user if they exist or insert them if they don't.
+    await User.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { $set: { name }, $setOnInsert: { email: email.toLowerCase() } },
+      { upsert: true, new: true }
+    );
+
+    const magicToken = crypto.randomBytes(36).toString('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await MagicLink.create({ email: email.toLowerCase(), token: magicToken, expiresAt });
+
+    const magicUrl = `${env.appUrl}/auth/callback?token=${encodeURIComponent(magicToken)}`;
+    const mail = await sendMagicLinkEmail(email, magicUrl);
+
+    res.status(202).json({ message: 'Account created and magic link sent', delivery: mail });
   } catch (error) {
     if (error.code === 11000) {
       error.statusCode = 429;
