@@ -38,10 +38,10 @@ services:
         type: SECRET
       - key: FRONTEND_URL
         scope: RUN_TIME
-        value: ${APP_URL}
+        value: https://coinrx.me
       - key: NODE_ENV
         scope: RUN_TIME
         value: production
       - key: NEXT_PUBLIC_API_URL
         scope: BUILD_TIME
-        value: ${APP_URL}/api
+        value: https://coinrx.me/api
