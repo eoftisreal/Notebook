@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import ProductCard from '@/components/ProductCard';
 import { apiGet, Product } from '@/lib/api';
+import ProductGrid from '@/components/ProductGrid';
 import { useSearchParams } from 'next/navigation';
 
 type ProductResponse = {
@@ -41,7 +41,9 @@ function ProductListingContent() {
 
     fetchProducts();
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [q, category, pageParam]);
 
   return (
@@ -56,11 +58,7 @@ function ProductListingContent() {
         <p>Loading products...</p>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {data.products.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+          <ProductGrid products={data.products} />
           <p className="text-sm text-slate-500">Page {data.page} of {data.totalPages}</p>
         </>
       )}

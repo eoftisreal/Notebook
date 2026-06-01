@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const adminOnly = require('../middleware/admin');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
+const { getAdminSettings } = require('../utils/admin');
 
 const router = express.Router();
 
@@ -27,11 +28,7 @@ router.get('/analytics', async (_req, res, next) => {
 });
 
 router.get('/settings', (_req, res) => {
-  res.json({
-    cloudflareR2Enabled: true,
-    paymentGateway: 'razorpay',
-    authMode: 'magic-link',
-  });
+  res.json(getAdminSettings());
 });
 
 module.exports = router;

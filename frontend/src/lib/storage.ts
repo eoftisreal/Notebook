@@ -1,0 +1,67 @@
+export type CartItem = {
+  productId: string;
+  title: string;
+  unitPrice: number;
+  quantity: number;
+};
+
+export const CART_KEY = 'indiemart_cart';
+export const TOKEN_KEY = 'indiemart_token';
+
+function hasWindow() {
+  return typeof window !== 'undefined';
+}
+
+export function getStoredValue<T>(key: string, fallback: T): T {
+  if (!hasWindow()) {
+    return fallback;
+  }
+
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function setStoredValue<T>(key: string, value: T) {
+  if (!hasWindow()) {
+    return;
+  }
+
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function getCartItems() {
+  return getStoredValue<CartItem[]>(CART_KEY, []);
+}
+
+export function setCartItems(items: CartItem[]) {
+  setStoredValue(CART_KEY, items);
+}
+
+export function addCartItem(product: Pick<CartItem, 'productId' | 'title' | 'unitPrice'>) {
+  const cart = getCartItems();
+  const existing = cart.find((item) => item.productId === product.productId);
+
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+
+  setCartItems(cart);
+}
+
+export function getAuthToken() {
+  return getStoredValue<string | null>(TOKEN_KEY, null);
+}
+
+export function setAuthToken(token: string) {
+  if (!hasWindow()) {
+    return;
+  }
+
+  localStorage.setItem(TOKEN_KEY, token);
+}
