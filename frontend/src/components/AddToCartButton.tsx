@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { addCartItem } from '@/lib/storage';
 
 type Props = {
   productId: string;
@@ -13,21 +14,7 @@ export default function AddToCartButton({ productId, title, price }: Props) {
     <Link
       href="/cart"
       onClick={() => {
-        const key = 'indiemart_cart';
-        let cart = [];
-        try {
-          const raw = localStorage.getItem(key);
-          cart = raw ? JSON.parse(raw) : [];
-        } catch {
-          cart = [];
-        }
-        const existing = cart.find((item: { productId: string }) => item.productId === productId);
-        if (existing) {
-          existing.quantity += 1;
-        } else {
-          cart.push({ productId, title, unitPrice: price, quantity: 1 });
-        }
-        localStorage.setItem(key, JSON.stringify(cart));
+        addCartItem({ productId, title, unitPrice: price });
       }}
       className="inline-block rounded-full bg-pink-600 px-6 py-3 font-semibold text-white"
     >

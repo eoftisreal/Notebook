@@ -13,6 +13,9 @@ const env = {
   emailFrom: process.env.EMAIL_FROM || 'noreply@example.com',
   razorpayKeyId: process.env.RAZORPAY_KEY_ID || '',
   razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || '',
+  r2AccountId: process.env.CLOUDFLARE_R2_ACCOUNT_ID || '',
+  r2Bucket: process.env.CLOUDFLARE_R2_BUCKET || '',
+  r2PublicBaseUrl: process.env.CLOUDFLARE_R2_PUBLIC_URL || '',
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 200),
 };
