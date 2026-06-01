@@ -56,10 +56,11 @@ static_sites:
       repo: eoftisreal/eoftisreal.github.io
     source_dir: frontend
     build_command: npm run build
-    output_dir: out
+    output_dir: dist
+    catchall_document: index.html
     routes:
       - path: /
     envs:
-      - key: NEXT_PUBLIC_API_URL
+      - key: VITE_API_URL
         scope: BUILD_TIME
         value: https://coinrx.me/api

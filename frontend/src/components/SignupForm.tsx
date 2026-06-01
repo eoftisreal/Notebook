@@ -1,9 +1,9 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function SignupForm() {
   const [name, setName] = useState('');
@@ -53,7 +53,7 @@ export default function SignupForm() {
       </form>
       {message ? <p className="mt-3 text-sm">{message}</p> : null}
       <div className="mt-4 text-center text-sm">
-        <Link href="/auth/login" className="text-brand-purple hover:underline">Already have an account? Log in</Link>
+        <Link to="/auth/login" className="text-brand-purple hover:underline">Already have an account? Log in</Link>
       </div>
     </div>
   );

@@ -8,8 +8,6 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
   --color-brand-pink: rgb(230, 60, 130);
   --color-brand-orange: rgb(240, 100, 60);
   --color-brand-purple: rgb(130, 70, 230);

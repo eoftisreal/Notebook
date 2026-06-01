@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { apiGet, Product } from '@/lib/api';
 import ProductGrid from '@/components/ProductGrid';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'react-router-dom';
 
 type ProductResponse = {
   products: Product[];
@@ -12,7 +12,7 @@ type ProductResponse = {
 };
 
 function ProductListingContent() {
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const q = searchParams.get('q');
   const category = searchParams.get('category');
   const pageParam = searchParams.get('page');

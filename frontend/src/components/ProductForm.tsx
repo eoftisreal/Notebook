@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { getAuthToken } from '@/lib/storage';
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function ProductForm() {
   const [title, setTitle] = useState('');
@@ -128,7 +128,7 @@ export default function ProductForm() {
         {uploadedUrl && (
           <div className="mt-2">
             <p className="text-xs text-green-600 mb-1">Image uploaded successfully!</p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {}
             <img src={uploadedUrl} alt="Uploaded preview" className="max-h-32 rounded object-cover border" />
           </div>
         )}

@@ -1,9 +1,9 @@
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/api';
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <Link href={`/products/detail?id=${product._id}`} className="group overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <Link to={`/products/${product._id}`} className="group overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="relative aspect-square bg-slate-100">
         <img
           src={product.images[0] || 'https://placehold.co/600x600?text=Art'}

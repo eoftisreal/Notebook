@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function MediaUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -87,7 +87,7 @@ export default function MediaUpload() {
           <p className="text-xs font-mono bg-slate-100 p-2 rounded break-all">
             {uploadedUrl}
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {}
           <img src={uploadedUrl} alt="Uploaded" className="max-h-48 rounded object-cover border" />
         </div>
       )}
