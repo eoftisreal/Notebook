@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1057.0",
     "@sendgrid/mail": "^8.1.6",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -22,7 +23,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3",
     "morgan": "^1.10.1",
-    "nanoid": "^5.1.6",
+    "multer": "^2.1.1",
+    "nanoid": "^3.3.12",
     "razorpay": "^2.9.6",
     "zod": "^4.1.12"
   },

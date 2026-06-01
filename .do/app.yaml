@@ -30,6 +30,9 @@ services:
       - key: R2_BUCKET_NAME
         scope: RUN_TIME
         type: SECRET
+      - key: R2_PUBLIC_URL
+        scope: RUN_TIME
+        type: SECRET
       - key: RAZORPAY_KEY_ID
         scope: RUN_TIME
         type: SECRET

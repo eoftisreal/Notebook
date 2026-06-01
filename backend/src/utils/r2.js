@@ -1,4 +1,19 @@
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { nanoid } = require('nanoid');
 const env = require('../config/env');
+
+let s3Client = null;
+
+if (env.r2AccessKeyId && env.r2SecretAccessKey && env.r2Endpoint) {
+  s3Client = new S3Client({
+    region: 'auto',
+    endpoint: env.r2Endpoint,
+    credentials: {
+      accessKeyId: env.r2AccessKeyId,
+      secretAccessKey: env.r2SecretAccessKey,
+    },
+  });
+}
 
 function normalizeObjectKey(objectKey) {
   return String(objectKey || '')
@@ -8,12 +23,8 @@ function normalizeObjectKey(objectKey) {
 }
 
 function getR2BaseUrl() {
-  if (env.r2PublicBaseUrl) {
-    return env.r2PublicBaseUrl.replace(/\/$/, '');
-  }
-
-  if (env.r2Bucket && env.r2AccountId) {
-    return `https://${env.r2Bucket}.${env.r2AccountId}.r2.cloudflarestorage.com`;
+  if (env.r2PublicUrl) {
+    return env.r2PublicUrl.replace(/\/$/, '');
   }
 
   return '';
@@ -37,9 +48,30 @@ function getObjectUrl(objectKey) {
   return `${baseUrl}/${encodeURI(key)}`;
 }
 
+async function uploadToR2(fileBuffer, mimeType, originalName) {
+  if (!s3Client || !env.r2BucketName) {
+    throw new Error('Cloudflare R2 is not properly configured for uploading');
+  }
+
+  const extension = originalName.split('.').pop() || '';
+  const key = `uploads/${nanoid()}.${extension}`;
+
+  const command = new PutObjectCommand({
+    Bucket: env.r2BucketName,
+    Key: key,
+    Body: fileBuffer,
+    ContentType: mimeType,
+  });
+
+  await s3Client.send(command);
+
+  return key;
+}
+
 module.exports = {
   normalizeObjectKey,
   getR2BaseUrl,
   isR2Configured,
   getObjectUrl,
+  uploadToR2,
 };

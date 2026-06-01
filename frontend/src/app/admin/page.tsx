@@ -1,3 +1,5 @@
+import MediaUpload from '@/components/MediaUpload';
+
 export default function AdminPage() {
   return (
     <div className="space-y-4">
@@ -15,6 +17,9 @@ export default function AdminPage() {
           <h2 className="font-bold">Analytics</h2>
           <p className="text-sm text-slate-600">Monitor revenue and artist trends.</p>
         </section>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <MediaUpload />
       </div>
     </div>
   );
