@@ -65,6 +65,7 @@ export function setAuthToken(token: string) {
   }
 
   localStorage.setItem(TOKEN_KEY, token);
+  window.dispatchEvent(new Event('auth-change'));
 }
 
 export function getRefreshToken() {
@@ -83,4 +84,5 @@ export function clearAuth() {
   if (!hasWindow()) return;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  window.dispatchEvent(new Event('auth-change'));
 }
