@@ -334,4 +334,38 @@ router.post('/reset-password', validate(resetPasswordSchema), async (req, res, n
   }
 });
 
+// 8. GET CURRENT USER PROFILE
+const auth = require('../middleware/auth');
+router.get('/me', auth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Sign a fresh token in case role/admin status has changed
+    const accessToken = signAccessToken({
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      isAdmin: user.isAdmin
+    });
+
+    res.json({
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

@@ -1,9 +1,34 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
-import { getAuthToken } from '@/lib/storage';
+import { getAuthToken, setAuthToken } from '@/lib/storage';
 import { parseJwt } from '@/lib/jwt';
 
+const apiBase = import.meta.env.VITE_API_URL || '/api';
+
 export default function AdminLayout() {
+  useEffect(() => {
+    const syncToken = async () => {
+      const token = getAuthToken();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${apiBase}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setAuthToken(data.accessToken);
+        }
+      } catch (error) {
+        console.error('Failed to sync auth token:', error);
+      }
+    };
+
+    syncToken();
+  }, []);
+
   const token = getAuthToken();
   let isAdmin = false;
 
