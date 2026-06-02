@@ -1,25 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { setAuthToken, setRefreshToken } from '@/lib/storage';
+import { Link } from 'react-router-dom';
 
 const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-export default function AuthCallbackPage() {
-  const navigate = useNavigate();
-  const [message, setMessage] = useState('Verifying magic link...');
+export default function VerifyEmailPage() {
+  const [message, setMessage] = useState('Verifying your email...');
 
   useEffect(() => {
     async function verify() {
       const token = new URLSearchParams(window.location.search).get('token');
       if (!token) {
-        setMessage('Missing magic token.');
+        setMessage('Missing verification token.');
         return;
       }
 
       try {
-        const response = await fetch(`${apiBase}/auth/magic-link/verify`, {
+        const response = await fetch(`${apiBase}/auth/verify-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),
@@ -31,10 +29,7 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        setAuthToken(body.accessToken);
-        setRefreshToken(body.refreshToken);
-        setMessage('Login successful! Redirecting...');
-        setTimeout(() => navigate('/'), 1500);
+        setMessage('Email verified successfully! You can now log in.');
       } catch {
         setMessage('Verification failed.');
       }
@@ -43,5 +38,13 @@ export default function AuthCallbackPage() {
     verify();
   }, []);
 
-  return <p className="rounded-xl bg-white p-6 shadow">{message}</p>;
+  return (
+    <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow text-center">
+      <h1 className="text-2xl font-black">Email Verification</h1>
+      <p className="mt-4 text-slate-700">{message}</p>
+      <div className="mt-6">
+        <Link to="/auth/login" className="text-brand-purple hover:underline font-semibold">Go to Login</Link>
+      </div>
+    </div>
+  );
 }

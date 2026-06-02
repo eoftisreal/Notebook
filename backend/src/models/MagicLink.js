@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const magicLinkSchema = new mongoose.Schema(
   {
-    email: { type: String, required: true, lowercase: true },
-    token: { type: String, required: true, unique: true },
-    expiresAt: { type: Date, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    tokenHash: { type: String, required: true, unique: true },
+    expiresAt: { type: Date, required: true, expires: '15m', default: Date.now },
     consumedAt: { type: Date, default: null },
   },
   { timestamps: true }

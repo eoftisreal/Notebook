@@ -7,6 +7,7 @@ export type CartItem = {
 
 export const CART_KEY = 'kapdakraft_cart';
 export const TOKEN_KEY = 'kapdakraft_token';
+export const REFRESH_TOKEN_KEY = 'kapdakraft_refresh_token';
 
 function hasWindow() {
   return typeof window !== 'undefined';
@@ -64,4 +65,22 @@ export function setAuthToken(token: string) {
   }
 
   localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function getRefreshToken() {
+  return getStoredValue<string | null>(REFRESH_TOKEN_KEY, null);
+}
+
+export function setRefreshToken(token: string) {
+  if (!hasWindow()) {
+    return;
+  }
+
+  localStorage.setItem(REFRESH_TOKEN_KEY, token);
+}
+
+export function clearAuth() {
+  if (!hasWindow()) return;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
