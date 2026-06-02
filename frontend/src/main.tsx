@@ -13,6 +13,7 @@ import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import CallbackPage from './pages/auth/CallbackPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AccountPage from './pages/AccountPage';
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 
           <Route path="auth/login" element={<LoginPage />} />
           <Route path="auth/signup" element={<SignupPage />} />
+          <Route path="auth/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="auth/callback" element={<CallbackPage />} />
 
           <Route path="admin" element={<AdminDashboard />} />
