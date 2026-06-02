@@ -3,7 +3,7 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || '/api';
 
 export default function ResetPasswordForm() {
   const navigate = useNavigate();
