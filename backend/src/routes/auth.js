@@ -28,8 +28,8 @@ router.post('/send-otp', validate(sendOtpSchema), async (req, res, next) => {
   try {
     const { phone } = req.validated.body;
 
-    // Generate 6 digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate secure 6 digit OTP
+    const otpCode = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Store in DB
