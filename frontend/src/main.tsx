@@ -14,6 +14,9 @@ import OrderDetailPage from './pages/OrderDetailPage';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
+import MagicLinkPage from './pages/auth/MagicLinkPage';
+import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import CallbackPage from './pages/auth/CallbackPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AccountPage from './pages/AccountPage';
@@ -37,6 +40,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="auth/login" element={<LoginPage />} />
           <Route path="auth/signup" element={<SignupPage />} />
           <Route path="auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="auth/reset-password" element={<ResetPasswordPage />} />
+          <Route path="auth/magic-link" element={<MagicLinkPage />} />
+          <Route path="auth/verify-email" element={<VerifyEmailPage />} />
           <Route path="auth/callback" element={<CallbackPage />} />
 
           <Route path="admin" element={<AdminDashboard />} />

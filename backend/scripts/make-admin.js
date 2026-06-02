@@ -3,11 +3,11 @@ const User = require('../src/models/User');
 const env = require('../src/config/env');
 
 async function makeAdmin() {
-  const username = process.argv[2];
+  const email = process.argv[2];
 
-  if (!username) {
-    console.error('Error: Please provide a username.');
-    console.error('Usage: npm run make-admin <username>');
+  if (!email) {
+    console.error('Error: Please provide an email address.');
+    console.error('Usage: npm run make-admin <email>');
     process.exit(1);
   }
 
@@ -15,18 +15,14 @@ async function makeAdmin() {
     await mongoose.connect(env.mongoUri);
     console.log('Connected to MongoDB.');
 
+    // Upsert the user to ensure they exist, then set isAdmin to true
     const user = await User.findOneAndUpdate(
-      { username: username.toLowerCase() },
-      { $set: { isAdmin: true } },
-      { new: true }
+      { email: email.toLowerCase() },
+      { $set: { isAdmin: true }, $setOnInsert: { email: email.toLowerCase() } },
+      { new: true, upsert: true }
     );
 
-    if (!user) {
-      console.error(`Error: User with username "${username}" not found. Please ensure the user has completed signup.`);
-      process.exit(1);
-    }
-
-    console.log(`Success! User ${user.username} is now an admin.`);
+    console.log(`Success! User ${user.email} is now an admin.`);
     process.exit(0);
   } catch (error) {
     console.error('An error occurred:', error);

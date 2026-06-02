@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { setAuthToken } from '@/lib/storage';
+import { setAuthToken, setRefreshToken } from '@/lib/storage';
 
 const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -26,7 +26,8 @@ export default function LoginForm() {
 
       const body = await response.json();
       if (response.ok) {
-        setAuthToken(body.token);
+        setAuthToken(body.accessToken);
+        setRefreshToken(body.refreshToken);
         setMessage('Success!');
         navigate('/');
       } else {
@@ -40,7 +41,7 @@ export default function LoginForm() {
   return (
     <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow">
       <h1 className="text-2xl font-black">Log In</h1>
-      <p className="mt-2 text-sm text-slate-600">Log in using your phone number or unique username.</p>
+      <p className="mt-2 text-sm text-slate-600">Log in using your email or unique username.</p>
 
       <form onSubmit={submit} className="mt-4 space-y-3">
         <input
@@ -48,7 +49,7 @@ export default function LoginForm() {
           required
           value={identifier}
           onChange={(event) => setIdentifier(event.target.value)}
-          placeholder="Phone Number or Username"
+          placeholder="Email or Username"
           className="w-full rounded border px-3 py-2"
         />
         <input
@@ -62,11 +63,12 @@ export default function LoginForm() {
         <button className="w-full rounded bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white">Log In</button>
       </form>
 
-      {message ? <p className="mt-3 text-sm text-center text-slate-700">{message}</p> : null}
+      {message ? <p className="mt-3 text-sm text-center text-red-500">{message}</p> : null}
 
-      <div className="mt-4 flex flex-col items-center gap-2 text-sm">
-        <Link to="/auth/forgot-password" className="text-brand-purple hover:underline">Forgot password?</Link>
-        <Link to="/auth/signup" className="text-slate-600 hover:text-brand-purple hover:underline">Don't have an account? Sign up</Link>
+      <div className="mt-6 border-t pt-4 text-center text-sm space-y-2 flex flex-col">
+        <Link to="/auth/magic-link" className="text-brand-purple hover:underline font-semibold">Login without password (Magic Link)</Link>
+        <Link to="/auth/forgot-password" className="text-slate-500 hover:underline">Forgot password?</Link>
+        <Link to="/auth/signup" className="text-slate-500 hover:underline">Don't have an account? Sign up</Link>
       </div>
     </div>
   );

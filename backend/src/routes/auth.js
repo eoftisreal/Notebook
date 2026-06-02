@@ -3,158 +3,145 @@ const { z } = require('zod');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const validate = require('../middleware/validate');
-const MagicLink = require('../models/MagicLink');
 const User = require('../models/User');
-const OTP = require('../models/OTP');
+const RefreshToken = require('../models/RefreshToken');
+const ResetToken = require('../models/ResetToken');
+const MagicLink = require('../models/MagicLink');
 const env = require('../config/env');
-const { sendMagicLinkEmail } = require('../utils/sendEmail');
-const { sendSMS } = require('../utils/sendSms');
-const { signAccessToken } = require('../utils/jwt');
+const { sendVerificationEmail, sendMagicLinkEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
+const { signAccessToken, signRefreshToken, verifyToken } = require('../utils/jwt');
 
 const router = express.Router();
 
-// --- NEW AUTH FLOW (PHONE/OTP + USERNAME/PASSWORD) ---
+// Helper to generate auth response
+async function generateAuthResponse(user) {
+  const accessToken = signAccessToken({
+    sub: user.id,
+    email: user.email,
+    username: user.username,
+    role: user.role,
+    isAdmin: user.isAdmin
+  });
+  const refreshTokenString = signRefreshToken({ sub: user.id });
 
-// 1. Send OTP for signup or password reset
-const sendOtpSchema = z.object({
-  body: z.object({
-    phone: z.string().min(10),
-  }),
-  query: z.object({}),
-  params: z.object({}),
-});
+  // Hash refresh token for storage
+  const tokenHash = crypto.createHash('sha256').update(refreshTokenString).digest('hex');
 
-router.post('/send-otp', validate(sendOtpSchema), async (req, res, next) => {
-  try {
-    const { phone } = req.validated.body;
+  // Store refresh token
+  await RefreshToken.create({
+    userId: user.id,
+    tokenHash,
+    // Model automatically sets expires: 30d
+  });
 
-    // Generate secure 6 digit OTP
-    const otpCode = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Store in DB
-    await OTP.create({ phone, otp: otpCode, expiresAt });
-
-    // Send via SMS
-    const delivery = await sendSMS(phone, `Your OTP is: ${otpCode}. It will expire in 10 minutes.`);
-
-    // If twilio isn't setup locally, log it so we can test
-    if (delivery.skipped) {
-      console.log(`[Twilio Skipped] OTP for ${phone} is: ${otpCode}`);
+  return {
+    accessToken,
+    refreshToken: refreshTokenString,
+    user: {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+      isVerified: user.isVerified
     }
+  };
+}
 
-    res.status(200).json({ message: 'OTP sent', skipped: delivery.skipped });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// 2. Complete Signup (Verify OTP & Create User)
-const signupCompleteSchema = z.object({
+// 1. SIGNUP
+const signupSchema = z.object({
   body: z.object({
-    phone: z.string().min(10),
-    otp: z.string().length(6),
-    username: z.string().min(3),
-    password: z.string().min(6),
-    name: z.string().min(1),
-    address: z.object({
-      state: z.string().min(1).optional(),
-      district: z.string().min(1).optional(),
-      pinCode: z.string().optional(),
-      landmark: z.string().optional()
-    }).optional()
-  }),
-  query: z.object({}),
-  params: z.object({}),
+    email: z.string().email(),
+    username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+    password: z.string().min(8),
+    name: z.string().optional()
+  })
 });
 
-router.post('/signup-complete', validate(signupCompleteSchema), async (req, res, next) => {
+router.post('/signup', validate(signupSchema), async (req, res, next) => {
   try {
-    const { phone, otp, username, password, name, address } = req.validated.body;
+    const { email, username, password, name } = req.validated.body;
 
-    // Verify OTP
-    const validOtp = await OTP.findOne({
-      phone,
-      otp,
-      consumedAt: null,
-      expiresAt: { $gt: new Date() }
-    });
-
-    if (!validOtp) {
-      const err = new Error('Invalid or expired OTP');
-      err.statusCode = 400;
-      throw err;
-    }
-
-    // Check if phone or username already exists
-    const existingUser = await User.findOne({ $or: [{ phone }, { username: username.toLowerCase() }] });
+    const existingUser = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username: username.toLowerCase() }] });
     if (existingUser) {
-      const err = new Error('User with this phone number or username already exists');
+      const err = new Error('User with this email or username already exists');
       err.statusCode = 400;
       throw err;
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const masterAccessCode = crypto.randomBytes(8).toString('hex').toUpperCase();
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const verificationToken = crypto.randomBytes(36).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
 
-    // Create user
     const user = await User.create({
-      phone,
+      email: email.toLowerCase(),
       username: username.toLowerCase(),
       password: hashedPassword,
       name,
-      address,
-      masterAccessCode
+      verificationToken: tokenHash
     });
 
-    // Mark OTP as consumed
-    validOtp.consumedAt = new Date();
-    await validOtp.save();
+    const verifyUrl = `${env.appUrl}/auth/verify-email?token=${verificationToken}`;
+    await sendVerificationEmail(user.email, verifyUrl);
 
-    // Log them in immediately
-    const tokenValue = signAccessToken({ sub: user.id, username: user.username, isAdmin: user.isAdmin });
-
-    res.status(201).json({
-      message: 'Account created successfully',
-      token: tokenValue,
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        phone: user.phone,
-        isAdmin: user.isAdmin
-      }
-    });
+    res.status(201).json({ message: 'Account created. Please check your email to verify.' });
   } catch (error) {
     next(error);
   }
 });
 
-// 3. Login with Phone OR Username + Password
+// 2. VERIFY EMAIL
+const verifyEmailSchema = z.object({
+  body: z.object({ token: z.string().min(10) })
+});
+
+router.post('/verify-email', validate(verifyEmailSchema), async (req, res, next) => {
+  try {
+    const { token } = req.validated.body;
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({ verificationToken: tokenHash });
+
+    if (!user) {
+      const err = new Error('Invalid or expired verification token');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    user.isVerified = true;
+    user.verificationToken = null;
+    await user.save();
+
+    res.json({ message: 'Email verified successfully. You can now log in.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 3. LOGIN (Password)
 const loginSchema = z.object({
   body: z.object({
-    identifier: z.string().min(1), // Phone or username
+    identifier: z.string().min(1), // Email or username
     password: z.string().min(1),
-  }),
-  query: z.object({}),
-  params: z.object({}),
+  })
 });
 
 router.post('/login', validate(loginSchema), async (req, res, next) => {
   try {
     const { identifier, password } = req.validated.body;
+    const id = identifier.toLowerCase();
 
-    // Find by phone or username
     const user = await User.findOne({
-      $or: [
-        { phone: identifier },
-        { username: identifier.toLowerCase() }
-      ]
+      $or: [{ email: id }, { username: id }]
     });
 
     if (!user) {
       const err = new Error('Invalid credentials');
+      err.statusCode = 401;
+      throw err;
+    }
+
+    if (!user.password) {
+      const err = new Error('Please use a magic link to log in and set a password.');
       err.statusCode = 401;
       throw err;
     }
@@ -166,156 +153,98 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
       throw err;
     }
 
-    const tokenValue = signAccessToken({ sub: user.id, username: user.username, isAdmin: user.isAdmin });
+    if (!user.isVerified) {
+      const err = new Error('Please verify your email address before logging in');
+      err.statusCode = 403;
+      throw err;
+    }
 
-    res.json({
-      token: tokenValue,
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        phone: user.phone,
-        isAdmin: user.isAdmin
-      }
-    });
+    const authData = await generateAuthResponse(user);
+    res.json(authData);
   } catch (error) {
     next(error);
   }
 });
 
-// 4. Reset Password
-const resetPasswordSchema = z.object({
-  body: z.object({
-    phone: z.string().min(10),
-    otp: z.string().length(6),
-    newPassword: z.string().min(6),
-  }),
-  query: z.object({}),
-  params: z.object({}),
+// 4. REFRESH TOKEN
+const refreshSchema = z.object({
+  body: z.object({ refreshToken: z.string().min(1) })
 });
 
-router.post('/reset-password', validate(resetPasswordSchema), async (req, res, next) => {
+router.post('/refresh', validate(refreshSchema), async (req, res, next) => {
   try {
-    const { phone, otp, newPassword } = req.validated.body;
+    const { refreshToken } = req.validated.body;
 
-    // Verify OTP
-    const validOtp = await OTP.findOne({
-      phone,
-      otp,
-      consumedAt: null,
-      expiresAt: { $gt: new Date() }
-    });
+    const payload = verifyToken(refreshToken);
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const validToken = await RefreshToken.findOne({ tokenHash, userId: payload.sub });
 
-    if (!validOtp) {
-      const err = new Error('Invalid or expired OTP');
-      err.statusCode = 400;
+    if (!validToken) {
+      const err = new Error('Invalid refresh token');
+      err.statusCode = 401;
       throw err;
     }
 
-    const user = await User.findOne({ phone });
-    if (!user) {
-      const err = new Error('User not found');
-      err.statusCode = 404;
+    const user = await User.findById(payload.sub);
+    if (!user || !user.isVerified) {
+      const err = new Error('User invalid or unverified');
+      err.statusCode = 401;
       throw err;
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
+    // Delete old refresh token (rotation)
+    await validToken.deleteOne();
 
-    validOtp.consumedAt = new Date();
-    await validOtp.save();
-
-    res.json({ message: 'Password reset successfully' });
+    const authData = await generateAuthResponse(user);
+    res.json(authData);
   } catch (error) {
     next(error);
   }
 });
 
-
-// --- OLD MAGIC LINK FLOW (DISCONNECTED/COMMENTED OUT FOR NOW) ---
-/*
+// 5. MAGIC LINK LOGIN
 const requestMagicSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    name: z.string().optional(),
-  }),
-  query: z.object({}),
-  params: z.object({}),
+  body: z.object({ email: z.string().email() })
 });
 
 router.post('/magic-link/request', validate(requestMagicSchema), async (req, res, next) => {
   try {
     const { email } = req.validated.body;
-    const magicToken = crypto.randomBytes(36).toString('hex');
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-    await MagicLink.create({ email, token: magicToken, expiresAt });
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || !user.isVerified) {
+      // Return 202 to prevent email enumeration attacks
+      return res.status(202).json({ message: 'If the email exists and is verified, a link was sent.' });
+    }
+
+    const magicToken = crypto.randomBytes(36).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(magicToken).digest('hex');
+
+    await MagicLink.create({
+      userId: user.id,
+      tokenHash
+    });
 
     const magicUrl = `${env.appUrl}/auth/callback?token=${encodeURIComponent(magicToken)}`;
-    const mail = await sendMagicLinkEmail(email, magicUrl);
+    await sendMagicLinkEmail(user.email, magicUrl);
 
-    res.status(202).json({ message: 'Magic link sent', delivery: mail });
+    res.status(202).json({ message: 'If the email exists and is verified, a link was sent.' });
   } catch (error) {
-    if (error.code === 11000) {
-      error.statusCode = 429;
-      error.message = 'Please wait before requesting another magic link';
-    }
     next(error);
   }
 });
 
-const signupSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    name: z.string().min(1),
-  }),
-  query: z.object({}),
-  params: z.object({}),
+const verifyMagicSchema = z.object({
+  body: z.object({ token: z.string().min(20) })
 });
 
-router.post('/signup', validate(signupSchema), async (req, res, next) => {
-  try {
-    const { email, name } = req.validated.body;
-
-    // Create the user immediately so we can store the name.
-    // If the user already exists, this could just update or be a no-op depending on preference.
-    // We'll update the user if they exist or insert them if they don't.
-    await User.findOneAndUpdate(
-      { email: email.toLowerCase() },
-      { $set: { name }, $setOnInsert: { email: email.toLowerCase() } },
-      { upsert: true, new: true }
-    );
-
-    const magicToken = crypto.randomBytes(36).toString('hex');
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
-    await MagicLink.create({ email: email.toLowerCase(), token: magicToken, expiresAt });
-
-    const magicUrl = `${env.appUrl}/auth/callback?token=${encodeURIComponent(magicToken)}`;
-    const mail = await sendMagicLinkEmail(email, magicUrl);
-
-    res.status(202).json({ message: 'Account created and magic link sent', delivery: mail });
-  } catch (error) {
-    if (error.code === 11000) {
-      error.statusCode = 429;
-      error.message = 'Please wait before requesting another magic link';
-    }
-    next(error);
-  }
-});
-
-const verifySchema = z.object({
-  body: z.object({ token: z.string().min(20) }),
-  query: z.object({}),
-  params: z.object({}),
-});
-
-router.post('/magic-link/verify', validate(verifySchema), async (req, res, next) => {
+router.post('/magic-link/verify', validate(verifyMagicSchema), async (req, res, next) => {
   try {
     const { token } = req.validated.body;
-    const record = await MagicLink.findOne({ token });
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const record = await MagicLink.findOne({ tokenHash }).populate('userId');
 
-    if (!record || record.consumedAt || record.expiresAt < new Date()) {
+    if (!record || record.consumedAt) {
       const err = new Error('Magic link is invalid or expired');
       err.statusCode = 400;
       throw err;
@@ -324,19 +253,85 @@ router.post('/magic-link/verify', validate(verifySchema), async (req, res, next)
     record.consumedAt = new Date();
     await record.save();
 
-    const user = await User.findOneAndUpdate(
-      { email: record.email },
-      { $setOnInsert: { email: record.email } },
-      { upsert: true, new: true }
-    );
+    const user = record.userId;
+    if (!user || !user.isVerified) {
+      const err = new Error('User invalid or unverified');
+      err.statusCode = 401;
+      throw err;
+    }
 
-    const tokenValue = signAccessToken({ sub: user.id, email: user.email, isAdmin: user.isAdmin });
-
-    res.json({ token: tokenValue, user });
+    const authData = await generateAuthResponse(user);
+    res.json(authData);
   } catch (error) {
     next(error);
   }
 });
-*/
+
+// 6. FORGOT PASSWORD
+const forgotPasswordSchema = z.object({
+  body: z.object({ identifier: z.string().min(1) })
+});
+
+router.post('/forgot-password', validate(forgotPasswordSchema), async (req, res, next) => {
+  try {
+    const { identifier } = req.validated.body;
+    const id = identifier.toLowerCase();
+
+    const user = await User.findOne({
+      $or: [{ email: id }, { username: id }]
+    });
+
+    if (user) {
+      const resetToken = crypto.randomBytes(36).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+      await ResetToken.create({
+        userId: user.id,
+        tokenHash
+      });
+
+      const resetUrl = `${env.appUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+      await sendPasswordResetEmail(user.email, resetUrl);
+    }
+
+    // Always return 202 to prevent user enumeration
+    res.status(202).json({ message: 'If an account exists, a password reset link has been sent.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 7. RESET PASSWORD
+const resetPasswordSchema = z.object({
+  body: z.object({
+    token: z.string().min(20),
+    newPassword: z.string().min(8)
+  })
+});
+
+router.post('/reset-password', validate(resetPasswordSchema), async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.validated.body;
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const record = await ResetToken.findOne({ tokenHash }).populate('userId');
+
+    if (!record) {
+      const err = new Error('Reset link is invalid or expired');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    const user = record.userId;
+    user.password = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    await record.deleteOne(); // Destroy token after use
+
+    res.json({ message: 'Password has been reset successfully.' });
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
