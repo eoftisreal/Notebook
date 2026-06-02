@@ -47,4 +47,4 @@ services:
         value: production
       - key: VITE_API_URL
         scope: BUILD_TIME
-        value: https://coinrx.me/api
+        value: /api

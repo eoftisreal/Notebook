@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { Plus, Trash2 } from 'lucide-react';
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const apiBase = import.meta.env.VITE_API_URL || '/api';
 
 type Coupon = {
   _id: string;
