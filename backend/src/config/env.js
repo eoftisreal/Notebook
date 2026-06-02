@@ -8,7 +8,7 @@ const env = {
   mongoUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ecommerce',
   jwtSecret: process.env.JWT_SECRET || 'dev-secret',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  appUrl: process.env.APP_URL || 'http://localhost:3000',
+  appUrl: (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, ''),
   sendgridApiKey: process.env.SENDGRID_API_KEY || '',
   emailFrom: process.env.EMAIL_FROM || 'noreply@example.com',
   emailFromAuth: process.env.EMAIL_FROM_AUTH || process.env.EMAIL_FROM || 'auth@example.com',
