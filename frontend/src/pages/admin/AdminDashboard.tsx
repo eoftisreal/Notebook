@@ -1,31 +1,63 @@
-import MediaUpload from '@/components/MediaUpload';
-import ProductForm from '@/components/ProductForm';
+import { Users, ShoppingBag, DollarSign, Activity } from 'lucide-react';
 
-export default function AdminPage() {
+export default function AdminDashboard() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-black">Admin Dashboard</h1>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <section className="rounded-xl bg-white p-4 shadow">
-          <h2 className="font-bold">Products</h2>
-          <p className="text-sm text-slate-600">Create, edit, and archive listings.</p>
-        </section>
-        <section className="rounded-xl bg-white p-4 shadow">
-          <h2 className="font-bold">Orders</h2>
-          <p className="text-sm text-slate-600">Update fulfillment and tracking status.</p>
-        </section>
-        <section className="rounded-xl bg-white p-4 shadow">
-          <h2 className="font-bold">Analytics</h2>
-          <p className="text-sm text-slate-600">Monitor revenue and artist trends.</p>
-        </section>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-black">Dashboard Overview</h1>
+        <div className="text-sm text-slate-500 bg-white px-3 py-1.5 rounded-full border shadow-sm">
+          Last 30 Days
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
-        <div className="lg:col-span-2">
-          <ProductForm />
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Total Users</p>
+            <p className="text-2xl font-bold">1,248</p>
+          </div>
         </div>
-        <div>
-          <MediaUpload />
+
+        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-green-50 text-green-600">
+            <ShoppingBag className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Total Orders</p>
+            <p className="text-2xl font-bold">384</p>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-brand-purple/10 text-brand-purple">
+            <DollarSign className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Revenue</p>
+            <p className="text-2xl font-bold">₹124,500</p>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-orange-50 text-orange-600">
+            <Activity className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Active Sessions</p>
+            <p className="text-2xl font-bold">42</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm border border-slate-100 h-96 flex items-center justify-center text-slate-400">
+          [ Revenue Chart Placeholder ]
+        </div>
+        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 h-96 flex items-center justify-center text-slate-400">
+          [ Recent Activity Placeholder ]
         </div>
       </div>
     </div>
