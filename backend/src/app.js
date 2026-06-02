@@ -20,7 +20,9 @@ const app = express();
 // This resolves express-rate-limit 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR' errors.
 app.set('trust proxy', 1);
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Sometimes needed for Vite/React if assets are loaded dynamically, but better to keep it false or configure it
+}));
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
@@ -40,6 +42,21 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Serve frontend static files in production
+if (env.nodeEnv === 'production') {
+  const frontendPath = path.join(__dirname, '../../frontend/dist');
+  app.use(express.static(frontendPath));
+
+  app.get('*', (req, res, next) => {
+    // If it's an API request that wasn't matched above, let it pass to notFound
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    // Otherwise, send the frontend index.html
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
