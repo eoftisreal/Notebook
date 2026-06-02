@@ -2,13 +2,12 @@
 
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/lib/store';
+import { setAuthToken } from '@/lib/storage';
 
 const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const setToken = useAuthStore((state) => state.setToken);
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +26,7 @@ export default function LoginForm() {
 
       const body = await response.json();
       if (response.ok) {
-        setToken(body.token, body.user);
+        setAuthToken(body.token);
         setMessage('Success!');
         navigate('/');
       } else {

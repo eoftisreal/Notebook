@@ -2,13 +2,12 @@
 
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/lib/store';
+import { setAuthToken } from '@/lib/storage';
 
 const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export default function SignupForm() {
   const navigate = useNavigate();
-  const setToken = useAuthStore((state) => state.setToken);
 
   const [step, setStep] = useState(1);
   const [phone, setPhone] = useState('');
@@ -67,7 +66,7 @@ export default function SignupForm() {
 
       const body = await response.json();
       if (response.ok) {
-        setToken(body.token, body.user);
+        setAuthToken(body.token);
         setMessage('Account created successfully!');
         navigate('/');
       } else {
