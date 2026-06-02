@@ -56,7 +56,8 @@ export function addCartItem(product: Pick<CartItem, 'productId' | 'title' | 'uni
 }
 
 export function getAuthToken() {
-  return getStoredValue<string | null>(TOKEN_KEY, null);
+  if (!hasWindow()) return null;
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function setAuthToken(token: string) {
@@ -69,7 +70,8 @@ export function setAuthToken(token: string) {
 }
 
 export function getRefreshToken() {
-  return getStoredValue<string | null>(REFRESH_TOKEN_KEY, null);
+  if (!hasWindow()) return null;
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
 }
 
 export function setRefreshToken(token: string) {
