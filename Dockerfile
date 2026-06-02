@@ -24,6 +24,7 @@ COPY --from=backend-deps /app/backend/node_modules ./backend/node_modules
 # Copy backend source
 COPY backend/package*.json ./backend/
 COPY backend/src ./backend/src
+COPY backend/scripts ./backend/scripts
 
 # Copy frontend build artifacts (now in dist instead of out)
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
