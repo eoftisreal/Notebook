@@ -11,14 +11,28 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (token) {
-      setIsAuthenticated(true);
-      const payload = parseJwt(token);
-      if (payload && (payload.role === 'admin' || payload.role === 'master_admin' || payload.isAdmin)) {
-        setIsAdmin(true);
+    const checkAuth = () => {
+      const token = getAuthToken();
+      if (token) {
+        setIsAuthenticated(true);
+        const payload = parseJwt(token);
+        if (payload && (payload.role === 'admin' || payload.role === 'master_admin' || payload.isAdmin)) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
       }
-    }
+    };
+
+    checkAuth();
+
+    window.addEventListener('auth-change', checkAuth);
+    return () => {
+      window.removeEventListener('auth-change', checkAuth);
+    };
   }, []);
 
   const handleLogout = () => {
