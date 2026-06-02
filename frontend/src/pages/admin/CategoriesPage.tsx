@@ -1,0 +1,126 @@
+import { useState, useEffect } from 'react';
+import { getAuthToken } from '@/lib/storage';
+import { Plus, Trash2 } from 'lucide-react';
+
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
+type Category = {
+  _id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+};
+
+export default function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch(`${apiBase}/master/categories`, {
+        headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+      });
+      if (res.ok) setCategories(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/master/categories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify({ name, description })
+      });
+      if (res.ok) {
+        setName('');
+        setDescription('');
+        fetchCategories();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this category?')) return;
+    try {
+      const res = await fetch(`${apiBase}/master/categories/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+      });
+      if (res.ok) fetchCategories();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-black">Categories Master</h1>
+
+      <div className="grid gap-6 md:grid-cols-3 items-start">
+        <div className="md:col-span-1 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+          <h2 className="font-bold text-lg mb-4">Add Category</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Name</label>
+              <input required value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Description</label>
+              <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" />
+            </div>
+            <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">
+              <Plus className="w-4 h-4" /> Add Category
+            </button>
+          </form>
+        </div>
+
+        <div className="md:col-span-2 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+          <h2 className="font-bold text-lg mb-4">Existing Categories</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500 uppercase">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium">Description</th>
+                  <th className="px-4 py-3 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {categories.length === 0 ? (
+                  <tr><td colSpan={3} className="px-4 py-4 text-center text-slate-500">No categories found.</td></tr>
+                ) : categories.map(cat => (
+                  <tr key={cat._id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 font-medium text-slate-900">{cat.name}</td>
+                    <td className="px-4 py-3 text-slate-500">{cat.description || '-'}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button onClick={() => handleDelete(cat._id)} className="text-red-500 hover:text-red-700 p-1">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

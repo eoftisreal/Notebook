@@ -11,6 +11,7 @@ const cartRoutes = require('./routes/cart');
 const checkoutRoutes = require('./routes/checkout');
 const orderRoutes = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
+const masterRoutes = require('./routes/master');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const path = require('path');
 
@@ -42,6 +43,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/master', masterRoutes);
 
 // Serve frontend static files in production
 if (env.nodeEnv === 'production') {
