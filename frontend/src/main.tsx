@@ -18,12 +18,7 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import MagicLinkPage from './pages/auth/MagicLinkPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import CallbackPage from './pages/auth/CallbackPage';
-import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminProductsPage from './pages/admin/AdminProductsPage';
-import CategoriesPage from './pages/admin/CategoriesPage';
-import BrandsPage from './pages/admin/BrandsPage';
-import CouponsPage from './pages/admin/CouponsPage';
 import AccountPage from './pages/AccountPage';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -49,14 +44,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="auth/magic-link" element={<MagicLinkPage />} />
           <Route path="auth/verify-email" element={<VerifyEmailPage />} />
           <Route path="auth/callback" element={<CallbackPage />} />
-        </Route>
 
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProductsPage />} />
-          <Route path="categories" element={<CategoriesPage />} />
-          <Route path="brands" element={<BrandsPage />} />
-          <Route path="coupons" element={<CouponsPage />} />
+          <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>
