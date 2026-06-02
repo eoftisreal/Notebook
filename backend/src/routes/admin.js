@@ -4,10 +4,20 @@ const adminOnly = require('../middleware/admin');
 const Product = require('../models/Product');
 const multer = require('multer');
 const Order = require('../models/Order');
+const User = require('../models/User');
 const { getAdminSettings } = require('../utils/admin');
 const { uploadToR2, getObjectUrl } = require('../utils/r2');
 
 const router = express.Router();
+
+function masterAdminOnly(req, _res, next) {
+  if (req.user?.role !== 'master_admin') {
+    const err = new Error('Master Admin access required');
+    err.statusCode = 403;
+    return next(err);
+  }
+  return next();
+}
 
 router.use(auth, adminOnly);
 
@@ -36,8 +46,45 @@ router.get('/analytics', async (_req, res, next) => {
   }
 });
 
-router.get('/settings', (_req, res) => {
+router.get('/settings', masterAdminOnly, (_req, res) => {
   res.json(getAdminSettings());
+});
+
+router.get('/users', masterAdminOnly, async (req, res, next) => {
+  try {
+    const filter = req.query.role ? { role: req.query.role } : {};
+    const users = await User.find(filter).select('-password');
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/users/:id', masterAdminOnly, async (req, res, next) => {
+  try {
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({ message: 'Cannot delete yourself' });
+    }
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/users/:id/role', masterAdminOnly, async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    if (!['user', 'admin', 'master_admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, { role, isAdmin: role !== 'user' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.post('/upload', upload.single('file'), async (req, res, next) => {

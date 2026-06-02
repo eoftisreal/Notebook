@@ -24,6 +24,9 @@ import AdminProductsPage from './pages/admin/AdminProductsPage';
 import CategoriesPage from './pages/admin/CategoriesPage';
 import BrandsPage from './pages/admin/BrandsPage';
 import CouponsPage from './pages/admin/CouponsPage';
+import UsersPage from './pages/admin/UsersPage';
+import AdminsPage from './pages/admin/AdminsPage';
+import SettingsPage from './pages/admin/SettingsPage';
 import AccountPage from './pages/AccountPage';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -57,6 +60,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="brands" element={<BrandsPage />} />
           <Route path="coupons" element={<CouponsPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="admins" element={<AdminsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
