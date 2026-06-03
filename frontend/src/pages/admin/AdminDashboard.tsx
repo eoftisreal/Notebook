@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users, ShoppingBag, DollarSign, Activity, Package } from 'lucide-react';
+import { ShoppingBag, DollarSign, Activity, Package } from 'lucide-react';
 import { getAuthToken } from '@/lib/storage';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
