@@ -44,8 +44,13 @@ export default function Header() {
 
   return (
     <>
-      <div className="bg-foreground text-white text-[11px] font-medium tracking-widest uppercase py-2 text-center">
-        LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.
+      <div className="bg-foreground text-white text-[11px] font-medium tracking-widest uppercase py-2 overflow-hidden flex whitespace-nowrap group">
+        <div className="animate-marquee group-hover:[animation-play-state:paused] flex min-w-full shrink-0 items-center justify-around gap-8">
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+        </div>
       </div>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-4">
@@ -56,11 +61,11 @@ export default function Header() {
             <Link to="/contact" className={`${linkClass} hidden md:inline-block`}>Contact</Link>
           </nav>
 
-          <Link to="/" className="flex justify-center flex-1 shrink-0">
+          <Link to="/" className="flex justify-center flex-1 shrink-0 min-w-0">
             <img
               src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/web%20logo.png"
               alt="Kapda Kraft"
-              className="h-10 md:h-12 object-contain mix-blend-multiply"
+              className="h-14 md:h-12 w-auto max-w-full object-contain mix-blend-multiply"
             />
           </Link>
 
