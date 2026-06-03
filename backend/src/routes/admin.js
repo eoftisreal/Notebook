@@ -6,7 +6,6 @@ const multer = require('multer');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const { getAdminSettings } = require('../utils/admin');
-const { uploadToR2, getObjectUrl } = require('../utils/r2');
 
 const router = express.Router();
 
@@ -87,10 +86,16 @@ router.put('/users/:id/role', masterAdminOnly, async (req, res, next) => {
   }
 });
 
+const { uploadToR2, getObjectUrl, isR2Configured } = require('../utils/r2');
+
 router.post('/upload', upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    if (!isR2Configured()) {
+      return res.status(500).json({ message: 'Storage is not configured on the server. Image upload is disabled.' });
     }
 
     const key = await uploadToR2(req.file.buffer, req.file.mimetype, req.file.originalname);

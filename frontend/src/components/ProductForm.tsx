@@ -68,11 +68,13 @@ export default function ProductForm() {
         setUploadedUrl(body.url);
         setR2Key(body.key);
         setFile(null);
+        setMessage(''); // Clear any previous error messages on success
       } else {
         setMessage(body.message || 'Image upload failed');
+        // Do NOT setFile(null) so they can try again or see why it failed
       }
-    } catch {
-      setMessage('Image upload failed');
+    } catch (e: any) {
+      setMessage(e.message || 'Image upload failed due to network error');
     } finally {
       setUploadingImage(false);
     }

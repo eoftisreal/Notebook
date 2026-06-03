@@ -1,5 +1,5 @@
 import ProductForm from '@/components/ProductForm';
-import MediaUpload from '@/components/MediaUpload';
+import AdminProductList from '@/components/AdminProductList';
 
 export default function AdminProductsPage() {
   return (
@@ -8,12 +8,12 @@ export default function AdminProductsPage() {
         <h1 className="text-3xl font-black">Manage Products</h1>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
-        <div className="lg:col-span-2">
+      <div className="grid gap-6 lg:grid-cols-2 items-start">
+        <div>
           <ProductForm />
         </div>
         <div>
-          <MediaUpload />
+          <AdminProductList />
         </div>
       </div>
     </div>
