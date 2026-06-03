@@ -38,7 +38,7 @@ const listSchema = z.object({
     maxPrice: z.coerce.number().optional(),
     isFeatured: z.string().optional(),
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(50).default(12),
+    limit: z.coerce.number().min(1).max(1000).default(12),
   }),
   params: z.object({}),
 });
