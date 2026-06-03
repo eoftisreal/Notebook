@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { getAuthToken, clearAuth } from '@/lib/storage';
 import { parseJwt } from '@/lib/jwt';
 
-const linkClass = 'text-sm font-semibold text-slate-100 hover:text-brand-pink transition';
+const linkClass = 'text-sm font-medium text-secondary-text hover:text-foreground transition-colors tracking-wide';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -43,36 +43,44 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-brand-dark text-white shadow-lg border-b border-brand-purple/20">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center">
-          <img
-            src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft%20(1).gif"
-            alt="Kapda Kraft"
-            className="h-12 object-contain"
-          />
-        </Link>
-        <nav className="flex items-center gap-4">
-          <Link to="/products" className={linkClass}>Shop</Link>
-          <Link to="/cart" className={linkClass}>Cart</Link>
-
-          {isAdmin && (
-            <Link to="/admin" className={linkClass}>Admin</Link>
-          )}
-
-          {isAuthenticated ? (
-            <>
-              <Link to="/account" className={linkClass}>Account</Link>
-              <button onClick={handleLogout} className={linkClass}>Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/auth/login" className={linkClass}>Log In</Link>
-              <Link to="/auth/signup" className={linkClass}>Sign Up</Link>
-            </>
-          )}
-        </nav>
+    <>
+      <div className="bg-foreground text-white text-[11px] font-medium tracking-widest uppercase py-2 text-center">
+        Free shipping on all orders over ₹5000
       </div>
-    </header>
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-4">
+          <nav className="hidden md:flex items-center gap-6 flex-1">
+            <Link to="/products" className={linkClass}>Shop</Link>
+            <Link to="/products?category=Collections" className={linkClass}>Collections</Link>
+            <Link to="/about" className={linkClass}>About</Link>
+            <Link to="/contact" className={linkClass}>Contact</Link>
+          </nav>
+
+          <Link to="/" className="flex justify-center flex-1">
+            <img
+              src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft%20(1).gif"
+              alt="Kapda Kraft"
+              className="h-10 object-contain mix-blend-multiply"
+            />
+          </Link>
+
+          <nav className="flex items-center justify-end gap-6 flex-1">
+            {isAdmin && (
+              <Link to="/admin" className={linkClass}>Admin</Link>
+            )}
+
+            {isAuthenticated ? (
+              <>
+                <Link to="/account" className={linkClass}>Account</Link>
+                <button onClick={handleLogout} className={linkClass}>Logout</button>
+              </>
+            ) : (
+              <Link to="/auth/login" className={linkClass}>Log In</Link>
+            )}
+            <Link to="/cart" className={linkClass}>Cart (0)</Link>
+          </nav>
+        </div>
+      </header>
+    </>
   );
 }
