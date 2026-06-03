@@ -7,11 +7,11 @@ type ProductGridProps = {
 
 export default function ProductGrid({ products }: ProductGridProps) {
   if (products.length === 0) {
-    return <p className="rounded-xl bg-white p-6 shadow">No products found.</p>;
+    return <p className="col-span-full py-16 text-center text-secondary-text">No products found matching your criteria.</p>;
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 grid-cols-2 lg:grid-cols-4">
       {products.map((product) => (
         <ProductCard key={product._id} product={product} />
       ))}
