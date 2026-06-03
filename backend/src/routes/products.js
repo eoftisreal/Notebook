@@ -36,6 +36,7 @@ const listSchema = z.object({
     brand: z.string().optional(),
     minPrice: z.coerce.number().optional(),
     maxPrice: z.coerce.number().optional(),
+    isFeatured: z.string().optional(),
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(50).default(12),
   }),
@@ -44,7 +45,7 @@ const listSchema = z.object({
 
 router.get('/', validate(listSchema), async (req, res, next) => {
   try {
-    const { q, category, brand, minPrice, maxPrice, page, limit } = req.validated.query;
+    const { q, category, brand, minPrice, maxPrice, isFeatured, page, limit } = req.validated.query;
     const query = { isActive: true };
 
     if (q) {
@@ -60,6 +61,11 @@ router.get('/', validate(listSchema), async (req, res, next) => {
       query.price = {};
       if (minPrice !== undefined) query.price.$gte = minPrice;
       if (maxPrice !== undefined) query.price.$lte = maxPrice;
+    }
+    if (isFeatured === 'true') {
+      query.isFeatured = true;
+    } else if (isFeatured === 'false') {
+      query.isFeatured = false;
     }
 
     const [products, total] = await Promise.all([
@@ -103,6 +109,7 @@ const createSchema = z.object({
     compareAtPrice: z.number().nonnegative().optional(),
     stock: z.number().int().nonnegative().default(0),
     tags: z.array(z.string()).default([]),
+    isFeatured: z.boolean().default(false),
   }),
   query: z.object({}),
   params: z.object({}),
@@ -140,6 +147,33 @@ router.delete('/:id', auth, adminOnly, async (req, res, next) => {
       throw err;
     }
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+const patchSchema = z.object({
+  body: z.object({
+    isFeatured: z.boolean()
+  }),
+  params: z.object({
+    id: z.string()
+  })
+});
+
+router.patch('/:id/featured', auth, adminOnly, validate(patchSchema), async (req, res, next) => {
+  try {
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      { isFeatured: req.validated.body.isFeatured },
+      { new: true }
+    );
+    if (!updated) {
+      const err = new Error('Product not found');
+      err.statusCode = 404;
+      throw err;
+    }
+    res.json(updated);
   } catch (error) {
     next(error);
   }

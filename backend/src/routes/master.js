@@ -26,7 +26,9 @@ const categorySchema = z.object({
   body: z.object({
     name: z.string().min(1),
     description: z.string().optional(),
-    isActive: z.boolean().optional()
+    isActive: z.boolean().optional(),
+    image: z.string().url().optional().or(z.literal('')),
+    r2ImageKey: z.string().optional().or(z.literal(''))
   })
 });
 

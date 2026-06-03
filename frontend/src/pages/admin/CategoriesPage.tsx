@@ -9,6 +9,8 @@ type Category = {
   name: string;
   description: string;
   isActive: boolean;
+  image?: string;
+  r2ImageKey?: string;
 };
 
 export default function CategoriesPage() {
@@ -16,6 +18,11 @@ export default function CategoriesPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState('');
+  const [r2Key, setR2Key] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -32,6 +39,40 @@ export default function CategoriesPage() {
     }
   }
 
+  async function handleImageUpload(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file) return;
+
+    setUploadingImage(true);
+    const token = getAuthToken();
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`${apiBase}/admin/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: formData,
+      });
+
+      const body = await res.json();
+      if (res.ok) {
+        setUploadedUrl(body.url);
+        setR2Key(body.key);
+        setFile(null);
+      } else {
+        alert(body.message || 'Image upload failed');
+      }
+    } catch (e: any) {
+      alert(e.message || 'Image upload failed due to network error');
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -42,11 +83,18 @@ export default function CategoriesPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${getAuthToken()}`
         },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify({
+          name,
+          description,
+          image: uploadedUrl || undefined,
+          r2ImageKey: r2Key || undefined
+        })
       });
       if (res.ok) {
         setName('');
         setDescription('');
+        setUploadedUrl('');
+        setR2Key('');
         fetchCategories();
       }
     } catch (e) {
@@ -76,6 +124,31 @@ export default function CategoriesPage() {
       <div className="grid gap-6 md:grid-cols-3 items-start">
         <div className="md:col-span-1 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
           <h2 className="font-bold text-lg mb-4">Add Category</h2>
+          <div className="space-y-2 border-b pb-4 mb-4">
+            <h3 className="text-sm font-medium text-slate-700">Category Background Image (Optional)</h3>
+            <div className="flex gap-2 items-center flex-wrap">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setFile(event.target.files?.[0] || null)}
+                className="text-sm text-slate-500 w-full mb-2 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-brand-purple/10 file:text-brand-purple hover:file:bg-brand-purple/20"
+              />
+              <button
+                type="button"
+                onClick={handleImageUpload}
+                disabled={!file || uploadingImage}
+                className="rounded bg-brand-purple hover:bg-brand-pink px-3 py-1 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {uploadingImage ? 'Uploading...' : 'Upload Image'}
+              </button>
+            </div>
+            {uploadedUrl && (
+              <div className="mt-2">
+                <p className="text-xs text-green-600 mb-1">Image uploaded successfully!</p>
+                <img src={uploadedUrl} alt="Uploaded preview" className="max-h-24 rounded object-cover border" />
+              </div>
+            )}
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700">Name</label>
@@ -99,16 +172,24 @@ export default function CategoriesPage() {
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Description</th>
+                  <th className="px-4 py-3 font-medium">Image</th>
                   <th className="px-4 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {categories.length === 0 ? (
-                  <tr><td colSpan={3} className="px-4 py-4 text-center text-slate-500">No categories found.</td></tr>
+                  <tr><td colSpan={4} className="px-4 py-4 text-center text-slate-500">No categories found.</td></tr>
                 ) : categories.map(cat => (
                   <tr key={cat._id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 font-medium text-slate-900">{cat.name}</td>
                     <td className="px-4 py-3 text-slate-500">{cat.description || '-'}</td>
+                    <td className="px-4 py-3 text-slate-500">
+                      {cat.image ? (
+                        <img src={cat.image} alt={cat.name} className="w-10 h-10 object-cover rounded" />
+                      ) : (
+                        <span className="text-xs text-slate-400">None</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <button onClick={() => handleDelete(cat._id)} className="text-red-500 hover:text-red-700 p-1">
                         <Trash2 className="w-4 h-4" />
