@@ -85,7 +85,7 @@ export default function BrandsPage() {
               <label className="block text-sm font-medium text-slate-700">Description</label>
               <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" />
             </div>
-            <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">
+            <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-foreground hover:bg-black px-4 py-2 font-semibold text-white disabled:opacity-50">
               <Plus className="w-4 h-4" /> Add Brand
             </button>
           </form>

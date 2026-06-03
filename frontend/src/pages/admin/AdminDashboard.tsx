@@ -60,7 +60,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="p-3 rounded-lg bg-brand-purple/10 text-brand-purple">
+          <div className="p-3 rounded-lg bg-foreground/10 text-foreground">
             <DollarSign className="w-6 h-6" />
           </div>
           <div>

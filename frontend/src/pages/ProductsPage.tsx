@@ -80,7 +80,7 @@ function ProductListingContent() {
           <option value="">All Brands</option>
           {brands.map(b => <option key={b._id} value={b.name}>{b.name}</option>)}
         </select>
-        <button className="rounded-lg bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white">Apply Filters</button>
+        <button className="rounded-lg bg-foreground hover:bg-black px-4 py-2 font-semibold text-white">Apply Filters</button>
       </form>
       {loading ? (
         <p>Loading products...</p>

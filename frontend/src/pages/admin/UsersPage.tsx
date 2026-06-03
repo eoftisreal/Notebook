@@ -89,7 +89,7 @@ export default function UsersPage() {
                 <td className="px-6 py-4">{user.name || 'N/A'}</td>
                 <td className="px-6 py-4">{user.role}</td>
                 <td className="px-6 py-4 text-right space-x-3">
-                  <button onClick={() => promoteUser(user._id)} className="text-brand-purple hover:underline">Make Admin</button>
+                  <button onClick={() => promoteUser(user._id)} className="text-foreground hover:underline">Make Admin</button>
                   <button onClick={() => deleteUser(user._id)} className="text-red-600 hover:underline">Delete</button>
                 </td>
               </tr>

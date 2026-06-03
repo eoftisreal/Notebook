@@ -77,7 +77,7 @@ export default function SettingsPage() {
               />
               <button
                 onClick={() => handleUpdateSetting('heroBannerUrl', settings?.heroBannerUrl)}
-                className="rounded bg-brand-purple px-4 py-2 text-sm font-bold text-white hover:bg-brand-purple/90"
+                className="rounded bg-foreground px-4 py-2 text-sm font-bold text-white hover:bg-foreground/90"
               >
                 Save Banner
               </button>

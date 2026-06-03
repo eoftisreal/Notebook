@@ -43,7 +43,7 @@ export default function VerifyEmailPage() {
       <h1 className="text-2xl font-black">Email Verification</h1>
       <p className="mt-4 text-slate-700">{message}</p>
       <div className="mt-6">
-        <Link to="/auth/login" className="text-brand-purple hover:underline font-semibold">Go to Login</Link>
+        <Link to="/auth/login" className="text-foreground hover:underline font-semibold">Go to Login</Link>
       </div>
     </div>
   );

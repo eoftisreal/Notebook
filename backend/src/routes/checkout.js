@@ -83,6 +83,7 @@ router.post('/create', auth, validate(checkoutSchema), async (req, res, next) =>
     }));
 
     const order = await Order.create({
+      discount,
       userId: req.user.id,
       items,
       subtotal,
