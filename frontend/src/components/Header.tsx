@@ -45,7 +45,7 @@ export default function Header() {
   return (
     <>
       <div className="bg-foreground text-white text-[11px] font-medium tracking-widest uppercase py-2 text-center">
-        Free shipping on all orders over ₹5000
+        LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.
       </div>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-4">
