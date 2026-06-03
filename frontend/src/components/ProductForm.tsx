@@ -5,13 +5,19 @@ import { getAuthToken } from '@/lib/storage';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
-export default function ProductForm() {
+interface ProductFormProps {
+  onSuccess?: () => void;
+}
+
+export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [artistName, setArtistName] = useState('');
   const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
   const [price, setPrice] = useState(0);
+
+  const [isFeatured, setIsFeatured] = useState(false);
 
   const [categories, setCategories] = useState<{_id: string, name: string}[]>([]);
   const [brands, setBrands] = useState<{_id: string, name: string}[]>([]);
@@ -96,7 +102,8 @@ export default function ProductForm() {
         price,
         stock,
         images: uploadedUrl ? [uploadedUrl] : [],
-        r2ImageKeys: r2Key ? [r2Key] : []
+        r2ImageKeys: r2Key ? [r2Key] : [],
+        isFeatured
       };
 
       const response = await fetch(`${apiBase}/products`, {
@@ -118,8 +125,10 @@ export default function ProductForm() {
         setBrand('');
         setPrice(0);
         setStock(0);
+        setIsFeatured(false);
         setUploadedUrl('');
         setR2Key('');
+        if (onSuccess) onSuccess();
       } else {
         setMessage(body.message || 'Failed to create product');
       }
@@ -207,6 +216,11 @@ export default function ProductForm() {
             <label className="block text-sm font-medium text-gray-700">Stock</label>
             <input type="number" required min="0" value={stock} onChange={e => setStock(Number(e.target.value))} className="mt-1 w-full rounded border px-3 py-2" />
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 mt-4">
+          <input type="checkbox" id="isFeatured" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-brand-purple focus:ring-brand-purple" />
+          <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700">Showcase on Home Page (Featured)</label>
         </div>
 
         <button disabled={loading} className="w-full rounded bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">

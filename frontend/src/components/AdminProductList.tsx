@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Star } from 'lucide-react';
 import { apiGet, Product } from '@/lib/api';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
-export default function AdminProductList() {
+interface AdminProductListProps {
+  refreshKey?: number;
+}
+
+export default function AdminProductList({ refreshKey = 0 }: AdminProductListProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [refreshKey]);
 
   async function fetchProducts() {
     try {
@@ -24,6 +28,27 @@ export default function AdminProductList() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function toggleFeatured(id: string, currentStatus: boolean) {
+    try {
+      const res = await fetch(`${apiBase}/products/${id}/featured`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify({ isFeatured: !currentStatus })
+      });
+      if (res.ok) {
+        fetchProducts();
+      } else {
+        alert('Failed to update product featured status.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to update product featured status.');
     }
   }
 
@@ -64,7 +89,7 @@ export default function AdminProductList() {
               <th className="px-4 py-3 font-medium">Title</th>
               <th className="px-4 py-3 font-medium">Category</th>
               <th className="px-4 py-3 font-medium">Price</th>
-              <th className="px-4 py-3 font-medium">Stock</th>
+              <th className="px-4 py-3 font-medium text-center">Featured</th>
               <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
@@ -76,7 +101,11 @@ export default function AdminProductList() {
                 <td className="px-4 py-3 font-medium text-slate-900">{product.title}</td>
                 <td className="px-4 py-3 text-slate-500">{product.category}</td>
                 <td className="px-4 py-3 text-slate-500">₹{product.price}</td>
-                <td className="px-4 py-3 text-slate-500">{product.stock}</td>
+                <td className="px-4 py-3 text-center">
+                  <button onClick={() => toggleFeatured(product._id, !!product.isFeatured)} className={`p-1 ${product.isFeatured ? 'text-yellow-500 hover:text-yellow-600' : 'text-slate-300 hover:text-slate-400'}`} title="Toggle Featured">
+                    <Star className="w-5 h-5" fill={product.isFeatured ? 'currentColor' : 'none'} />
+                  </button>
+                </td>
                 <td className="px-4 py-3 text-right">
                   <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:text-red-700 p-1" title="Delete Product">
                     <Trash2 className="w-4 h-4" />
