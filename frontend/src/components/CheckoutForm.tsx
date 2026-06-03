@@ -1,12 +1,46 @@
 'use client';
 
 import { useState } from 'react';
+import { getAuthToken } from '@/lib/storage';
+
+const apiBase = import.meta.env.VITE_API_URL || '/api';
 
 const steps = ['Address', 'Delivery', 'Payment'];
 
 export default function CheckoutForm() {
   const [step, setStep] = useState(0);
   const [message, setMessage] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [promoMessage, setPromoMessage] = useState('');
+
+  async function handleApplyPromo() {
+    if (!promoCode) return;
+    setPromoMessage('Validating...');
+
+    try {
+      const res = await fetch(`${apiBase}/checkout/validate-coupon`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify({ code: promoCode })
+      });
+
+      const body = await res.json();
+      if (res.ok) {
+        setDiscountAmount(body.discountAmount);
+        setPromoMessage(`Discount applied: ₹${body.discountAmount}`);
+      } else {
+        setDiscountAmount(0);
+        setPromoMessage(body.message || 'Invalid coupon');
+      }
+    } catch {
+      setDiscountAmount(0);
+      setPromoMessage('Error validating coupon');
+    }
+  }
 
   function handleNext() {
     if (step === steps.length - 1) {
@@ -36,9 +70,30 @@ export default function CheckoutForm() {
           </div>
         ) : null}
         {step === 1 ? (
-          <div className="space-y-2">
-            <label className="flex items-center gap-2"><input type="radio" name="delivery" defaultChecked /> Email delivery updates</label>
-            <label className="flex items-center gap-2"><input type="radio" name="delivery" /> WhatsApp delivery updates</label>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2"><input type="radio" name="delivery" defaultChecked /> Email delivery updates</label>
+              <label className="flex items-center gap-2"><input type="radio" name="delivery" /> WhatsApp delivery updates</label>
+            </div>
+
+            <div className="border-t pt-4">
+              <h3 className="font-semibold mb-2">Have a Promo Code?</h3>
+              <div className="flex gap-2">
+                <input
+                  value={promoCode}
+                  onChange={e => setPromoCode(e.target.value)}
+                  placeholder="Enter code"
+                  className="rounded border px-3 py-2 flex-grow uppercase"
+                />
+                <button
+                  onClick={handleApplyPromo}
+                  className="rounded bg-slate-800 text-white px-4 py-2 font-semibold hover:bg-slate-700"
+                >
+                  Apply
+                </button>
+              </div>
+              {promoMessage && <p className={`mt-2 text-sm ${discountAmount > 0 ? 'text-green-600' : 'text-red-500'}`}>{promoMessage}</p>}
+            </div>
           </div>
         ) : null}
         {step === 2 ? <p>Razorpay integration endpoint is ready on backend: <code>/api/checkout/create</code>.</p> : null}

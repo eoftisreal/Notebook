@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const Cart = require('../models/Cart');
 const Order = require('../models/Order');
+const Coupon = require('../models/Coupon');
 const { createRazorpayOrder, verifyRazorpaySignature } = require('../utils/payment');
 
 const router = express.Router();
@@ -35,8 +36,39 @@ router.post('/create', auth, validate(checkoutSchema), async (req, res, next) =>
     }
 
     const subtotal = cart.items.reduce((sum, item) => sum + item.productId.price * item.quantity, 0);
-    const tax = Number((subtotal * 0.18).toFixed(2));
-    const total = Number((subtotal + tax).toFixed(2));
+    let discount = 0;
+
+    if (req.validated.body.promoCode) {
+      const coupon = await Coupon.findOne({
+        code: req.validated.body.promoCode.toUpperCase(),
+        isActive: true
+      });
+
+      if (!coupon) {
+        const err = new Error('Invalid or expired coupon code');
+        err.statusCode = 400;
+        throw err;
+      }
+
+      if (subtotal < coupon.minOrderValue) {
+        const err = new Error(`Minimum order value of ${coupon.minOrderValue} required for this coupon`);
+        err.statusCode = 400;
+        throw err;
+      }
+
+      if (coupon.discountType === 'percentage') {
+        discount = subtotal * (coupon.discountValue / 100);
+        if (coupon.maxDiscount) {
+          discount = Math.min(discount, coupon.maxDiscount);
+        }
+      } else {
+        discount = coupon.discountValue;
+      }
+    }
+
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const tax = Number((discountedSubtotal * 0.18).toFixed(2));
+    const total = Number((discountedSubtotal + tax).toFixed(2));
 
     const paymentOrder = await createRazorpayOrder({
       amount: Math.round(total * 100),
@@ -58,7 +90,7 @@ router.post('/create', auth, validate(checkoutSchema), async (req, res, next) =>
       total,
       shippingAddress: req.validated.body.shippingAddress,
       deliveryMethod: req.validated.body.deliveryMethod,
-      promoCode: req.validated.body.promoCode,
+      promoCode: req.validated.body.promoCode || undefined,
       payment: {
         provider: 'razorpay',
         orderId: paymentOrder.id,
@@ -81,6 +113,49 @@ const verifySchema = z.object({
   }),
   query: z.object({}),
   params: z.object({}),
+});
+
+
+const validateCouponSchema = z.object({
+  body: z.object({
+    code: z.string()
+  })
+});
+
+router.post('/validate-coupon', auth, validate(validateCouponSchema), async (req, res, next) => {
+  try {
+    const { code } = req.validated.body;
+
+    const cart = await Cart.findOne({ userId: req.user.id }).populate('items.productId');
+    const subtotal = cart ? cart.items.reduce((sum, item) => sum + item.productId.price * item.quantity, 0) : 0;
+
+    const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
+
+    if (!coupon) {
+      return res.status(400).json({ message: 'Invalid or expired coupon code' });
+    }
+
+    if (subtotal < coupon.minOrderValue) {
+      return res.status(400).json({ message: `Minimum order value of ${coupon.minOrderValue} required` });
+    }
+
+    let discountAmount = 0;
+    if (coupon.discountType === 'percentage') {
+      discountAmount = subtotal * (coupon.discountValue / 100);
+      if (coupon.maxDiscount) {
+        discountAmount = Math.min(discountAmount, coupon.maxDiscount);
+      }
+    } else {
+      discountAmount = coupon.discountValue;
+    }
+
+    res.json({
+      code: coupon.code,
+      discountAmount: Number(discountAmount.toFixed(2))
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.post('/verify', auth, validate(verifySchema), async (req, res, next) => {
