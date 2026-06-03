@@ -49,7 +49,7 @@ export default function Header() {
           <img
             src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft.gif"
             alt="Kapda Kraft"
-            className="h-8 object-contain"
+            className="h-10 object-contain"
           />
         </Link>
         <nav className="flex items-center gap-4">
