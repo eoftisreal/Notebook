@@ -47,7 +47,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center">
           <img
-            src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft.gif"
+            src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft%20(1).gif"
             alt="Kapda Kraft"
             className="h-12 object-contain"
           />
