@@ -65,7 +65,7 @@ export default function Header() {
             <img
               src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/web%20logo.png"
               alt="Kapda Kraft"
-              className="h-8 md:h-10 object-contain mix-blend-multiply"
+              className="h-20 md:h-10 object-contain mix-blend-multiply"
         />
           </Link>
 
