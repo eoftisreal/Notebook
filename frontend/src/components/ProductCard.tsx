@@ -11,8 +11,17 @@ export default function ProductCard({ product }: { product: Product }) {
           className="h-full w-full object-cover transition group-hover:scale-105"
         />
         {product.compareAtPrice && product.compareAtPrice > product.price ? (
-          <span className="absolute left-2 top-2 rounded-full bg-pink-600 px-3 py-1 text-xs font-bold text-white">Sale</span>
+          <span className="absolute left-2 top-2 rounded-full bg-pink-600 px-3 py-1 text-xs font-bold text-white z-10">Sale</span>
         ) : null}
+        {product.tags && product.tags.length > 0 && (
+          <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 z-10">
+            {product.tags.map((tag, idx) => (
+              <span key={idx} className="bg-brand-purple/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm uppercase tracking-wider">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="space-y-1 p-4">
         <h3 className="line-clamp-1 font-bold text-brand-dark">{product.title}</h3>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { Trash2, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { apiGet, Product } from '@/lib/api';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
@@ -107,6 +108,9 @@ export default function AdminProductList({ refreshKey = 0 }: AdminProductListPro
                   </button>
                 </td>
                 <td className="px-4 py-3 text-right">
+                  <Link to={`/admin/products/${product._id}`} className="text-blue-500 hover:text-blue-700 p-1 mr-2 text-sm font-medium">
+                    Edit
+                  </Link>
                   <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:text-red-700 p-1" title="Delete Product">
                     <Trash2 className="w-4 h-4" />
                   </button>

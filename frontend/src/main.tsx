@@ -21,6 +21,7 @@ import CallbackPage from './pages/auth/CallbackPage';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminProductEditPage from './pages/admin/AdminProductEditPage';
 import CategoriesPage from './pages/admin/CategoriesPage';
 import BrandsPage from './pages/admin/BrandsPage';
 import CouponsPage from './pages/admin/CouponsPage';
@@ -57,6 +58,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProductsPage />} />
+          <Route path="products/:id" element={<AdminProductEditPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="brands" element={<BrandsPage />} />
           <Route path="coupons" element={<CouponsPage />} />
