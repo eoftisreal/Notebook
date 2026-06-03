@@ -45,7 +45,7 @@ export default function Home() {
           <h2 className="mb-4 text-2xl font-black">Featured Products</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featuredProducts.map((product) => (
-              <Link key={product._id} to={`/product/${product._id}`} className="group flex flex-col rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-lg">
+              <Link key={product._id} to={`/products/${product._id}`} className="group flex flex-col rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-lg">
                 <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-slate-100 mb-4">
                   {product.images && product.images.length > 0 ? (
                     <img src={product.images[0]} alt={product.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
