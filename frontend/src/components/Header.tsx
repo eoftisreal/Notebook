@@ -45,8 +45,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-10 bg-brand-dark text-white shadow-lg border-b border-brand-purple/20">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="text-lg font-black tracking-wide text-brand-orange">
-          Kapda Kraft
+        <Link to="/" className="flex items-center">
+          <img
+            src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft.gif"
+            alt="Kapda Kraft"
+            className="h-8 object-contain"
+          />
         </Link>
         <nav className="flex items-center gap-4">
           <Link to="/products" className={linkClass}>Shop</Link>
