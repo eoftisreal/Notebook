@@ -37,18 +37,67 @@ export default function SettingsPage() {
     }
   };
 
+  const handleUpdateSetting = async (key: string, value: any) => {
+    try {
+      const res = await fetch(`${apiBase}/admin/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ [key]: value })
+      });
+      if (!res.ok) throw new Error('Failed to update setting');
+      const data = await res.json();
+      setSettings((prev: any) => ({ ...prev, ...data }));
+      alert('Setting updated successfully!');
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div>
       <h1 className="text-2xl font-black mb-6">Platform Settings</h1>
+      <div className="rounded-lg bg-white p-6 shadow mb-6">
+        <h2 className="text-lg font-semibold mb-4">Hero Banner</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Banner Image URL</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={settings?.heroBannerUrl || ''}
+                onChange={(e) => setSettings({ ...settings, heroBannerUrl: e.target.value })}
+                className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+                placeholder="https://example.com/banner.jpg"
+              />
+              <button
+                onClick={() => handleUpdateSetting('heroBannerUrl', settings?.heroBannerUrl)}
+                className="rounded bg-brand-purple px-4 py-2 text-sm font-bold text-white hover:bg-brand-purple/90"
+              >
+                Save Banner
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">Provide an image URL for the homepage hero banner (e.g. 9:16 or 5:4 aspect ratio).</p>
+          </div>
+          {settings?.heroBannerUrl && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-slate-700 mb-2">Preview:</p>
+              <img src={settings.heroBannerUrl} alt="Hero Banner Preview" className="max-w-md max-h-64 object-cover rounded shadow" />
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="text-lg font-semibold mb-4">Configuration</h2>
+        <h2 className="text-lg font-semibold mb-4">Other Configuration</h2>
         <pre className="bg-slate-50 p-4 rounded text-sm overflow-x-auto text-slate-700">
           {JSON.stringify(settings, null, 2)}
         </pre>
-        <p className="mt-4 text-sm text-slate-500">Settings are currently read-only.</p>
       </div>
     </div>
   );

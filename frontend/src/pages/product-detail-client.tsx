@@ -7,6 +7,7 @@ import AddToCartButton from '@/components/AddToCartButton';
 export default function ProductDetailClient({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeImage, setActiveImage] = useState<string>('');
 
   useEffect(() => {
     let active = true;
@@ -14,7 +15,12 @@ export default function ProductDetailClient({ id }: { id: string }) {
     async function fetchProduct() {
       try {
         const data = await apiGet<Product>(`/products/${id}`);
-        if (active) setProduct(data);
+        if (active) {
+          setProduct(data);
+          if (data.images && data.images.length > 0) {
+            setActiveImage(data.images[0]);
+          }
+        }
       } catch {
         if (active) setProduct(null);
       } finally {
@@ -38,14 +44,21 @@ export default function ProductDetailClient({ id }: { id: string }) {
   }
 
   const gallery = product.images.length > 0 ? product.images : ['https://placehold.co/300x300?text=Preview'];
+  const currentImage = activeImage || gallery[0] || 'https://placehold.co/700x700?text=Art';
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
-      <div className="space-y-4">
-        <img src={product.images[0] || 'https://placehold.co/700x700?text=Art'} alt={product.title} className="aspect-square w-full rounded-2xl object-cover" />
-        <div className="grid grid-cols-3 gap-2">
+      <div className="space-y-4 overflow-hidden">
+        <img src={currentImage} alt={product.title} className="aspect-square w-full rounded-2xl object-cover" />
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
           {gallery.map((image, index) => (
-            <img key={`${image}-${index}`} src={image || 'https://placehold.co/300x300?text=Preview'} alt={`${product.title} preview ${index + 1}`} className="aspect-square rounded-lg object-cover" />
+            <img
+              key={`${image}-${index}`}
+              src={image || 'https://placehold.co/300x300?text=Preview'}
+              alt={`${product.title} preview ${index + 1}`}
+              onClick={() => setActiveImage(image)}
+              className={`aspect-square w-24 shrink-0 cursor-pointer rounded-lg object-cover border-2 transition-all ${activeImage === image ? 'border-brand-purple' : 'border-transparent hover:border-slate-300'}`}
+            />
           ))}
         </div>
       </div>

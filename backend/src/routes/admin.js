@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const multer = require('multer');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const Setting = require('../models/Setting');
 const { getAdminSettings } = require('../utils/admin');
 
 const router = express.Router();
@@ -45,9 +46,44 @@ router.get('/analytics', async (_req, res, next) => {
   }
 });
 
-router.get('/settings', masterAdminOnly, (_req, res) => {
-  res.json(getAdminSettings());
+router.get('/settings', masterAdminOnly, async (_req, res, next) => {
+  try {
+    const staticSettings = getAdminSettings();
+    const settingsDocs = await Setting.find({});
+    const dynamicSettings = {};
+    settingsDocs.forEach(s => {
+      dynamicSettings[s.key] = s.value;
+    });
+
+    res.json({ ...staticSettings, ...dynamicSettings });
+  } catch (error) {
+    next(error);
+  }
 });
+
+router.put('/settings', masterAdminOnly, async (req, res, next) => {
+  try {
+    const updates = req.body;
+    // For each key in body, create or update a Setting document
+    for (const [key, value] of Object.entries(updates)) {
+      await Setting.findOneAndUpdate(
+        { key },
+        { key, value },
+        { upsert: true, new: true }
+      );
+    }
+    const settingsDocs = await Setting.find({});
+    const dynamicSettings = {};
+    settingsDocs.forEach(s => {
+      dynamicSettings[s.key] = s.value;
+    });
+
+    res.json(dynamicSettings);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 router.get('/users', masterAdminOnly, async (req, res, next) => {
   try {

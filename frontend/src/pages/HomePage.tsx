@@ -12,17 +12,22 @@ type Category = {
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [heroBannerUrl, setHeroBannerUrl] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [catsRes, prodsRes] = await Promise.all([
+        const [catsRes, prodsRes, settingsRes] = await Promise.all([
           apiGet<Category[]>('/products/categories'),
-          apiGet<{products: Product[]}>('/products?isFeatured=true&limit=4')
+          apiGet<{products: Product[]}>('/products?isFeatured=true&limit=4'),
+          fetch((import.meta.env.VITE_API_URL || '/api') + '/public/settings').then(res => res.ok ? res.json() : {})
         ]);
         setCategories(catsRes);
         if (prodsRes && prodsRes.products) {
           setFeaturedProducts(prodsRes.products);
+        }
+        if (settingsRes && settingsRes.heroBannerUrl) {
+          setHeroBannerUrl(settingsRes.heroBannerUrl);
         }
       } catch (e) {
         console.error(e);
@@ -33,12 +38,20 @@ export default function Home() {
 
   return (
     <div className="space-y-10">
-      <section className="rounded-3xl bg-gradient-to-r from-brand-orange via-brand-pink to-brand-purple p-8 text-white shadow-2xl">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-widest">Deals From Space</p>
-        <h1 className="text-4xl font-black">Find bold art for everything you wear and carry.</h1>
-        <p className="mt-3 max-w-xl text-white/90">A playful marketplace where independent artists ship creativity straight to your cart.</p>
-        <Link to="/products" className="mt-6 inline-block rounded-full bg-white px-6 py-3 font-bold text-brand-dark">Shop Now</Link>
-      </section>
+      {heroBannerUrl ? (
+        <section className="relative overflow-hidden rounded-3xl shadow-2xl min-h-[400px] flex items-end justify-center pb-12">
+          <div className="absolute inset-0 z-0">
+            <img src={heroBannerUrl} alt="Hero Banner" className="w-full h-full object-cover" />
+          </div>
+          <div className="relative z-10 text-center">
+            <Link to="/products" className="inline-block rounded-full bg-white px-8 py-4 text-lg font-bold text-brand-dark shadow-lg transition-transform hover:scale-105">Shop Now</Link>
+          </div>
+        </section>
+      ) : (
+        <section className="rounded-3xl bg-gradient-to-r from-brand-orange via-brand-pink to-brand-purple p-8 text-white shadow-2xl flex items-center justify-center min-h-[300px]">
+          <Link to="/products" className="inline-block rounded-full bg-white px-8 py-4 text-lg font-bold text-brand-dark shadow-lg transition-transform hover:scale-105">Shop Now</Link>
+        </section>
+      )}
 
       {featuredProducts.length > 0 && (
         <section>
