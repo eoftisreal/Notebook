@@ -164,13 +164,13 @@ export default function CategoriesPage() {
                 type="file"
                 accept="image/*"
                 onChange={(event) => setFile(event.target.files?.[0] || null)}
-                className="text-sm text-slate-500 w-full mb-2 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-brand-purple/10 file:text-brand-purple hover:file:bg-brand-purple/20"
+                className="text-sm text-slate-500 w-full mb-2 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-foreground/10 file:text-foreground hover:file:bg-foreground/20"
               />
               <button
                 type="button"
                 onClick={handleImageUpload}
                 disabled={!file || uploadingImage}
-                className="rounded bg-brand-purple hover:bg-brand-pink px-3 py-1 text-sm font-semibold text-white disabled:opacity-50"
+                className="rounded bg-foreground hover:bg-black px-3 py-1 text-sm font-semibold text-white disabled:opacity-50"
               >
                 {uploadingImage ? 'Uploading...' : 'Upload Image'}
               </button>
@@ -192,7 +192,7 @@ export default function CategoriesPage() {
               <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" />
             </div>
             <div className="flex gap-2">
-              <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">
+              <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-foreground hover:bg-black px-4 py-2 font-semibold text-white disabled:opacity-50">
                 <Plus className="w-4 h-4" /> {editingId ? 'Update' : 'Add'}
               </button>
               {editingId && (

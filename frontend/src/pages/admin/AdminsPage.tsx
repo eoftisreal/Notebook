@@ -75,7 +75,7 @@ export default function AdminsPage() {
                 <td className="px-6 py-4">{admin.name || 'N/A'}</td>
                 <td className="px-6 py-4">{admin.role}</td>
                 <td className="px-6 py-4 text-right">
-                  <button onClick={() => demoteAdmin(admin._id)} className="text-brand-purple hover:underline">Demote to User</button>
+                  <button onClick={() => demoteAdmin(admin._id)} className="text-foreground hover:underline">Demote to User</button>
                 </td>
               </tr>
             ))}

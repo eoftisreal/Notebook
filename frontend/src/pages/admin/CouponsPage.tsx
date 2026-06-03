@@ -107,7 +107,7 @@ export default function CouponsPage() {
               </div>
             </div>
 
-            <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">
+            <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-foreground hover:bg-black px-4 py-2 font-semibold text-white disabled:opacity-50">
               <Plus className="w-4 h-4" /> Add Coupon
             </button>
           </form>
@@ -130,7 +130,7 @@ export default function CouponsPage() {
                   <tr><td colSpan={4} className="px-4 py-4 text-center text-slate-500">No coupons found.</td></tr>
                 ) : coupons.map(coupon => (
                   <tr key={coupon._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-bold text-brand-purple">{coupon.code}</td>
+                    <td className="px-4 py-3 font-bold text-foreground">{coupon.code}</td>
                     <td className="px-4 py-3 text-slate-700">
                       {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}
                     </td>

@@ -80,7 +80,7 @@ export default function AdminProductList({ refreshKey = 0 }: AdminProductListPro
     <div className="rounded-xl bg-white p-6 shadow space-y-6">
       <div className="flex items-center justify-between border-b pb-2">
         <h2 className="font-bold text-xl">Existing Products</h2>
-        <button onClick={fetchProducts} className="text-sm text-brand-purple hover:underline">Refresh</button>
+        <button onClick={fetchProducts} className="text-sm text-foreground hover:underline">Refresh</button>
       </div>
 
       <div className="overflow-x-auto">

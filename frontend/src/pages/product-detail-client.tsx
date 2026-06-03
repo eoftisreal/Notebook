@@ -57,7 +57,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
               src={image || 'https://placehold.co/300x300?text=Preview'}
               alt={`${product.title} preview ${index + 1}`}
               onClick={() => setActiveImage(image)}
-              className={`aspect-square w-24 shrink-0 cursor-pointer rounded-lg object-cover border-2 transition-all ${activeImage === image ? 'border-brand-purple' : 'border-transparent hover:border-slate-300'}`}
+              className={`aspect-square w-24 shrink-0 cursor-pointer rounded-lg object-cover border-2 transition-all ${activeImage === image ? 'border-foreground' : 'border-transparent hover:border-slate-300'}`}
             />
           ))}
         </div>
@@ -69,7 +69,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
         {product.tags && product.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-2">
             {product.tags.map((tag: string, idx: number) => (
-              <span key={idx} className="bg-brand-purple text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+              <span key={idx} className="bg-foreground text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                 {tag}
               </span>
             ))}

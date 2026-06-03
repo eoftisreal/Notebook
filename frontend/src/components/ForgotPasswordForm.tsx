@@ -41,13 +41,13 @@ export default function ForgotPasswordForm() {
           placeholder="Email or Username"
           className="w-full rounded border px-3 py-2"
         />
-        <button className="w-full rounded bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white">Send Reset Link</button>
+        <button className="w-full rounded bg-foreground hover:bg-black px-4 py-2 font-semibold text-white">Send Reset Link</button>
       </form>
 
       {message ? <p className="mt-3 text-sm text-center text-slate-700">{message}</p> : null}
 
       <div className="mt-4 text-center text-sm">
-        <Link to="/auth/login" className="text-brand-purple hover:underline">Back to Login</Link>
+        <Link to="/auth/login" className="text-foreground hover:underline">Back to Login</Link>
       </div>
     </div>
   );

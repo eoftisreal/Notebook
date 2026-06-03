@@ -82,13 +82,13 @@ export default function SignupForm() {
           placeholder="Password (min 8 chars)"
           className="w-full rounded border px-3 py-2"
         />
-        <button className="w-full rounded bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white">Create Account</button>
+        <button className="w-full rounded bg-foreground hover:bg-black px-4 py-2 font-semibold text-white">Create Account</button>
       </form>
 
       {message ? <p className="mt-3 text-sm text-center text-red-500">{message}</p> : null}
 
       <div className="mt-4 text-center text-sm">
-        <Link to="/auth/login" className="text-brand-purple hover:underline">Already have an account? Log in</Link>
+        <Link to="/auth/login" className="text-foreground hover:underline">Already have an account? Log in</Link>
       </div>
     </div>
   );

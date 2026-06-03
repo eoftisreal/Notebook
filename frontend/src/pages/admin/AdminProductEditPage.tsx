@@ -173,7 +173,7 @@ export default function AdminProductEditPage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-black">Edit Product</h1>
-        <button onClick={() => navigate('/admin/products')} className="text-sm text-brand-purple hover:underline">
+        <button onClick={() => navigate('/admin/products')} className="text-sm text-foreground hover:underline">
           &larr; Back to Products
         </button>
       </div>
@@ -220,13 +220,13 @@ export default function AdminProductEditPage() {
                   type="file"
                   accept="image/*"
                   onChange={(event) => setFile(event.target.files?.[0] || null)}
-                  className="text-sm text-slate-500 w-full file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-brand-purple/10 file:text-brand-purple"
+                  className="text-sm text-slate-500 w-full file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-foreground/10 file:text-foreground"
                 />
                 <button
                   type="button"
                   onClick={handleImageUpload}
                   disabled={!file || uploadingImage}
-                  className="rounded bg-brand-purple hover:bg-brand-pink px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                  className="rounded bg-foreground hover:bg-black px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                 >
                   {uploadingImage ? '...' : 'Upload'}
                 </button>
@@ -293,12 +293,12 @@ export default function AdminProductEditPage() {
           </div>
 
           <div className="flex items-center gap-2 mt-2">
-            <input type="checkbox" id="isFeaturedEdit" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-brand-purple focus:ring-brand-purple" />
+            <input type="checkbox" id="isFeaturedEdit" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
             <label htmlFor="isFeaturedEdit" className="text-sm font-medium text-gray-700">Showcase on Home Page (Featured)</label>
           </div>
 
           <div className="pt-4 border-t">
-            <button disabled={submitting} className="w-full rounded bg-brand-purple hover:bg-brand-pink px-4 py-3 font-semibold text-white disabled:opacity-50">
+            <button disabled={submitting} className="w-full rounded bg-foreground hover:bg-black px-4 py-3 font-semibold text-white disabled:opacity-50">
               {submitting ? 'Saving...' : 'Save Changes'}
             </button>
             {message && <p className="mt-3 text-sm text-center font-medium text-green-600">{message}</p>}

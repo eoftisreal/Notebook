@@ -25,6 +25,7 @@ const orderSchema = new mongoose.Schema(
     guestEmail: { type: String, lowercase: true },
     items: [orderItemSchema],
     subtotal: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
     tax: { type: Number, required: true },
     total: { type: Number, required: true },
     currency: { type: String, default: 'INR' },

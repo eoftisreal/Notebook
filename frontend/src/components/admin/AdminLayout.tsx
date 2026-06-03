@@ -44,7 +44,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-brand-dark">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-foreground">
       <AdminSidebar />
       <main className="flex-1 overflow-y-auto">
         <div className="p-8 max-w-6xl mx-auto">

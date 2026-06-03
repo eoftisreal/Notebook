@@ -44,7 +44,7 @@ export default function Cart() {
       </div>
       <div className="rounded-xl bg-white p-5 shadow">
         <p className="text-lg font-black">Subtotal: ₹{total.toFixed(2)}</p>
-        <Link to="/checkout" className="mt-3 inline-block rounded-full bg-brand-purple hover:bg-brand-pink px-5 py-2 font-semibold text-white">Proceed to Checkout</Link>
+        <Link to="/checkout" className="mt-3 inline-block rounded-full bg-foreground hover:bg-black px-5 py-2 font-semibold text-white">Proceed to Checkout</Link>
       </div>
     </div>
   );
