@@ -70,7 +70,7 @@ function ProductListingContent() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">Explore Products</h1>
-      <form className="grid gap-3 rounded-2xl bg-white p-4 shadow sm:grid-cols-4">
+      <form className="grid gap-3 rounded-md bg-white p-4 sm:grid-cols-4">
         <input name="q" defaultValue={q || ''} placeholder="Search artwork" className="rounded-lg border px-3 py-2" />
         <select name="category" defaultValue={category || ''} className="rounded-lg border px-3 py-2">
           <option value="">All Categories</option>

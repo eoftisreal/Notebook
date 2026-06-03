@@ -37,7 +37,7 @@ export default function SignupForm() {
 
   if (success) {
     return (
-      <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow text-center">
+      <div className="mx-auto max-w-md rounded-md bg-white p-6 text-center">
         <h1 className="text-2xl font-black text-green-600">Account Created!</h1>
         <p className="mt-4 text-slate-600">
           We have sent a verification email to <strong>{email}</strong>.
@@ -48,7 +48,7 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow">
+    <div className="mx-auto max-w-md rounded-md bg-white p-6 border border-secondary-bg">
       <h1 className="text-2xl font-black">Create an Account</h1>
       <form onSubmit={submit} className="mt-4 space-y-3">
         <input

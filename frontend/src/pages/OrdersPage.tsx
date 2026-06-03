@@ -53,10 +53,10 @@ export default function OrdersPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-3xl font-black">Orders</h1>
-      {message ? <p className="rounded-xl bg-white p-4 shadow">{message}</p> : null}
+      {message ? <p className="rounded-md bg-white p-4 border border-secondary-bg">{message}</p> : null}
       <div className="space-y-3">
         {orders.map((order) => (
-          <article key={order._id} className="rounded-xl bg-white p-4 shadow">
+          <article key={order._id} className="rounded-md bg-white p-4 border border-secondary-bg">
             <p className="font-bold">Order #{order._id.slice(-6)}</p>
             <p className="text-sm text-slate-600">Status: {order.status}</p>
             <p className="text-sm text-slate-600">Total: ₹{order.total}</p>

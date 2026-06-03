@@ -43,20 +43,20 @@ function OrderTrackingContent() {
   }, [id]);
 
   if (loading) {
-    return <p className="rounded-xl bg-white p-6 shadow">Loading order...</p>;
+    return <p className="rounded-md bg-white p-6 border border-secondary-bg">Loading order...</p>;
   }
 
   if (!order) {
-    return <p className="rounded-xl bg-white p-6 shadow">Order not found.</p>;
+    return <p className="rounded-md bg-white p-6 border border-secondary-bg">Order not found.</p>;
   }
 
   return (
     <div className="space-y-4">
       <h1 className="text-3xl font-black">Track Order #{order._id.slice(-6)}</h1>
-      <p className="rounded-xl bg-white p-4 shadow">Current status: <strong>{order.status}</strong></p>
+      <p className="rounded-md bg-white p-4 border border-secondary-bg">Current status: <strong>{order.status}</strong></p>
       <div className="space-y-2">
         {order.timeline.map((event, index) => (
-          <article key={`${event.status}-${index}`} className="rounded-xl bg-white p-4 shadow">
+          <article key={`${event.status}-${index}`} className="rounded-md bg-white p-4 border border-secondary-bg">
             <p className="font-bold">{event.status}</p>
             {event.note ? <p className="text-sm text-slate-600">{event.note}</p> : null}
           </article>
@@ -68,7 +68,7 @@ function OrderTrackingContent() {
 
 export default function OrderTrackingPage() {
   return (
-    <Suspense fallback={<p className="rounded-xl bg-white p-6 shadow">Loading order tracking...</p>}>
+    <Suspense fallback={<p className="rounded-md bg-white p-6 border border-secondary-bg">Loading order tracking...</p>}>
       <OrderTrackingContent />
     </Suspense>
   );

@@ -60,7 +60,7 @@ export default function CheckoutForm() {
           </div>
         ))}
       </div>
-      <section className="rounded-2xl bg-white p-6 shadow">
+      <section className="rounded-md bg-white p-6 border border-secondary-bg">
         {step === 0 ? (
           <div className="grid gap-3 sm:grid-cols-2">
             <input placeholder="Address line 1" className="rounded border px-3 py-2" />
@@ -102,7 +102,7 @@ export default function CheckoutForm() {
         <button disabled={step === 0} onClick={() => setStep((current) => current - 1)} className="rounded border px-5 py-2 disabled:opacity-50">Back</button>
         <button onClick={handleNext} className="rounded bg-pink-600 px-5 py-2 font-semibold text-white">{step === steps.length - 1 ? 'Place Order' : 'Next'}</button>
       </div>
-      {message ? <p className="rounded-xl bg-emerald-100 p-3 text-sm text-emerald-900">{message}</p> : null}
+      {message ? <p className="rounded-md bg-emerald-100 p-3 text-sm text-emerald-900">{message}</p> : null}
     </div>
   );
 }

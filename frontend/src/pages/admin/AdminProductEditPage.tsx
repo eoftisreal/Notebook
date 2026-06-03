@@ -178,7 +178,7 @@ export default function AdminProductEditPage() {
         </button>
       </div>
 
-      <div className="rounded-xl bg-white p-6 shadow space-y-6">
+      <div className="rounded-md bg-white p-6 space-y-6">
 
         {/* Images Section */}
         <div className="space-y-4 border-b pb-6">

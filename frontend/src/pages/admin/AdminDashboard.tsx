@@ -33,13 +33,13 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-black">Dashboard Overview</h1>
-        <div className="text-sm text-slate-500 bg-white px-3 py-1.5 rounded-full border shadow-sm">
+        <div className="text-sm text-slate-500 bg-white px-3 py-1.5 rounded-full border ">
           Last 30 Days
         </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+        <div className="rounded-md bg-white p-6 border border-secondary-bg flex items-center gap-4">
           <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
             <Package className="w-6 h-6" />
           </div>
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+        <div className="rounded-md bg-white p-6 border border-secondary-bg flex items-center gap-4">
           <div className="p-3 rounded-lg bg-green-50 text-green-600">
             <ShoppingBag className="w-6 h-6" />
           </div>
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+        <div className="rounded-md bg-white p-6 border border-secondary-bg flex items-center gap-4">
           <div className="p-3 rounded-lg bg-foreground/10 text-foreground">
             <DollarSign className="w-6 h-6" />
           </div>
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 flex items-center gap-4 opacity-50">
+        <div className="rounded-md bg-white p-6 border border-secondary-bg flex items-center gap-4 opacity-50">
           <div className="p-3 rounded-lg bg-orange-50 text-orange-600">
             <Activity className="w-6 h-6" />
           </div>
@@ -81,10 +81,10 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm border border-slate-100 h-96 flex items-center justify-center text-slate-400">
+        <div className="lg:col-span-2 rounded-md bg-white p-6 border border-secondary-bg h-96 flex items-center justify-center text-slate-400">
           [ Revenue Chart Placeholder ]
         </div>
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100 h-96 flex items-center justify-center text-slate-400">
+        <div className="rounded-md bg-white p-6 border border-secondary-bg h-96 flex items-center justify-center text-slate-400">
           [ Recent Activity Placeholder ]
         </div>
       </div>

@@ -36,11 +36,11 @@ export default function ProductDetailClient({ id }: { id: string }) {
   }, [id]);
 
   if (loading) {
-    return <p className="rounded-xl bg-white p-6 shadow">Loading product...</p>;
+    return <p className="rounded-md bg-white p-6 border border-secondary-bg">Loading product...</p>;
   }
 
   if (!product) {
-    return <p className="rounded-xl bg-white p-6 shadow">Product not found.</p>;
+    return <p className="rounded-md bg-white p-6 border border-secondary-bg">Product not found.</p>;
   }
 
   const gallery = product.images.length > 0 ? product.images : ['https://placehold.co/300x300?text=Preview'];
@@ -49,7 +49,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <div className="space-y-4 overflow-hidden">
-        <img src={currentImage} alt={product.title} className="aspect-square w-full rounded-2xl object-cover" />
+        <img src={currentImage} alt={product.title} className="aspect-square w-full rounded-md object-cover" />
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
           {gallery.map((image, index) => (
             <img
@@ -69,7 +69,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
         {product.tags && product.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-2">
             {product.tags.map((tag: string, idx: number) => (
-              <span key={idx} className="bg-foreground text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+              <span key={idx} className="bg-foreground text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ">
                 {tag}
               </span>
             ))}

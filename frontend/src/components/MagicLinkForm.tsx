@@ -27,7 +27,7 @@ export default function MagicLinkForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow">
+    <div className="mx-auto max-w-md rounded-md bg-white p-6 border border-secondary-bg">
       <h1 className="text-2xl font-black">Passwordless Login</h1>
       <p className="mt-2 text-sm text-slate-600">Enter your email to receive a secure sign-in link.</p>
 
