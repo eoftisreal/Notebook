@@ -58,7 +58,7 @@ export default function Header() {
 
           <Link to="/" className="flex justify-center flex-1">
             <img
-              src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft%20(1).gif"
+              src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/web%20logo.png"
               alt="Kapda Kraft"
               className="h-10 object-contain mix-blend-multiply"
             />
