@@ -26,8 +26,9 @@ export default function Home() {
         if (prodsRes && prodsRes.products) {
           setFeaturedProducts(prodsRes.products);
         }
-        if (settingsRes && settingsRes.heroBannerUrl) {
-          setHeroBannerUrl(settingsRes.heroBannerUrl);
+        const parsedSettings = settingsRes as { heroBannerUrl?: string };
+        if (parsedSettings && parsedSettings.heroBannerUrl) {
+          setHeroBannerUrl(parsedSettings.heroBannerUrl);
         }
       } catch (e) {
         console.error(e);
