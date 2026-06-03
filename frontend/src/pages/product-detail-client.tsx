@@ -52,6 +52,16 @@ export default function ProductDetailClient({ id }: { id: string }) {
       <div className="space-y-4">
         <h1 className="text-3xl font-black">{product.title}</h1>
         <p className="text-slate-600">By {product.artistName}</p>
+
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-2">
+            {product.tags.map((tag: string, idx: number) => (
+              <span key={idx} className="bg-brand-purple text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         <p className="text-2xl font-bold">₹{product.price}</p>
         <p>{product.description}</p>
         <p className="text-sm text-slate-500">Stock: {product.stock}</p>

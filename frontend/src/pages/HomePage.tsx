@@ -52,6 +52,15 @@ export default function Home() {
                   ) : (
                     <div className="flex h-full items-center justify-center text-slate-400">No Image</div>
                   )}
+                  {product.tags && product.tags.length > 0 && (
+                    <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+                      {product.tags.map((tag, idx) => (
+                        <span key={idx} className="bg-brand-purple/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm uppercase tracking-wider">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <h3 className="font-bold text-slate-900 group-hover:text-brand-purple line-clamp-1">{product.title}</h3>
                 <p className="text-sm text-slate-500 mb-2">{product.artistName}</p>

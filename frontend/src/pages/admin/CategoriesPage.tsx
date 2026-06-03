@@ -15,6 +15,7 @@ type Category = {
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -77,8 +78,11 @@ export default function CategoriesPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/master/categories`, {
-        method: 'POST',
+      const url = editingId ? `${apiBase}/master/categories/${editingId}` : `${apiBase}/master/categories`;
+      const method = editingId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${getAuthToken()}`
@@ -91,10 +95,7 @@ export default function CategoriesPage() {
         })
       });
       if (res.ok) {
-        setName('');
-        setDescription('');
-        setUploadedUrl('');
-        setR2Key('');
+        resetForm();
         fetchCategories();
       }
     } catch (e) {
@@ -102,6 +103,24 @@ export default function CategoriesPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleEdit(cat: Category) {
+    setEditingId(cat._id);
+    setName(cat.name);
+    setDescription(cat.description || '');
+    setUploadedUrl(cat.image || '');
+    setR2Key(cat.r2ImageKey || '');
+    window.scrollTo(0, 0);
+  }
+
+  function resetForm() {
+    setEditingId(null);
+    setName('');
+    setDescription('');
+    setUploadedUrl('');
+    setR2Key('');
+    setFile(null);
   }
 
   async function handleDelete(id: string) {
@@ -123,9 +142,23 @@ export default function CategoriesPage() {
 
       <div className="grid gap-6 md:grid-cols-3 items-start">
         <div className="md:col-span-1 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-          <h2 className="font-bold text-lg mb-4">Add Category</h2>
+          <h2 className="font-bold text-lg mb-4">{editingId ? 'Edit Category' : 'Add Category'}</h2>
           <div className="space-y-2 border-b pb-4 mb-4">
             <h3 className="text-sm font-medium text-slate-700">Category Background Image (Optional)</h3>
+            <div className="mb-2">
+              <label className="block text-xs text-slate-500 mb-1">Image URL (from Cloudflare R2 or other)</label>
+              <input
+                type="url"
+                value={uploadedUrl}
+                onChange={(e) => {
+                  setUploadedUrl(e.target.value);
+                  if (e.target.value === '') setR2Key(''); // Clear r2key if URL is cleared manually
+                }}
+                placeholder="https://..."
+                className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+              />
+            </div>
+            <div className="text-xs font-bold text-slate-400 text-center my-2">OR UPLOAD FILE</div>
             <div className="flex gap-2 items-center flex-wrap">
               <input
                 type="file"
@@ -158,9 +191,16 @@ export default function CategoriesPage() {
               <label className="block text-sm font-medium text-slate-700">Description</label>
               <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" />
             </div>
-            <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">
-              <Plus className="w-4 h-4" /> Add Category
-            </button>
+            <div className="flex gap-2">
+              <button disabled={loading} className="w-full flex justify-center items-center gap-2 rounded-md bg-brand-purple hover:bg-brand-pink px-4 py-2 font-semibold text-white disabled:opacity-50">
+                <Plus className="w-4 h-4" /> {editingId ? 'Update' : 'Add'}
+              </button>
+              {editingId && (
+                <button type="button" onClick={resetForm} className="w-full rounded-md bg-slate-200 hover:bg-slate-300 px-4 py-2 font-semibold text-slate-700">
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
@@ -191,6 +231,9 @@ export default function CategoriesPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
+                      <button onClick={() => handleEdit(cat)} className="text-blue-500 hover:text-blue-700 p-1 mr-2 text-sm font-medium">
+                        Edit
+                      </button>
                       <button onClick={() => handleDelete(cat._id)} className="text-red-500 hover:text-red-700 p-1">
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -19,4 +19,5 @@ export type Product = {
   compareAtPrice?: number;
   stock: number;
   isFeatured?: boolean;
+  tags?: string[];
 };
