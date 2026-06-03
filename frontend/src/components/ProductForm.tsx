@@ -140,7 +140,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   }
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow space-y-6">
+    <div className="rounded-md bg-white p-6 space-y-6">
       <h2 className="font-bold text-xl border-b pb-2">Add New Product</h2>
 
       {/* Image Upload Section */}

@@ -49,35 +49,35 @@ export default function Header() {
       </div>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-4">
-          <nav className="hidden md:flex items-center gap-6 flex-1">
+          <nav className="flex items-center gap-4 md:gap-6 flex-1">
             <Link to="/products" className={linkClass}>Shop</Link>
-            <Link to="/products?category=Collections" className={linkClass}>Collections</Link>
-            <Link to="/about" className={linkClass}>About</Link>
-            <Link to="/contact" className={linkClass}>Contact</Link>
+            <Link to="/products?category=Collections" className={`${linkClass} hidden md:inline-block`}>Collections</Link>
+            <Link to="/about" className={`${linkClass} hidden md:inline-block`}>About</Link>
+            <Link to="/contact" className={`${linkClass} hidden md:inline-block`}>Contact</Link>
           </nav>
 
-          <Link to="/" className="flex justify-center flex-1">
+          <Link to="/" className="flex justify-center flex-1 shrink-0">
             <img
               src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/kapda%20kraft%20(1).gif"
               alt="Kapda Kraft"
-              className="h-10 object-contain mix-blend-multiply"
+              className="h-8 md:h-10 object-contain mix-blend-multiply"
             />
           </Link>
 
-          <nav className="flex items-center justify-end gap-6 flex-1">
+          <nav className="flex items-center justify-end gap-4 md:gap-6 flex-1">
             {isAdmin && (
-              <Link to="/admin" className={linkClass}>Admin</Link>
+              <Link to="/admin" className={`${linkClass} hidden sm:inline-block`}>Admin</Link>
             )}
 
             {isAuthenticated ? (
               <>
                 <Link to="/account" className={linkClass}>Account</Link>
-                <button onClick={handleLogout} className={linkClass}>Logout</button>
+                <button onClick={handleLogout} className={`${linkClass} hidden sm:inline-block`}>Logout</button>
               </>
             ) : (
               <Link to="/auth/login" className={linkClass}>Log In</Link>
             )}
-            <Link to="/cart" className={linkClass}>Cart (0)</Link>
+            <Link to="/cart" className={linkClass}>Cart</Link>
           </nav>
         </div>
       </header>

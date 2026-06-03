@@ -43,5 +43,5 @@ export default function AuthCallbackPage() {
     verify();
   }, []);
 
-  return <p className="rounded-xl bg-white p-6 shadow">{message}</p>;
+  return <p className="rounded-md bg-white p-6 border border-secondary-bg">{message}</p>;
 }

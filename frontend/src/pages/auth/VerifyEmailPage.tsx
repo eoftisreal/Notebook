@@ -39,7 +39,7 @@ export default function VerifyEmailPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow text-center">
+    <div className="mx-auto max-w-md rounded-md bg-white p-6 text-center">
       <h1 className="text-2xl font-black">Email Verification</h1>
       <p className="mt-4 text-slate-700">{message}</p>
       <div className="mt-6">

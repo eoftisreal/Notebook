@@ -82,7 +82,7 @@ export default function CouponsPage() {
       <h1 className="text-3xl font-black">Coupons Master</h1>
 
       <div className="grid gap-6 md:grid-cols-3 items-start">
-        <div className="md:col-span-1 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+        <div className="md:col-span-1 rounded-md bg-white p-6 border border-secondary-bg">
           <h2 className="font-bold text-lg mb-4">Add Coupon</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -113,7 +113,7 @@ export default function CouponsPage() {
           </form>
         </div>
 
-        <div className="md:col-span-2 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+        <div className="md:col-span-2 rounded-md bg-white p-6 border border-secondary-bg">
           <h2 className="font-bold text-lg mb-4">Existing Coupons</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">

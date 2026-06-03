@@ -45,7 +45,7 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow">
+    <div className="mx-auto max-w-md rounded-md bg-white p-6 border border-secondary-bg">
       <h1 className="text-2xl font-black">Choose New Password</h1>
 
       {!token ? (

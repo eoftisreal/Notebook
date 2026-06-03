@@ -22,9 +22,9 @@ export default function Cart() {
     <div className="space-y-4">
       <h1 className="text-3xl font-black">Your Cart</h1>
       <div className="space-y-3">
-        {items.length === 0 ? <p className="rounded-xl bg-white p-6 shadow">Cart is empty.</p> : null}
+        {items.length === 0 ? <p className="rounded-md bg-white p-6 border border-secondary-bg">Cart is empty.</p> : null}
         {items.map((item) => (
-          <article key={item.productId} className="flex items-center justify-between rounded-xl bg-white p-4 shadow">
+          <article key={item.productId} className="flex items-center justify-between rounded-md bg-white p-4 border border-secondary-bg">
             <div>
               <p className="font-bold">{item.title}</p>
               <p className="text-sm text-slate-500">₹{item.unitPrice}</p>
@@ -42,7 +42,7 @@ export default function Cart() {
           </article>
         ))}
       </div>
-      <div className="rounded-xl bg-white p-5 shadow">
+      <div className="rounded-md bg-white p-5 border border-secondary-bg">
         <p className="text-lg font-black">Subtotal: ₹{total.toFixed(2)}</p>
         <Link to="/checkout" className="mt-3 inline-block rounded-full bg-foreground hover:bg-black px-5 py-2 font-semibold text-white">Proceed to Checkout</Link>
       </div>

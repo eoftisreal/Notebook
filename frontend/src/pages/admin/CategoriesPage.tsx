@@ -141,7 +141,7 @@ export default function CategoriesPage() {
       <h1 className="text-3xl font-black">Categories Master</h1>
 
       <div className="grid gap-6 md:grid-cols-3 items-start">
-        <div className="md:col-span-1 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+        <div className="md:col-span-1 rounded-md bg-white p-6 border border-secondary-bg">
           <h2 className="font-bold text-lg mb-4">{editingId ? 'Edit Category' : 'Add Category'}</h2>
           <div className="space-y-2 border-b pb-4 mb-4">
             <h3 className="text-sm font-medium text-slate-700">Category Background Image (Optional)</h3>
@@ -204,7 +204,7 @@ export default function CategoriesPage() {
           </form>
         </div>
 
-        <div className="md:col-span-2 rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+        <div className="md:col-span-2 rounded-md bg-white p-6 border border-secondary-bg">
           <h2 className="font-bold text-lg mb-4">Existing Categories</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">

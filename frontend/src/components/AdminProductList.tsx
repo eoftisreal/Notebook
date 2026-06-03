@@ -73,11 +73,11 @@ export default function AdminProductList({ refreshKey = 0 }: AdminProductListPro
   }
 
   if (loading) {
-    return <div className="rounded-xl bg-white p-6 shadow space-y-4"><p>Loading products...</p></div>;
+    return <div className="rounded-md bg-white p-6 space-y-4"><p>Loading products...</p></div>;
   }
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow space-y-6">
+    <div className="rounded-md bg-white p-6 space-y-6">
       <div className="flex items-center justify-between border-b pb-2">
         <h2 className="font-bold text-xl">Existing Products</h2>
         <button onClick={fetchProducts} className="text-sm text-foreground hover:underline">Refresh</button>

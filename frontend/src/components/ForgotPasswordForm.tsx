@@ -28,7 +28,7 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow">
+    <div className="mx-auto max-w-md rounded-md bg-white p-6 border border-secondary-bg">
       <h1 className="text-2xl font-black">Reset Password</h1>
       <p className="mt-2 text-sm text-slate-600">Enter your email or username to receive a password reset link via email.</p>
 

@@ -62,7 +62,7 @@ export default function SettingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-black mb-6">Platform Settings</h1>
-      <div className="rounded-lg bg-white p-6 shadow mb-6">
+      <div className="rounded-lg bg-white p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">Hero Banner</h2>
         <div className="space-y-4">
           <div>
@@ -87,13 +87,13 @@ export default function SettingsPage() {
           {settings?.heroBannerUrl && (
             <div className="mt-4">
               <p className="text-sm font-medium text-slate-700 mb-2">Preview:</p>
-              <img src={settings.heroBannerUrl} alt="Hero Banner Preview" className="max-w-md max-h-64 object-cover rounded shadow" />
+              <img src={settings.heroBannerUrl} alt="Hero Banner Preview" className="max-w-md max-h-64 object-cover rounded border border-secondary-bg" />
             </div>
           )}
         </div>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow">
+      <div className="rounded-lg bg-white p-6 border border-secondary-bg">
         <h2 className="text-lg font-semibold mb-4">Other Configuration</h2>
         <pre className="bg-slate-50 p-4 rounded text-sm overflow-x-auto text-slate-700">
           {JSON.stringify(settings, null, 2)}

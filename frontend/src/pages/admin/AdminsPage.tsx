@@ -58,7 +58,7 @@ export default function AdminsPage() {
   return (
     <div>
       <h1 className="text-2xl font-black mb-6">Manage Admins</h1>
-      <div className="overflow-hidden rounded-lg bg-white shadow">
+      <div className="overflow-hidden rounded-lg bg-white border border-secondary-bg">
         <table className="w-full text-left text-sm text-slate-600">
           <thead className="bg-slate-50 text-xs uppercase text-slate-700">
             <tr>
