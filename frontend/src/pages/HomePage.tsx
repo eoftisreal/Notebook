@@ -1,13 +1,28 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { apiGet } from '@/lib/api';
 
-const categories = [
-  { name: 'T-Shirts', discount: 'Up to 30% off' },
-  { name: 'Phone Cases', discount: 'Buy 2 Get 1' },
-  { name: 'Stickers', discount: 'Fresh drops daily' },
-  { name: 'Wall Art', discount: 'Limited editions' },
-];
+type Category = {
+  _id: string;
+  name: string;
+  description: string;
+};
 
 export default function Home() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await apiGet<Category[]>('/products/categories');
+        setCategories(res);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   return (
     <div className="space-y-10">
       <section className="rounded-3xl bg-gradient-to-r from-brand-orange via-brand-pink to-brand-purple p-8 text-white shadow-2xl">
@@ -21,11 +36,14 @@ export default function Home() {
         <h2 className="mb-4 text-2xl font-black">Browse by Category</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
-            <Link key={category.name} to={`/products?category=${encodeURIComponent(category.name)}`} className="rounded-2xl bg-white p-5 shadow hover:shadow-lg">
-              <p className="text-xs font-bold uppercase text-brand-pink">{category.discount}</p>
+            <Link key={category._id} to={`/products?category=${encodeURIComponent(category.name)}`} className="rounded-2xl bg-white p-5 shadow hover:shadow-lg">
+              <p className="text-xs font-bold uppercase text-brand-pink">{category.description || 'Explore collection'}</p>
               <p className="mt-2 text-xl font-black text-brand-dark">{category.name}</p>
             </Link>
           ))}
+          {categories.length === 0 && (
+            <p className="col-span-full text-slate-500">No categories found.</p>
+          )}
         </div>
       </section>
     </div>

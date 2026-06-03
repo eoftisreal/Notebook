@@ -5,13 +5,35 @@ const Product = require('../models/Product');
 const auth = require('../middleware/auth');
 const adminOnly = require('../middleware/admin');
 
+const Category = require('../models/Category');
+const Brand = require('../models/Brand');
+
 const router = express.Router();
+
+router.get('/categories', async (req, res, next) => {
+  try {
+    const categories = await Category.find({ isActive: true }).sort({ name: 1 });
+    res.json(categories);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/brands', async (req, res, next) => {
+  try {
+    const brands = await Brand.find({ isActive: true }).sort({ name: 1 });
+    res.json(brands);
+  } catch (error) {
+    next(error);
+  }
+});
 
 const listSchema = z.object({
   body: z.object({}),
   query: z.object({
     q: z.string().optional(),
     category: z.string().optional(),
+    brand: z.string().optional(),
     minPrice: z.coerce.number().optional(),
     maxPrice: z.coerce.number().optional(),
     page: z.coerce.number().min(1).default(1),
@@ -22,7 +44,7 @@ const listSchema = z.object({
 
 router.get('/', validate(listSchema), async (req, res, next) => {
   try {
-    const { q, category, minPrice, maxPrice, page, limit } = req.validated.query;
+    const { q, category, brand, minPrice, maxPrice, page, limit } = req.validated.query;
     const query = { isActive: true };
 
     if (q) {
@@ -30,6 +52,9 @@ router.get('/', validate(listSchema), async (req, res, next) => {
     }
     if (category) {
       query.category = category;
+    }
+    if (brand) {
+      query.brand = brand;
     }
     if (minPrice !== undefined || maxPrice !== undefined) {
       query.price = {};
@@ -71,6 +96,7 @@ const createSchema = z.object({
     description: z.string().min(10),
     artistName: z.string().min(2),
     category: z.string().min(2),
+    brand: z.string().optional(),
     images: z.array(z.string().url()).default([]),
     r2ImageKeys: z.array(z.string()).default([]),
     price: z.number().nonnegative(),
