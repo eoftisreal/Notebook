@@ -41,10 +41,10 @@ export default function Home() {
   return (
     <div className="space-y-16 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[70vh] flex items-center justify-center bg-secondary-bg">
+      <section className="relative overflow-hidden min-h-[50vh] md:min-h-[70vh] flex items-center justify-center bg-secondary-bg">
         {heroBannerUrl ? (
           <div className="absolute inset-0 z-0">
-            <img src={heroBannerUrl} alt="Hero Banner" className="w-full h-full object-cover" />
+            <img src={heroBannerUrl} alt="Hero Banner" className="w-full h-full object-cover object-center" />
             <div className="absolute inset-0 bg-black/20"></div>
           </div>
         ) : (
@@ -71,7 +71,7 @@ export default function Home() {
             <Link
               key={category._id}
               to={`/products?category=${encodeURIComponent(category.name)}`}
-              className="group relative overflow-hidden rounded-md border border-secondary-bg min-h-[300px] flex flex-col justify-end bg-white"
+              className="group relative overflow-hidden rounded-md border border-secondary-bg aspect-square flex flex-col justify-end bg-white"
             >
               {category.image ? (
                 <>
