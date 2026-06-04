@@ -3,11 +3,13 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { setAuthToken, setRefreshToken } from '@/lib/storage';
+import { useCartStore } from '@/store/cart';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
 export default function LoginForm() {
   const navigate = useNavigate();
+  const syncLocalCartToBackend = useCartStore(state => state.syncLocalCartToBackend);
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +30,7 @@ export default function LoginForm() {
       if (response.ok) {
         setAuthToken(body.accessToken);
         setRefreshToken(body.refreshToken);
+        await syncLocalCartToBackend();
         setMessage('Success!');
         navigate('/');
       } else {

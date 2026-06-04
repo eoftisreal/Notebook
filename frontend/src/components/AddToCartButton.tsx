@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from 'react-router-dom';
-import { addCartItem } from '@/lib/storage';
+import { useCartStore } from '@/store/cart';
 
 type Props = {
   productId: string;
@@ -10,11 +10,13 @@ type Props = {
 };
 
 export default function AddToCartButton({ productId, title, price }: Props) {
+  const { addItem } = useCartStore();
+
   return (
     <Link
       to="/cart"
       onClick={() => {
-        addCartItem({ productId, title, unitPrice: price });
+        addItem({ productId, title, unitPrice: price });
       }}
       className="inline-block rounded-full bg-pink-600 px-6 py-3 font-semibold text-white"
     >

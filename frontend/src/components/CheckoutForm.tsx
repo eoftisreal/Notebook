@@ -14,6 +14,8 @@ export default function CheckoutForm() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [promoMessage, setPromoMessage] = useState('');
 
+  const isLoggedIn = !!getAuthToken();
+
   async function handleApplyPromo() {
     if (!promoCode) return;
     setPromoMessage('Validating...');
@@ -76,24 +78,30 @@ export default function CheckoutForm() {
               <label className="flex items-center gap-2"><input type="radio" name="delivery" /> WhatsApp delivery updates</label>
             </div>
 
-            <div className="border-t pt-4">
-              <h3 className="font-semibold mb-2">Have a Promo Code?</h3>
-              <div className="flex gap-2">
-                <input
-                  value={promoCode}
-                  onChange={e => setPromoCode(e.target.value)}
-                  placeholder="Enter code"
-                  className="rounded border px-3 py-2 flex-grow uppercase"
-                />
-                <button
-                  onClick={handleApplyPromo}
-                  className="rounded bg-slate-800 text-white px-4 py-2 font-semibold hover:bg-slate-700"
-                >
-                  Apply
-                </button>
+            {isLoggedIn ? (
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-2">Have a Promo Code?</h3>
+                <div className="flex gap-2">
+                  <input
+                    value={promoCode}
+                    onChange={e => setPromoCode(e.target.value)}
+                    placeholder="Enter code"
+                    className="rounded border px-3 py-2 flex-grow uppercase"
+                  />
+                  <button
+                    onClick={handleApplyPromo}
+                    className="rounded bg-slate-800 text-white px-4 py-2 font-semibold hover:bg-slate-700"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoMessage && <p className={`mt-2 text-sm ${discountAmount > 0 ? 'text-green-600' : 'text-red-500'}`}>{promoMessage}</p>}
               </div>
-              {promoMessage && <p className={`mt-2 text-sm ${discountAmount > 0 ? 'text-green-600' : 'text-red-500'}`}>{promoMessage}</p>}
-            </div>
+            ) : (
+              <div className="border-t pt-4">
+                <p className="text-sm text-slate-500">Please <a href="/auth/login" className="underline text-foreground">log in</a> to apply promo codes.</p>
+              </div>
+            )}
           </div>
         ) : null}
         {step === 2 ? <p>Razorpay integration endpoint is ready on backend: <code>/api/checkout/create</code>.</p> : null}

@@ -58,6 +58,42 @@ router.post('/items', validate(itemSchema), async (req, res, next) => {
   }
 });
 
+const syncSchema = z.object({
+  body: z.object({
+    items: z.array(z.object({
+      productId: z.string(),
+      quantity: z.number().int().min(1)
+    }))
+  }),
+  query: z.object({}),
+  params: z.object({}),
+});
+
+router.post('/sync', validate(syncSchema), async (req, res, next) => {
+  try {
+    const { items } = req.validated.body;
+    const cart = await getCart(req.user.id);
+
+    for (const item of items) {
+      const existing = cart.items.find((i) => i.productId.toString() === item.productId);
+      if (existing) {
+        existing.quantity += item.quantity;
+      } else {
+        const product = await Product.findById(item.productId);
+        if (product && product.isActive) {
+          cart.items.push({ productId: item.productId, quantity: item.quantity });
+        }
+      }
+    }
+
+    await cart.save();
+    await cart.populate('items.productId');
+    res.json(cart);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.delete('/items/:productId', async (req, res, next) => {
   try {
     const cart = await getCart(req.user.id);

@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setAuthToken, setRefreshToken } from '@/lib/storage';
+import { useCartStore } from '@/store/cart';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
 export default function AuthCallbackPage() {
+  const syncLocalCartToBackend = useCartStore(state => state.syncLocalCartToBackend);
   const navigate = useNavigate();
   const [message, setMessage] = useState('Verifying magic link...');
 
@@ -33,6 +35,7 @@ export default function AuthCallbackPage() {
 
         setAuthToken(body.accessToken);
         setRefreshToken(body.refreshToken);
+        await syncLocalCartToBackend();
         setMessage('Login successful! Redirecting...');
         setTimeout(() => navigate('/'), 1500);
       } catch {
