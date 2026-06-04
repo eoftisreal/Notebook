@@ -50,6 +50,10 @@ export default function Header() {
           <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
           <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
           <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
+          <span>LOOKING FOR SOMETHING NEW? YOU'RE IN THE RIGHT PLACE.</span>
         </div>
       </div>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
