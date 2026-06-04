@@ -62,7 +62,8 @@ export default function SettingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-black mb-6">Platform Settings</h1>
-      <div className="rounded-lg bg-white p-6 mb-6">
+      <div className="grid md:grid-cols-2 gap-6 mb-6">
+      <div className="rounded-lg bg-white p-6 border border-secondary-bg">
         <h2 className="text-lg font-semibold mb-4">Hero Banner</h2>
         <div className="space-y-4">
           <div>
@@ -91,6 +92,31 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="rounded-lg bg-white p-6 border border-secondary-bg">
+        <h2 className="text-lg font-semibold mb-4">Delivery Options</h2>
+        <div className="space-y-4">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={settings?.enableEmailDelivery !== false}
+              onChange={(e) => handleUpdateSetting('enableEmailDelivery', e.target.checked)}
+              className="h-4 w-4"
+            />
+            <span className="text-sm font-medium text-slate-700">Enable Email Delivery Updates</span>
+          </label>
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={settings?.enableWhatsappDelivery !== false}
+              onChange={(e) => handleUpdateSetting('enableWhatsappDelivery', e.target.checked)}
+              className="h-4 w-4"
+            />
+            <span className="text-sm font-medium text-slate-700">Enable WhatsApp Delivery Updates</span>
+          </label>
+        </div>
+      </div>
       </div>
 
       <div className="rounded-lg bg-white p-6 border border-secondary-bg">

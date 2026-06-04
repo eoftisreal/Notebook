@@ -19,7 +19,7 @@ const checkoutSchema = z.object({
       postalCode: z.string().min(3),
       country: z.string().min(2),
     }),
-    deliveryMethod: z.enum(['email', 'whatsapp']),
+    deliveryMethod: z.enum(['email', 'whatsapp']).optional(),
     promoCode: z.string().optional(),
   }),
   query: z.object({}),
@@ -90,7 +90,7 @@ router.post('/create', auth, validate(checkoutSchema), async (req, res, next) =>
       tax,
       total,
       shippingAddress: req.validated.body.shippingAddress,
-      deliveryMethod: req.validated.body.deliveryMethod,
+      deliveryMethod: req.validated.body.deliveryMethod || 'email',
       promoCode: req.validated.body.promoCode || undefined,
       payment: {
         provider: 'razorpay',

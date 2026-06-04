@@ -10,11 +10,14 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String, default: null },
+    phone: { type: String, trim: true },
     address: {
+      line1: { type: String, trim: true },
+      line2: { type: String, trim: true },
+      city: { type: String, trim: true },
       state: { type: String, trim: true },
-      district: { type: String, trim: true },
-      pinCode: { type: String, trim: true },
-      landmark: { type: String, trim: true }
+      postalCode: { type: String, trim: true },
+      country: { type: String, trim: true }
     },
     masterAccessCode: { type: String, unique: true, sparse: true }
   },

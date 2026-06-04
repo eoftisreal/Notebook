@@ -78,7 +78,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
         <p className="text-2xl font-bold">₹{product.price}</p>
         <p>{product.description}</p>
         <p className="text-sm text-slate-500">Stock: {product.stock}</p>
-        <AddToCartButton productId={product._id} title={product.title} price={product.price} />
+        <AddToCartButton productId={product._id} title={product.title} price={product.price} image={product.images?.[0]} />
       </div>
     </div>
   );
