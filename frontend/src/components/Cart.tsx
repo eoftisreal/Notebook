@@ -1,22 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CART_KEY, CartItem } from '@/lib/storage';
-import { useLocalStorageState } from '@/lib/hooks';
+import { useCartStore } from '@/store/cart';
 
 export default function Cart() {
-  const [items, setItems] = useLocalStorageState<CartItem[]>(CART_KEY, []);
+  const { items, updateQuantity, removeItem, fetchCart } = useCartStore();
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    setItems((current) => current.map((item) => (item.productId === productId ? { ...item, quantity: Math.max(1, quantity) } : item)));
-  };
-
-  const remove = (productId: string) => {
-    setItems((current) => current.filter((item) => item.productId !== productId));
-  };
 
   return (
     <div className="space-y-4">
@@ -37,7 +32,7 @@ export default function Cart() {
                 onChange={(event) => updateQuantity(item.productId, Number(event.target.value))}
                 className="w-16 rounded border px-2 py-1"
               />
-              <button onClick={() => remove(item.productId)} className="rounded border px-3 py-1 text-sm">Remove</button>
+              <button onClick={() => removeItem(item.productId)} className="rounded border px-3 py-1 text-sm">Remove</button>
             </div>
           </article>
         ))}

@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getAuthToken, clearAuth } from '@/lib/storage';
 import { parseJwt } from '@/lib/jwt';
+import { useCartStore } from '@/store/cart';
 
 const linkClass = 'text-sm font-medium text-secondary-text hover:text-foreground transition-colors tracking-wide';
 
@@ -9,6 +10,8 @@ export default function Header() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { items, fetchCart, clearLocalCart } = useCartStore();
+  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -35,8 +38,13 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart, isAuthenticated]);
+
   const handleLogout = () => {
     clearAuth();
+    clearLocalCart();
     setIsAuthenticated(false);
     setIsAdmin(false);
     navigate('/');
@@ -86,7 +94,7 @@ export default function Header() {
             ) : (
               <Link to="/auth/login" className={linkClass}>Log In</Link>
             )}
-            <Link to="/cart" className={linkClass}>Cart</Link>
+            <Link to="/cart" className={linkClass}>Cart {cartItemCount > 0 ? `(${cartItemCount})` : ''}</Link>
           </nav>
         </div>
       </header>
