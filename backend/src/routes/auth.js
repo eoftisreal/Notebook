@@ -360,9 +360,48 @@ router.get('/me', auth, async (req, res, next) => {
         username: user.username,
         name: user.name,
         role: user.role,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        phone: user.phone,
+        address: user.address,
       }
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+const profileUpdateSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    address: z.object({
+      line1: z.string().optional(),
+      line2: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      postalCode: z.string().optional(),
+      country: z.string().optional()
+    }).optional()
+  }),
+  query: z.object({}),
+  params: z.object({})
+});
+
+router.put('/profile', auth, validate(profileUpdateSchema), async (req, res, next) => {
+  try {
+    const { name, phone, address } = req.validated.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) {
+      if (!user.address) user.address = {};
+      Object.assign(user.address, address);
+    }
+    await user.save();
+
+    res.json(user);
   } catch (error) {
     next(error);
   }

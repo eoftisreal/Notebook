@@ -20,9 +20,16 @@ export default function Cart() {
         {items.length === 0 ? <p className="rounded-md bg-white p-6 border border-secondary-bg">Cart is empty.</p> : null}
         {items.map((item) => (
           <article key={item.productId} className="flex items-center justify-between rounded-md bg-white p-4 border border-secondary-bg">
-            <div>
-              <p className="font-bold">{item.title}</p>
-              <p className="text-sm text-slate-500">₹{item.unitPrice}</p>
+            <div className="flex items-center gap-4">
+              {item.image ? (
+                <img src={item.image} alt={item.title} className="h-16 w-16 object-cover rounded bg-secondary-bg border border-secondary-bg shrink-0" />
+              ) : (
+                <div className="h-16 w-16 bg-secondary-bg rounded border border-secondary-bg shrink-0 flex items-center justify-center text-xs text-slate-400">No Img</div>
+              )}
+              <div>
+                <p className="font-bold">{item.title}</p>
+                <p className="text-sm text-slate-500">₹{item.unitPrice}</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <input

@@ -8,12 +8,13 @@ export type CartItem = {
   title: string;
   unitPrice: number;
   quantity: number;
+  image?: string;
 };
 
 type CartState = {
   items: CartItem[];
   fetchCart: () => Promise<void>;
-  addItem: (product: Pick<CartItem, 'productId' | 'title' | 'unitPrice'>) => Promise<void>;
+  addItem: (product: Pick<CartItem, 'productId' | 'title' | 'unitPrice' | 'image'>) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   syncLocalCartToBackend: () => Promise<void>;
@@ -42,6 +43,7 @@ export const useCartStore = create<CartState>((set, get) => ({
           title: item.productId.title || 'Unknown Item',
           unitPrice: item.productId.price || 0,
           quantity: item.quantity,
+          image: item.productId.images?.[0] || undefined,
         }));
         set({ items: mappedItems });
       }

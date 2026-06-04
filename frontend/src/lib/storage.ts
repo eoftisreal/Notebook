@@ -3,6 +3,7 @@ export type CartItem = {
   title: string;
   unitPrice: number;
   quantity: number;
+  image?: string;
 };
 
 export const CART_KEY = 'kapdakraft_cart';
@@ -42,7 +43,7 @@ export function setCartItems(items: CartItem[]) {
   setStoredValue(CART_KEY, items);
 }
 
-export function addCartItem(product: Pick<CartItem, 'productId' | 'title' | 'unitPrice'>) {
+export function addCartItem(product: Pick<CartItem, 'productId' | 'title' | 'unitPrice' | 'image'>) {
   const cart = getCartItems();
   const existing = cart.find((item) => item.productId === product.productId);
 
