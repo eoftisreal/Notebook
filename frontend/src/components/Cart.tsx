@@ -31,15 +31,24 @@ export default function Cart() {
                 <p className="text-sm text-slate-500">₹{item.unitPrice}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min={1}
-                value={item.quantity}
-                onChange={(event) => updateQuantity(item.productId, Number(event.target.value))}
-                className="w-16 rounded border px-2 py-1"
-              />
-              <button onClick={() => removeItem(item.productId)} className="rounded border px-3 py-1 text-sm">Remove</button>
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex items-center rounded border border-slate-300">
+                <button
+                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                  className="px-3 py-1 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                  disabled={item.quantity <= 1}
+                >
+                  -
+                </button>
+                <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                <button
+                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                  className="px-3 py-1 text-slate-600 hover:bg-slate-100"
+                >
+                  +
+                </button>
+              </div>
+              <button onClick={() => removeItem(item.productId)} className="text-xs font-semibold text-red-500 hover:text-red-700 underline">Remove</button>
             </div>
           </article>
         ))}

@@ -3,36 +3,39 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 
+import { lazy, Suspense } from 'react';
 import App from './App';
-import HomePage from './pages/HomePage';
-import ProductsPage from './pages/ProductsPage';
-import ProductPage from './pages/ProductPage';
-import CartPage from './pages/CartPage';
-import CheckoutPage from './pages/CheckoutPage';
-import OrdersPage from './pages/OrdersPage';
-import OrderDetailPage from './pages/OrderDetailPage';
-import LoginPage from './pages/auth/LoginPage';
-import SignupPage from './pages/auth/SignupPage';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage';
-import MagicLinkPage from './pages/auth/MagicLinkPage';
-import VerifyEmailPage from './pages/auth/VerifyEmailPage';
-import CallbackPage from './pages/auth/CallbackPage';
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminProductsPage from './pages/admin/AdminProductsPage';
-import AdminProductEditPage from './pages/admin/AdminProductEditPage';
-import CategoriesPage from './pages/admin/CategoriesPage';
-import BrandsPage from './pages/admin/BrandsPage';
-import CouponsPage from './pages/admin/CouponsPage';
-import UsersPage from './pages/admin/UsersPage';
-import AdminsPage from './pages/admin/AdminsPage';
-import SettingsPage from './pages/admin/SettingsPage';
-import AccountPage from './pages/AccountPage';
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ProductsPage = lazy(() => import('./pages/ProductsPage'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const OrdersPage = lazy(() => import('./pages/OrdersPage'));
+const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'));
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const SignupPage = lazy(() => import('./pages/auth/SignupPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
+const MagicLinkPage = lazy(() => import('./pages/auth/MagicLinkPage'));
+const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'));
+const CallbackPage = lazy(() => import('./pages/auth/CallbackPage'));
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
+const AdminProductEditPage = lazy(() => import('./pages/admin/AdminProductEditPage'));
+const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'));
+const BrandsPage = lazy(() => import('./pages/admin/BrandsPage'));
+const CouponsPage = lazy(() => import('./pages/admin/CouponsPage'));
+const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
+const AdminsPage = lazy(() => import('./pages/admin/AdminsPage'));
+const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
+const AccountPage = lazy(() => import('./pages/AccountPage'));
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>}>
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<HomePage />} />
@@ -67,6 +70,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
+      </Suspense>
     </BrowserRouter>
   </React.StrictMode>
 );
