@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { getAuthToken, getCartItems, setCartItems } from '@/lib/storage';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
@@ -21,16 +22,17 @@ type CartState = {
   clearLocalCart: () => void;
 };
 
-export const useCartStore = create<CartState>((set, get) => ({
-  items: getCartItems(), // Initialize from local storage
+export const useCartStore = create<CartState>()(
+  persist(
+    (set, get) => ({
+      items: getCartItems(),
 
-  fetchCart: async () => {
-    const token = getAuthToken();
-    if (!token) {
-      // If not logged in, just read from local storage
-      set({ items: getCartItems() });
-      return;
-    }
+      fetchCart: async () => {
+        const token = getAuthToken();
+        if (!token) {
+          // If not logged in, just rely on what is persisted
+          return;
+        }
 
     try {
       const res = await fetch(`${apiBase}/cart`, {
@@ -55,16 +57,19 @@ export const useCartStore = create<CartState>((set, get) => ({
   addItem: async (product) => {
     const token = getAuthToken();
     if (!token) {
-      // Guest: update local storage
-      const currentItems = getCartItems();
+      // Guest: update Zustand directly, it will persist
+      const currentItems = get().items;
       const existing = currentItems.find((item) => item.productId === product.productId);
+
+      let updatedItems;
       if (existing) {
-        existing.quantity += 1;
+        updatedItems = currentItems.map(item => item.productId === product.productId ? { ...item, quantity: item.quantity + 1 } : item);
       } else {
-        currentItems.push({ ...product, quantity: 1 });
+        updatedItems = [...currentItems, { ...product, quantity: 1 }];
       }
-      setCartItems(currentItems);
-      set({ items: currentItems });
+
+      setCartItems(updatedItems); // keep fallback in sync just in case
+      set({ items: updatedItems });
       return;
     }
 
@@ -97,7 +102,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 
     if (!token) {
       // Guest
-      const currentItems = getCartItems();
+      const currentItems = get().items;
       const updated = currentItems.map(item =>
         item.productId === productId ? { ...item, quantity: newQuantity } : item
       );
@@ -130,7 +135,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 
     if (!token) {
       // Guest
-      const currentItems = getCartItems();
+      const currentItems = get().items;
       const updated = currentItems.filter(item => item.productId !== productId);
       setCartItems(updated);
       set({ items: updated });
@@ -156,7 +161,8 @@ export const useCartStore = create<CartState>((set, get) => ({
     const token = getAuthToken();
     if (!token) return;
 
-    const localItems = getCartItems();
+    // Get from Zustand's persisted state, fallback to old key if needed
+    const localItems = get().items.length > 0 ? get().items : getCartItems();
     if (localItems.length === 0) {
       // If nothing to sync, still fetch to get the existing backend cart
       await get().fetchCart();
@@ -183,8 +189,13 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  clearLocalCart: () => {
-    setCartItems([]);
-    set({ items: [] });
-  }
-}));
+      clearLocalCart: () => {
+        setCartItems([]);
+        set({ items: [] });
+      }
+    }),
+    {
+      name: 'kapdakraft_zustand_cart',
+    }
+  )
+);
