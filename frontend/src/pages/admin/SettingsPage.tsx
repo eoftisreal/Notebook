@@ -95,6 +95,37 @@ export default function SettingsPage() {
       </div>
 
       <div className="rounded-lg bg-white p-6 border border-secondary-bg">
+        <h2 className="text-lg font-semibold mb-4">Custom Feature Options</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Custom Feature Icon URL</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={settings?.customFeatureIconUrl || ''}
+                onChange={(e) => setSettings({ ...settings, customFeatureIconUrl: e.target.value })}
+                className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+                placeholder="https://example.com/icon.png"
+              />
+              <button
+                onClick={() => handleUpdateSetting('customFeatureIconUrl', settings?.customFeatureIconUrl)}
+                className="rounded bg-foreground px-4 py-2 text-sm font-bold text-white hover:bg-foreground/90"
+              >
+                Save Icon
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">Provide an image URL for the icon displayed next to custom products in the cart and checkout.</p>
+          </div>
+          {settings?.customFeatureIconUrl && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-slate-700 mb-2">Preview:</p>
+              <img src={settings.customFeatureIconUrl} alt="Custom Feature Icon Preview" className="h-16 w-16 object-contain rounded border border-secondary-bg" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-lg bg-white p-6 border border-secondary-bg">
         <h2 className="text-lg font-semibold mb-4">Delivery Options</h2>
         <div className="space-y-4">
           <label className="flex items-center gap-3">

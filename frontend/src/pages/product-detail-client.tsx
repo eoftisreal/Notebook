@@ -186,7 +186,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
 
             {customImageUrl && (
               <div className="pt-2">
-                <AddToCartButton productId={product._id} title={product.title} price={product.price} image={customImageUrl} />
+                <AddToCartButton productId={product._id} title={product.title} price={product.price} image={product.images?.[0]} customImage={customImageUrl} />
               </div>
             )}
           </div>

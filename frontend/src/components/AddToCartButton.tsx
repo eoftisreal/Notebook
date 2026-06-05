@@ -8,16 +8,17 @@ type Props = {
   title: string;
   price: number;
   image?: string;
+  customImage?: string;
 };
 
-export default function AddToCartButton({ productId, title, price, image }: Props) {
+export default function AddToCartButton({ productId, title, price, image, customImage }: Props) {
   const { addItem } = useCartStore();
 
   return (
     <Link
       to="/cart"
       onClick={() => {
-        addItem({ productId, title, unitPrice: price, image });
+        addItem({ productId, title, unitPrice: price, image, customImage });
       }}
       className="inline-block rounded-full bg-pink-600 px-6 py-3 font-semibold text-white"
     >

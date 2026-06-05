@@ -9,7 +9,7 @@ router.get('/health', (_req, res) => {
 
 router.get('/public/settings', async (_req, res, next) => {
   try {
-    const publicKeys = ['heroBannerUrl', 'enableEmailDelivery', 'enableWhatsappDelivery'];
+    const publicKeys = ['heroBannerUrl', 'enableEmailDelivery', 'enableWhatsappDelivery', 'customFeatureIconUrl'];
     const settingsDocs = await Setting.find({ key: { $in: publicKeys } });
     const settings = {};
     settingsDocs.forEach(s => {
