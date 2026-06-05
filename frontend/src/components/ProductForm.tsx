@@ -18,6 +18,9 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [price, setPrice] = useState(0);
 
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isCustomizable, setIsCustomizable] = useState(false);
+  const [minDeliveryDays, setMinDeliveryDays] = useState('');
+  const [maxDeliveryDays, setMaxDeliveryDays] = useState('');
 
   const [categories, setCategories] = useState<{_id: string, name: string}[]>([]);
   const [brands, setBrands] = useState<{_id: string, name: string}[]>([]);
@@ -103,7 +106,10 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         stock,
         images: uploadedUrl ? [uploadedUrl] : [],
         r2ImageKeys: r2Key ? [r2Key] : [],
-        isFeatured
+        isFeatured,
+        isCustomizable,
+        minDeliveryDays: minDeliveryDays ? Number(minDeliveryDays) : undefined,
+        maxDeliveryDays: maxDeliveryDays ? Number(maxDeliveryDays) : undefined,
       };
 
       const response = await fetch(`${apiBase}/products`, {
@@ -218,9 +224,26 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mt-4">
-          <input type="checkbox" id="isFeatured" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
-          <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700">Showcase on Home Page (Featured)</label>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Min Delivery Days</label>
+            <input type="number" min="1" value={minDeliveryDays} onChange={e => setMinDeliveryDays(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" placeholder="e.g. 3" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Max Delivery Days</label>
+            <input type="number" min="1" value={maxDeliveryDays} onChange={e => setMaxDeliveryDays(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" placeholder="e.g. 5" />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 mt-4">
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="isFeatured" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
+            <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700">Showcase on Home Page (Featured)</label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="isCustomizable" checked={isCustomizable} onChange={e => setIsCustomizable(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
+            <label htmlFor="isCustomizable" className="text-sm font-medium text-gray-700">Custom Product (Requires user image upload)</label>
+          </div>
         </div>
 
         <button disabled={loading} className="w-full rounded bg-foreground hover:bg-black px-4 py-2 font-semibold text-white disabled:opacity-50">

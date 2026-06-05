@@ -45,7 +45,8 @@ export const useCartStore = create<CartState>()(
           title: item.productId.title || 'Unknown Item',
           unitPrice: item.productId.price || 0,
           quantity: item.quantity,
-          image: item.productId.images?.[0] || undefined,
+          // If the backend has a custom image attached to the cart item, use that, else use product image
+          image: item.customImage || item.productId.images?.[0] || undefined,
         }));
         set({ items: mappedItems });
       }
@@ -91,7 +92,11 @@ export const useCartStore = create<CartState>()(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ productId: product.productId, quantity: newQuantity }),
+        body: JSON.stringify({
+          productId: product.productId,
+          quantity: newQuantity,
+          customImage: product.image // we overloaded the `image` prop from frontend to carry custom images too
+        }),
       });
 
       if (!res.ok) {

@@ -24,6 +24,9 @@ export default function AdminProductEditPage() {
   const [stock, setStock] = useState(0);
   const [tags, setTags] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isCustomizable, setIsCustomizable] = useState(false);
+  const [minDeliveryDays, setMinDeliveryDays] = useState('');
+  const [maxDeliveryDays, setMaxDeliveryDays] = useState('');
 
   // Images state (array of urls)
   const [images, setImages] = useState<string[]>([]);
@@ -62,6 +65,9 @@ export default function AdminProductEditPage() {
           setStock(prodRes.stock);
           setTags((prodRes.tags || []).join(', '));
           setIsFeatured(prodRes.isFeatured || false);
+          setIsCustomizable(prodRes.isCustomizable || false);
+          setMinDeliveryDays(prodRes.minDeliveryDays?.toString() || '');
+          setMaxDeliveryDays(prodRes.maxDeliveryDays?.toString() || '');
           setImages(prodRes.images || []);
           setR2ImageKeys(prodRes.r2ImageKeys || []);
         }
@@ -142,7 +148,10 @@ export default function AdminProductEditPage() {
         images,
         r2ImageKeys,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        isFeatured
+        isFeatured,
+        isCustomizable,
+        minDeliveryDays: minDeliveryDays ? Number(minDeliveryDays) : undefined,
+        maxDeliveryDays: maxDeliveryDays ? Number(maxDeliveryDays) : undefined,
       };
 
       const response = await fetch(`${apiBase}/products/${id}`, {
@@ -292,9 +301,26 @@ export default function AdminProductEditPage() {
             <input type="text" value={tags} onChange={e => setTags(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" placeholder="e.g. 20% OFF, New Arrival" />
           </div>
 
-          <div className="flex items-center gap-2 mt-2">
-            <input type="checkbox" id="isFeaturedEdit" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
-            <label htmlFor="isFeaturedEdit" className="text-sm font-medium text-gray-700">Showcase on Home Page (Featured)</label>
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Min Delivery Days</label>
+              <input type="number" min="1" value={minDeliveryDays} onChange={e => setMinDeliveryDays(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" placeholder="e.g. 3" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Max Delivery Days</label>
+              <input type="number" min="1" value={maxDeliveryDays} onChange={e => setMaxDeliveryDays(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" placeholder="e.g. 5" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="isFeaturedEdit" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
+              <label htmlFor="isFeaturedEdit" className="text-sm font-medium text-gray-700">Showcase on Home Page (Featured)</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="isCustomizableEdit" checked={isCustomizable} onChange={e => setIsCustomizable(e.target.checked)} className="rounded border-gray-300 text-foreground focus:ring-foreground" />
+              <label htmlFor="isCustomizableEdit" className="text-sm font-medium text-gray-700">Custom Product (Requires user image upload)</label>
+            </div>
           </div>
 
           <div className="pt-4 border-t">
