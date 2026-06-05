@@ -110,6 +110,9 @@ const createSchema = z.object({
     stock: z.number().int().nonnegative().default(0),
     tags: z.array(z.string()).default([]),
     isFeatured: z.boolean().default(false),
+    isCustomizable: z.boolean().default(false),
+    minDeliveryDays: z.number().int().min(1).optional(),
+    maxDeliveryDays: z.number().int().min(1).optional(),
   }),
   query: z.object({}),
   params: z.object({}),
@@ -159,6 +162,30 @@ const patchSchema = z.object({
   params: z.object({
     id: z.string()
   })
+});
+
+const uploadCustomImage = require('multer')({
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
+const { uploadToR2, getObjectUrl, isR2Configured } = require('../utils/r2');
+
+router.post('/upload-custom', uploadCustomImage.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    if (!isR2Configured()) {
+      return res.status(500).json({ message: 'Storage is not configured on the server. Image upload is disabled.' });
+    }
+
+    const key = await uploadToR2(req.file.buffer, req.file.mimetype, req.file.originalname);
+    const url = getObjectUrl(key);
+
+    res.json({ key, url });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.patch('/:id/featured', auth, adminOnly, validate(patchSchema), async (req, res, next) => {

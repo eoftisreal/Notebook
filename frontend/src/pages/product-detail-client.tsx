@@ -3,11 +3,19 @@
 import { useEffect, useState } from 'react';
 import { apiGet, Product } from '@/lib/api';
 import AddToCartButton from '@/components/AddToCartButton';
+import { X, Check } from 'lucide-react';
+
+const apiBase = import.meta.env.VITE_API_URL || '/api';
 
 export default function ProductDetailClient({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>('');
+
+  const [customImageFile, setCustomImageFile] = useState<File | null>(null);
+  const [customImagePreview, setCustomImagePreview] = useState<string>('');
+  const [uploadingCustom, setUploadingCustom] = useState(false);
+  const [customImageUrl, setCustomImageUrl] = useState<string>('');
 
   useEffect(() => {
     let active = true;
@@ -42,6 +50,46 @@ export default function ProductDetailClient({ id }: { id: string }) {
   if (!product) {
     return <p className="rounded-md bg-white p-6 border border-secondary-bg">Product not found.</p>;
   }
+
+  const handleCustomImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCustomImageFile(file);
+      setCustomImagePreview(URL.createObjectURL(file));
+      setCustomImageUrl('');
+    }
+  };
+
+  const handleCustomUploadConfirm = async () => {
+    if (!customImageFile) return;
+    setUploadingCustom(true);
+
+    const formData = new FormData();
+    formData.append('file', customImageFile);
+
+    try {
+      const res = await fetch(`${apiBase}/products/upload-custom`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCustomImageUrl(data.url);
+      } else {
+        alert(data.message || 'Image upload failed');
+      }
+    } catch (err) {
+      alert('Upload failed due to network error');
+    } finally {
+      setUploadingCustom(false);
+    }
+  };
+
+  const handleCustomUploadCancel = () => {
+    setCustomImageFile(null);
+    setCustomImagePreview('');
+    setCustomImageUrl('');
+  };
 
   const gallery = product.images.length > 0 ? product.images : ['https://placehold.co/300x300?text=Preview'];
   const currentImage = activeImage || gallery[0] || 'https://placehold.co/700x700?text=Art';
@@ -78,7 +126,76 @@ export default function ProductDetailClient({ id }: { id: string }) {
         <p className="text-2xl font-bold">₹{product.price}</p>
         <p>{product.description}</p>
         <p className="text-sm text-slate-500">Stock: {product.stock}</p>
-        <AddToCartButton productId={product._id} title={product.title} price={product.price} image={product.images?.[0]} />
+
+        {product.minDeliveryDays && product.maxDeliveryDays && (
+          <p className="text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-2 rounded-md border border-emerald-100 inline-block">
+            🚚 Deliver in {product.minDeliveryDays} to {product.maxDeliveryDays} days
+          </p>
+        )}
+
+        {product.isCustomizable ? (
+          <div className="space-y-4 pt-4 border-t border-border">
+            <h3 className="font-bold">Customize Product</h3>
+            {!customImagePreview ? (
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors">
+                <p className="text-sm text-slate-600 mb-2">Upload an image to customize this product</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCustomImageSelect}
+                  className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-foreground file:text-white hover:file:bg-black cursor-pointer w-full max-w-xs mx-auto block"
+                />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="relative inline-block border rounded p-1 bg-white">
+                  <img src={customImagePreview} alt="Custom design preview" className="h-40 w-auto object-contain rounded" />
+                  {!customImageUrl && (
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <button
+                        onClick={handleCustomUploadCancel}
+                        className="p-1.5 bg-white text-red-500 rounded-full shadow hover:bg-red-50 transition-colors"
+                        title="Discard Image"
+                        disabled={uploadingCustom}
+                      >
+                        <X size={18} />
+                      </button>
+                      <button
+                        onClick={handleCustomUploadConfirm}
+                        className="p-1.5 bg-foreground text-white rounded-full shadow hover:bg-black transition-colors"
+                        title="Confirm Image"
+                        disabled={uploadingCustom}
+                      >
+                        <Check size={18} />
+                      </button>
+                    </div>
+                  )}
+                  {uploadingCustom && (
+                    <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded">
+                      <p className="font-semibold text-sm">Uploading...</p>
+                    </div>
+                  )}
+                </div>
+                {customImageUrl && (
+                  <div className="text-green-600 text-sm font-semibold flex items-center gap-1">
+                    <Check size={16} /> Image confirmed!
+                  </div>
+                )}
+              </div>
+            )}
+
+            {customImageUrl && (
+              <div className="pt-2">
+                <AddToCartButton productId={product._id} title={product.title} price={product.price} image={customImageUrl} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="pt-4 border-t border-border">
+            <AddToCartButton productId={product._id} title={product.title} price={product.price} image={product.images?.[0]} />
+          </div>
+        )}
+
       </div>
     </div>
   );

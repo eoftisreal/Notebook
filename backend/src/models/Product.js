@@ -16,6 +16,9 @@ const productSchema = new mongoose.Schema(
     tags: [{ type: String }],
     isActive: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
+    isCustomizable: { type: Boolean, default: false },
+    minDeliveryDays: { type: Number, min: 1 },
+    maxDeliveryDays: { type: Number, min: 1 },
   },
   { timestamps: true }
 );

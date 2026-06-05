@@ -21,11 +21,13 @@ export default function Cart() {
         {items.map((item) => (
           <article key={item.productId} className="flex items-center justify-between rounded-md bg-white p-4 border border-secondary-bg">
             <div className="flex items-center gap-4">
-              {item.image ? (
-                <img src={item.image} alt={item.title} className="h-16 w-16 object-cover rounded bg-secondary-bg border border-secondary-bg shrink-0" />
-              ) : (
-                <div className="h-16 w-16 bg-secondary-bg rounded border border-secondary-bg shrink-0 flex items-center justify-center text-xs text-slate-400">No Img</div>
-              )}
+              <div className="flex gap-1 shrink-0">
+                {item.image ? (
+                  <img src={item.image} alt={item.title} className="h-16 w-16 object-cover rounded bg-secondary-bg border border-secondary-bg" title="Custom Upload / Product Image" />
+                ) : (
+                  <div className="h-16 w-16 bg-secondary-bg rounded border border-secondary-bg flex items-center justify-center text-xs text-slate-400">No Img</div>
+                )}
+              </div>
               <div>
                 <p className="font-bold">{item.title}</p>
                 <p className="text-sm text-slate-500">₹{item.unitPrice}</p>

@@ -19,5 +19,8 @@ export type Product = {
   compareAtPrice?: number;
   stock: number;
   isFeatured?: boolean;
+  isCustomizable?: boolean;
+  minDeliveryDays?: number;
+  maxDeliveryDays?: number;
   tags?: string[];
 };
