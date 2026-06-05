@@ -1,14 +1,26 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '@/store/cart';
 
+const apiBase = import.meta.env.VITE_API_URL || '/api';
+
 export default function Cart() {
   const { items, updateQuantity, removeItem, fetchCart } = useCartStore();
+  const [customFeatureIconUrl, setCustomFeatureIconUrl] = useState('');
 
   useEffect(() => {
     fetchCart();
+
+    fetch(`${apiBase}/public/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.customFeatureIconUrl) {
+          setCustomFeatureIconUrl(data.customFeatureIconUrl);
+        }
+      })
+      .catch(console.error);
   }, [fetchCart]);
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
@@ -21,11 +33,17 @@ export default function Cart() {
         {items.map((item) => (
           <article key={item.productId} className="flex items-center justify-between rounded-md bg-white p-4 border border-secondary-bg">
             <div className="flex items-center gap-4">
-              <div className="flex gap-1 shrink-0">
+              <div className="flex gap-1 shrink-0 bg-white rounded border border-secondary-bg p-0.5">
                 {item.image ? (
-                  <img src={item.image} alt={item.title} className="h-16 w-16 object-cover rounded bg-secondary-bg border border-secondary-bg" title="Custom Upload / Product Image" />
+                  <img src={item.image} alt={item.title} className="h-16 w-16 object-cover rounded" title="Product Image" />
                 ) : (
-                  <div className="h-16 w-16 bg-secondary-bg rounded border border-secondary-bg flex items-center justify-center text-xs text-slate-400">No Img</div>
+                  <div className="h-16 w-16 bg-secondary-bg rounded flex items-center justify-center text-xs text-slate-400">No Img</div>
+                )}
+                {item.customImage && (
+                  <img src={item.customImage} alt="Custom upload" className="h-16 w-16 object-contain bg-slate-50 rounded border border-dashed border-slate-300" title="Custom User Upload" />
+                )}
+                {item.customImage && customFeatureIconUrl && (
+                  <img src={customFeatureIconUrl} alt="Custom feature" className="h-16 w-16 object-contain bg-slate-50 rounded border border-secondary-bg" title="Custom Design Indicator" />
                 )}
               </div>
               <div>

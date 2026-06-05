@@ -10,12 +10,13 @@ export type CartItem = {
   unitPrice: number;
   quantity: number;
   image?: string;
+  customImage?: string;
 };
 
 type CartState = {
   items: CartItem[];
   fetchCart: () => Promise<void>;
-  addItem: (product: Pick<CartItem, 'productId' | 'title' | 'unitPrice' | 'image'>) => Promise<void>;
+  addItem: (product: Pick<CartItem, 'productId' | 'title' | 'unitPrice' | 'image' | 'customImage'>) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   syncLocalCartToBackend: () => Promise<void>;
@@ -45,8 +46,8 @@ export const useCartStore = create<CartState>()(
           title: item.productId.title || 'Unknown Item',
           unitPrice: item.productId.price || 0,
           quantity: item.quantity,
-          // If the backend has a custom image attached to the cart item, use that, else use product image
-          image: item.customImage || item.productId.images?.[0] || undefined,
+          image: item.productId.images?.[0] || undefined,
+          customImage: item.customImage || undefined,
         }));
         set({ items: mappedItems });
       }
@@ -95,7 +96,7 @@ export const useCartStore = create<CartState>()(
         body: JSON.stringify({
           productId: product.productId,
           quantity: newQuantity,
-          customImage: product.image // we overloaded the `image` prop from frontend to carry custom images too
+          customImage: product.customImage
         }),
       });
 

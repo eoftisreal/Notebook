@@ -2,4 +2,18 @@
 > frontend@0.0.0 dev
 > vite
 
-sh: 1: vite: not found
+
+  VITE v6.4.3  ready in 393 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+10:50:19 PM [vite] (client) page reload dev-dist/registerSW.js
+10:50:21 PM [vite] (client) page reload dev-dist/sw.js
+10:50:21 PM [vite] (client) page reload dev-dist/workbox-7e5eb42b.js
+
+PWA v1.3.0
+mode      generateSW
+precache  2 entries (0.12 KiB)
+files generated
+  dev-dist/sw.js
+  dev-dist/workbox-7e5eb42b.js

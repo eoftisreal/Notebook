@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
+import { useCartStore } from '@/store/cart';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
@@ -40,8 +41,11 @@ export default function CheckoutForm() {
 
   const [deliverySettings, setDeliverySettings] = useState({
     enableEmailDelivery: true,
-    enableWhatsappDelivery: true
+    enableWhatsappDelivery: true,
+    customFeatureIconUrl: ''
   });
+
+  const { items } = useCartStore();
 
   const isLoggedIn = !!getAuthToken();
 
@@ -51,7 +55,8 @@ export default function CheckoutForm() {
       .then(data => {
         setDeliverySettings({
           enableEmailDelivery: data.enableEmailDelivery !== false,
-          enableWhatsappDelivery: data.enableWhatsappDelivery !== false
+          enableWhatsappDelivery: data.enableWhatsappDelivery !== false,
+          customFeatureIconUrl: data.customFeatureIconUrl || ''
         });
 
         // Auto-select whatsapp if email is disabled and whatsapp is enabled
@@ -190,7 +195,33 @@ export default function CheckoutForm() {
         {step === 1 ? (
           <div className="space-y-8">
             <div className="bg-slate-50 p-4 rounded-md border border-slate-200">
-              <div className="flex items-center justify-between mb-2">
+              <h2 className="text-lg font-semibold text-foreground mb-3">Order Summary</h2>
+              <div className="space-y-3 mb-6">
+                {items.map((item) => (
+                  <div key={item.productId} className="flex items-center gap-3">
+                    <div className="flex gap-1 shrink-0 bg-white rounded border border-slate-200 p-0.5">
+                      {item.image && (
+                        <img src={item.image} alt={item.title} className="h-12 w-12 object-cover rounded" />
+                      )}
+                      {item.customImage && (
+                        <img src={item.customImage} alt="Custom upload" className="h-12 w-12 object-contain bg-slate-100 rounded border border-dashed border-slate-300" />
+                      )}
+                      {item.customImage && deliverySettings.customFeatureIconUrl && (
+                        <img src={deliverySettings.customFeatureIconUrl} alt="Custom feature" className="h-12 w-12 object-contain bg-slate-100 rounded border border-slate-200" title="Custom Design" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{item.title}</p>
+                      <p className="text-xs text-slate-500">Qty: {item.quantity} × ₹{item.unitPrice}</p>
+                    </div>
+                    <div className="font-semibold text-sm">
+                      ₹{item.quantity * item.unitPrice}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between mb-2 pt-4 border-t border-slate-200">
                 <h2 className="text-lg font-semibold text-foreground">Review Details</h2>
                 <button onClick={() => setStep(0)} className="text-sm font-medium text-pink-600 hover:text-pink-700">Edit Details</button>
               </div>
