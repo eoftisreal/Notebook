@@ -73,12 +73,18 @@ export const useCartStore = create<CartState>()(
       return;
     }
 
-    // Logged in: update backend
-    try {
-      const currentItems = get().items;
-      const existing = currentItems.find((item) => item.productId === product.productId);
-      const newQuantity = existing ? existing.quantity + 1 : 1;
+    // Logged in: update optimistically
+    const currentItems = get().items;
+    const existing = currentItems.find((item) => item.productId === product.productId);
+    const newQuantity = existing ? existing.quantity + 1 : 1;
 
+    const updatedItems = existing
+      ? currentItems.map(item => item.productId === product.productId ? { ...item, quantity: newQuantity } : item)
+      : [...currentItems, { ...product, quantity: 1 }];
+
+    set({ items: updatedItems });
+
+    try {
       const res = await fetch(`${apiBase}/cart/items`, {
         method: 'POST',
         headers: {
@@ -88,11 +94,13 @@ export const useCartStore = create<CartState>()(
         body: JSON.stringify({ productId: product.productId, quantity: newQuantity }),
       });
 
-      if (res.ok) {
+      if (!res.ok) {
+        // Revert on failure
         await get().fetchCart();
       }
     } catch (err) {
       console.error('Failed to add item to cart', err);
+      await get().fetchCart(); // Revert on failure
     }
   },
 
@@ -111,7 +119,13 @@ export const useCartStore = create<CartState>()(
       return;
     }
 
-    // Logged in
+    // Logged in: update optimistically
+    const currentItems = get().items;
+    const updated = currentItems.map(item =>
+      item.productId === productId ? { ...item, quantity: newQuantity } : item
+    );
+    set({ items: updated });
+
     try {
       const res = await fetch(`${apiBase}/cart/items`, {
         method: 'POST',
@@ -122,11 +136,13 @@ export const useCartStore = create<CartState>()(
         body: JSON.stringify({ productId, quantity: newQuantity }),
       });
 
-      if (res.ok) {
+      if (!res.ok) {
+        // Revert on failure
         await get().fetchCart();
       }
     } catch (err) {
       console.error('Failed to update quantity', err);
+      await get().fetchCart(); // Revert on failure
     }
   },
 
@@ -142,18 +158,24 @@ export const useCartStore = create<CartState>()(
       return;
     }
 
-    // Logged in
+    // Logged in: update optimistically
+    const currentItems = get().items;
+    const updated = currentItems.filter(item => item.productId !== productId);
+    set({ items: updated });
+
     try {
       const res = await fetch(`${apiBase}/cart/items/${productId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.ok) {
+      if (!res.ok) {
+        // Revert on failure
         await get().fetchCart();
       }
     } catch (err) {
       console.error('Failed to remove item', err);
+      await get().fetchCart(); // Revert on failure
     }
   },
 
