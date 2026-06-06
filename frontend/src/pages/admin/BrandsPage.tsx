@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { Plus, Trash2 } from 'lucide-react';
@@ -23,7 +25,7 @@ export default function BrandsPage() {
 
   async function fetchBrands() {
     try {
-      const res = await fetch(`${apiBase}/master/brands`, {
+      const res = await fetchWithAuth(`${apiBase}/master/brands`, {
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
       if (res.ok) setBrands(await res.json());
@@ -36,7 +38,7 @@ export default function BrandsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/master/brands`, {
+      const res = await fetchWithAuth(`${apiBase}/master/brands`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ export default function BrandsPage() {
   async function handleDelete(id: string) {
     if (!confirm('Delete this brand?')) return;
     try {
-      const res = await fetch(`${apiBase}/master/brands/${id}`, {
+      const res = await fetchWithAuth(`${apiBase}/master/brands/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });

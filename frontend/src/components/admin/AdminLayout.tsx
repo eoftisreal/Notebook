@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { Navigate, Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
@@ -13,7 +15,7 @@ export default function AdminLayout() {
       if (!token) return;
 
       try {
-        const res = await fetch(`${apiBase}/auth/me`, {
+        const res = await fetchWithAuth(`${apiBase}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

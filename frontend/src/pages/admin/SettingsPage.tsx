@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { parseJwt } from '@/lib/jwt';
@@ -24,7 +26,7 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch(`${apiBase}/admin/settings`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/settings`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch settings');
@@ -39,7 +41,7 @@ export default function SettingsPage() {
 
   const handleUpdateSetting = async (key: string, value: any) => {
     try {
-      const res = await fetch(`${apiBase}/admin/settings`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

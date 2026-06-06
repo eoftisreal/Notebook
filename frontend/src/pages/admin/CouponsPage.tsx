@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { Plus, Trash2 } from 'lucide-react';
@@ -27,7 +29,7 @@ export default function CouponsPage() {
 
   async function fetchCoupons() {
     try {
-      const res = await fetch(`${apiBase}/master/coupons`, {
+      const res = await fetchWithAuth(`${apiBase}/master/coupons`, {
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
       if (res.ok) setCoupons(await res.json());
@@ -40,7 +42,7 @@ export default function CouponsPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/master/coupons`, {
+      const res = await fetchWithAuth(`${apiBase}/master/coupons`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +69,7 @@ export default function CouponsPage() {
   async function handleDelete(id: string) {
     if (!confirm('Delete this coupon?')) return;
     try {
-      const res = await fetch(`${apiBase}/master/coupons/${id}`, {
+      const res = await fetchWithAuth(`${apiBase}/master/coupons/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });

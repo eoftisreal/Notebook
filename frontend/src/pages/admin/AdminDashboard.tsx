@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useEffect, useState } from 'react';
 import { ShoppingBag, DollarSign, Activity, Package } from 'lucide-react';
 import { getAuthToken } from '@/lib/storage';
@@ -14,7 +16,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch(`${apiBase}/admin/analytics`, {
+        const res = await fetchWithAuth(`${apiBase}/admin/analytics`, {
           headers: {
             'Authorization': `Bearer ${getAuthToken()}`
           }

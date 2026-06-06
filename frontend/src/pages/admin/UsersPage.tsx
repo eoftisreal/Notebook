@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { parseJwt } from '@/lib/jwt';
@@ -24,7 +26,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${apiBase}/admin/users?role=user`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/users?role=user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch users');
@@ -40,7 +42,7 @@ export default function UsersPage() {
   const deleteUser = async (id: string) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
     try {
-      const res = await fetch(`${apiBase}/admin/users/${id}`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/users/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -54,7 +56,7 @@ export default function UsersPage() {
   const promoteUser = async (id: string) => {
     if (!confirm('Are you sure you want to promote this user to admin?')) return;
     try {
-      const res = await fetch(`${apiBase}/admin/users/${id}/role`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/users/${id}/role`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ role: 'admin' })
