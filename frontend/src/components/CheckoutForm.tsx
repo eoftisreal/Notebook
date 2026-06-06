@@ -45,9 +45,13 @@ export default function CheckoutForm() {
     customFeatureIconUrl: ''
   });
 
-  const { items } = useCartStore();
+  const { items, fetchCart } = useCartStore();
 
   const isLoggedIn = !!getAuthToken();
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   useEffect(() => {
     fetch(`${apiBase}/public/settings`)
