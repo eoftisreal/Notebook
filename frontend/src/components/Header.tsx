@@ -10,6 +10,7 @@ export default function Header() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { items, fetchCart, clearLocalCart } = useCartStore();
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
@@ -66,11 +67,18 @@ export default function Header() {
       </div>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-4">
-          <nav className="flex items-center gap-4 md:gap-6 flex-1">
+          {/* Mobile Menu Icon */}
+          <div className="md:hidden flex items-center flex-1">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -ml-2 text-foreground focus:outline-none" title="Menu">
+              <img src="/Menu (Hamburger).png" alt="Menu" className="h-6 w-6 object-contain" />
+            </button>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-4 md:gap-6 flex-1">
             <Link to="/products" className={linkClass}>Shop</Link>
-            <Link to="/products?category=Collections" className={`${linkClass} hidden md:inline-block`}>Collections</Link>
-            <Link to="/about" className={`${linkClass} hidden md:inline-block`}>About</Link>
-            <Link to="/contact" className={`${linkClass} hidden md:inline-block`}>Contact</Link>
+            <Link to="/products?category=Collections" className={linkClass}>Collections</Link>
+            <Link to="/about" className={linkClass}>About</Link>
           </nav>
 
           <Link to="/" className="flex justify-center flex-1 shrink-0 min-w-0">
@@ -83,20 +91,44 @@ export default function Header() {
 
           <nav className="flex items-center justify-end gap-4 md:gap-6 flex-1">
             {isAdmin && (
-              <Link to="/admin" className={`${linkClass} hidden sm:inline-block`}>Admin</Link>
+              <Link to="/admin" className={`${linkClass} hidden sm:inline-block`} title="Admin">Admin</Link>
             )}
 
             {isAuthenticated ? (
               <>
-                <Link to="/account" className={linkClass}>Account</Link>
-                <button onClick={handleLogout} className={`${linkClass} hidden sm:inline-block`}>Logout</button>
+                <Link to="/account" className={`${linkClass} flex items-center`} title="Account">
+                  <img src="/UserCircle.png" alt="Account" className="h-5 w-5 object-contain" />
+                </Link>
+                <button onClick={handleLogout} className={`${linkClass} hidden sm:flex items-center`} title="Logout">
+                  <img src="/logout.png" alt="Logout" className="h-5 w-5 object-contain" />
+                </button>
               </>
             ) : (
-              <Link to="/auth/login" className={linkClass}>Log In</Link>
+              <Link to="/auth/login" className={`${linkClass} flex items-center`} title="Log In">
+                <img src="/login.png" alt="Log In" className="h-5 w-5 object-contain" />
+              </Link>
             )}
-            <Link to="/cart" className={linkClass}>Cart {cartItemCount > 0 ? `(${cartItemCount})` : ''}</Link>
+            <Link to="/cart" className={`${linkClass} flex items-center relative`} title="Cart">
+              <img src="/cart.png" alt="Cart" className="h-5 w-5 object-contain" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-foreground text-white text-[10px] font-bold h-4 min-w-[16px] flex items-center justify-center rounded-full px-1">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
           </nav>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background">
+            <nav className="flex flex-col px-4 py-2">
+              <Link to="/products" className="py-3 border-b border-border/50 text-sm font-medium text-secondary-text hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
+              <Link to="/products?category=Collections" className="py-3 border-b border-border/50 text-sm font-medium text-secondary-text hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>Collections</Link>
+              <Link to="/about" className="py-3 text-sm font-medium text-secondary-text hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+            </nav>
+          </div>
+        )}
       </header>
     </>
   );
