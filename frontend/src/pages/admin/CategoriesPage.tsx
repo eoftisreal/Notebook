@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { Plus, Trash2 } from 'lucide-react';
@@ -31,7 +33,7 @@ export default function CategoriesPage() {
 
   async function fetchCategories() {
     try {
-      const res = await fetch(`${apiBase}/master/categories`, {
+      const res = await fetchWithAuth(`${apiBase}/master/categories`, {
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
       if (res.ok) setCategories(await res.json());
@@ -51,7 +53,7 @@ export default function CategoriesPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch(`${apiBase}/admin/upload`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/upload`, {
         method: 'POST',
         headers: {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -81,7 +83,7 @@ export default function CategoriesPage() {
       const url = editingId ? `${apiBase}/master/categories/${editingId}` : `${apiBase}/master/categories`;
       const method = editingId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +128,7 @@ export default function CategoriesPage() {
   async function handleDelete(id: string) {
     if (!confirm('Delete this category?')) return;
     try {
-      const res = await fetch(`${apiBase}/master/categories/${id}`, {
+      const res = await fetchWithAuth(`${apiBase}/master/categories/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });

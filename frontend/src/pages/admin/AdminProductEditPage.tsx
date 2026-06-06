@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, FormEvent } from 'react';
 import { apiGet } from '@/lib/api';
@@ -50,8 +52,8 @@ export default function AdminProductEditPage() {
 
         const [prodRes, catsRes, brsRes] = await Promise.all([
           apiGet<any>(`/products/${id}`),
-          fetch(`${apiBase}/master/categories`, { headers }).then(r => r.json()),
-          fetch(`${apiBase}/master/brands`, { headers }).then(r => r.json())
+          fetchWithAuth(`${apiBase}/master/categories`, { headers }).then(r => r.json()),
+          fetchWithAuth(`${apiBase}/master/brands`, { headers }).then(r => r.json())
         ]);
 
         if (prodRes) {
@@ -95,7 +97,7 @@ export default function AdminProductEditPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch(`${apiBase}/admin/upload`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/upload`, {
         method: 'POST',
         headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: formData,
@@ -154,7 +156,7 @@ export default function AdminProductEditPage() {
         maxDeliveryDays: maxDeliveryDays ? Number(maxDeliveryDays) : undefined,
       };
 
-      const response = await fetch(`${apiBase}/products/${id}`, {
+      const response = await fetchWithAuth(`${apiBase}/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

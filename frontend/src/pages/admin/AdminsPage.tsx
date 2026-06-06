@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { parseJwt } from '@/lib/jwt';
@@ -24,7 +26,7 @@ export default function AdminsPage() {
 
   const fetchAdmins = async () => {
     try {
-      const res = await fetch(`${apiBase}/admin/users?role=admin`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/users?role=admin`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch admins');
@@ -40,7 +42,7 @@ export default function AdminsPage() {
   const demoteAdmin = async (id: string) => {
     if (!confirm('Are you sure you want to demote this admin to a regular user?')) return;
     try {
-      const res = await fetch(`${apiBase}/admin/users/${id}/role`, {
+      const res = await fetchWithAuth(`${apiBase}/admin/users/${id}/role`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ role: 'user' })

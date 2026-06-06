@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getAuthToken, getCartItems, setCartItems } from '@/lib/storage';
@@ -36,7 +38,7 @@ export const useCartStore = create<CartState>()(
         }
 
     try {
-      const res = await fetch(`${apiBase}/cart`, {
+      const res = await fetchWithAuth(`${apiBase}/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -87,7 +89,7 @@ export const useCartStore = create<CartState>()(
     set({ items: updatedItems });
 
     try {
-      const res = await fetch(`${apiBase}/cart/items`, {
+      const res = await fetchWithAuth(`${apiBase}/cart/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +135,7 @@ export const useCartStore = create<CartState>()(
     set({ items: updated });
 
     try {
-      const res = await fetch(`${apiBase}/cart/items`, {
+      const res = await fetchWithAuth(`${apiBase}/cart/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,7 +172,7 @@ export const useCartStore = create<CartState>()(
     set({ items: updated });
 
     try {
-      const res = await fetch(`${apiBase}/cart/items/${productId}`, {
+      const res = await fetchWithAuth(`${apiBase}/cart/items/${productId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -198,7 +200,7 @@ export const useCartStore = create<CartState>()(
     }
 
     try {
-      const res = await fetch(`${apiBase}/cart/sync`, {
+      const res = await fetchWithAuth(`${apiBase}/cart/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

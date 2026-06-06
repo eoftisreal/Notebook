@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/lib/apiClient";
+
 import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/storage';
 import { Trash2, Star } from 'lucide-react';
@@ -34,7 +36,7 @@ export default function AdminProductList({ refreshKey = 0 }: AdminProductListPro
 
   async function toggleFeatured(id: string, currentStatus: boolean) {
     try {
-      const res = await fetch(`${apiBase}/products/${id}/featured`, {
+      const res = await fetchWithAuth(`${apiBase}/products/${id}/featured`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +59,7 @@ export default function AdminProductList({ refreshKey = 0 }: AdminProductListPro
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const res = await fetch(`${apiBase}/products/${id}`, {
+      const res = await fetchWithAuth(`${apiBase}/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
