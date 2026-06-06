@@ -70,7 +70,7 @@ export default function Header() {
           {/* Mobile Menu Icon */}
           <div className="md:hidden flex items-center flex-1">
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -ml-2 text-foreground focus:outline-none" title="Menu">
-              <img src="/Menu (Hamburger).png" alt="Menu" className="h-6 w-6 object-contain" />
+              <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/Menu%20(Hamburger).png" alt="Menu" className="h-6 w-6 object-contain" />
             </button>
           </div>
 
@@ -97,19 +97,19 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link to="/account" className={`${linkClass} flex items-center`} title="Account">
-                  <img src="/UserCircle.png" alt="Account" className="h-5 w-5 object-contain" />
+                  <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/UserCircle.png" alt="Account" className="h-5 w-5 object-contain" />
                 </Link>
                 <button onClick={handleLogout} className={`${linkClass} hidden sm:flex items-center`} title="Logout">
-                  <img src="/logout.png" alt="Logout" className="h-5 w-5 object-contain" />
+                  <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/logout.png" alt="Logout" className="h-5 w-5 object-contain" />
                 </button>
               </>
             ) : (
               <Link to="/auth/login" className={`${linkClass} flex items-center`} title="Log In">
-                <img src="/login.png" alt="Log In" className="h-5 w-5 object-contain" />
+                <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/login.png" alt="Log In" className="h-5 w-5 object-contain" />
               </Link>
             )}
             <Link to="/cart" className={`${linkClass} flex items-center relative`} title="Cart">
-              <img src="/cart.png" alt="Cart" className="h-5 w-5 object-contain" />
+              <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/cart.png" alt="Cart" className="h-5 w-5 object-contain" />
               {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-foreground text-white text-[10px] font-bold h-4 min-w-[16px] flex items-center justify-center rounded-full px-1">
                   {cartItemCount}
