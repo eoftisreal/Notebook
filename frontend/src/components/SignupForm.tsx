@@ -38,7 +38,7 @@ export default function SignupForm() {
   if (success) {
     return (
       <div className="mx-auto max-w-md rounded-md bg-white p-6 text-center">
-        <h1 className="text-2xl font-black text-green-600">Account Created!</h1>
+        <h1 className="text-2xl font-black text-foreground">Account Created!</h1>
         <p className="mt-4 text-slate-600">
           We have sent a verification email to <strong>{email}</strong>.
           Please click the link in the email to verify your account before logging in.
@@ -85,7 +85,7 @@ export default function SignupForm() {
         <button className="w-full rounded bg-foreground hover:bg-black px-4 py-2 font-semibold text-white">Create Account</button>
       </form>
 
-      {message ? <p className="mt-3 text-sm text-center text-red-500">{message}</p> : null}
+      {message ? <p className="mt-3 text-sm text-center text-secondary-text">{message}</p> : null}
 
       <div className="mt-4 text-center text-sm">
         <Link to="/auth/login" className="text-foreground hover:underline">Already have an account? Log in</Link>

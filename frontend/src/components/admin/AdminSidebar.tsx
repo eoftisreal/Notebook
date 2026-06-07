@@ -1,9 +1,10 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCog, Database, Settings, Package, Tags, Ticket, Library } from 'lucide-react';
+import { LayoutDashboard, Users, UserCog, Database, Settings, Package, Tags, Ticket, Library, ShoppingBag } from 'lucide-react';
 
 const navItems = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
   { name: 'Users', path: '/admin/users', icon: Users },
   { name: 'Admins', path: '/admin/admins', icon: UserCog },
   {

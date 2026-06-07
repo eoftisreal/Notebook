@@ -128,7 +128,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
         <p className="text-sm text-slate-500">Stock: {product.stock}</p>
 
         {product.minDeliveryDays && product.maxDeliveryDays && (
-          <p className="text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-2 rounded-md border border-emerald-100 inline-block">
+          <p className="text-sm font-medium text-foreground bg-secondary-bg px-3 py-2 rounded-md border border-border inline-block">
             🚚 Deliver in {product.minDeliveryDays} to {product.maxDeliveryDays} days
           </p>
         )}
@@ -154,7 +154,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
                     <div className="absolute top-2 right-2 flex gap-2">
                       <button
                         onClick={handleCustomUploadCancel}
-                        className="p-1.5 bg-white text-red-500 rounded-full shadow hover:bg-red-50 transition-colors"
+                        className="p-1.5 bg-white text-foreground rounded-full shadow hover:bg-secondary-bg transition-colors"
                         title="Discard Image"
                         disabled={uploadingCustom}
                       >
@@ -177,7 +177,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
                   )}
                 </div>
                 {customImageUrl && (
-                  <div className="text-green-600 text-sm font-semibold flex items-center gap-1">
+                  <div className="text-foreground text-sm font-semibold flex items-center gap-1">
                     <Check size={16} /> Image confirmed!
                   </div>
                 )}

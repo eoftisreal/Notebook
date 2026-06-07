@@ -110,10 +110,10 @@ export default function AdminProductList({ refreshKey = 0 }: AdminProductListPro
                   </button>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Link to={`/admin/products/${product._id}`} className="text-blue-500 hover:text-blue-700 p-1 mr-2 text-sm font-medium">
+                  <Link to={`/admin/products/${product._id}`} className="text-foreground hover:underline p-1 mr-2 text-sm font-medium">
                     Edit
                   </Link>
-                  <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:text-red-700 p-1" title="Delete Product">
+                  <button onClick={() => handleDelete(product._id)} className="text-secondary-text hover:text-foreground p-1" title="Delete Product">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </td>

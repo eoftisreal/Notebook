@@ -49,7 +49,7 @@ export default function ResetPasswordForm() {
       <h1 className="text-2xl font-black">Choose New Password</h1>
 
       {!token ? (
-        <p className="mt-4 text-red-500">{message}</p>
+        <p className="mt-4 text-secondary-text">{message}</p>
       ) : (
         <>
           <p className="mt-2 text-sm text-slate-600">Enter your new password below.</p>

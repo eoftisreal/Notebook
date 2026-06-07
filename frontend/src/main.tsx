@@ -31,6 +31,7 @@ const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const AdminsPage = lazy(() => import('./pages/admin/AdminsPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
+const AdminOrdersPage = lazy(() => import('./pages/admin/OrdersPage'));
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
@@ -68,6 +69,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="users" element={<UsersPage />} />
           <Route path="admins" element={<AdminsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="orders" element={<AdminOrdersPage />} />
         </Route>
       </Routes>
       </Suspense>

@@ -20,7 +20,7 @@ export default function AddToCartButton({ productId, title, price, image, custom
         addItem({ productId, title, unitPrice: price, image, customImage });
         toast.success(`${title} added to cart!`);
       }}
-      className="inline-block rounded-full bg-pink-600 px-6 py-3 font-semibold text-white cursor-pointer hover:bg-pink-700 transition-colors"
+      className="inline-block rounded-full bg-foreground px-6 py-3 font-semibold text-white cursor-pointer hover:bg-black transition-colors"
     >
       Add to Cart
     </button>

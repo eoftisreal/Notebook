@@ -30,16 +30,37 @@ const upload = multer({
 
 router.get('/analytics', async (_req, res, next) => {
   try {
-    const [totalProducts, totalOrders, revenueData] = await Promise.all([
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [totalProducts, totalOrders, revenueData, recentOrders, revenueTimelineRaw] = await Promise.all([
       Product.countDocuments(),
       Order.countDocuments(),
       Order.aggregate([{ $group: { _id: null, revenue: { $sum: '$total' } } }]),
+      Order.find().sort({ createdAt: -1 }).limit(10).populate('userId', 'email').select('total status createdAt guestEmail'),
+      Order.aggregate([
+        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            revenue: { $sum: "$total" }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ])
     ]);
+
+    const revenueTimeline = revenueTimelineRaw.map(item => ({
+      date: item._id,
+      revenue: item.revenue
+    }));
 
     res.json({
       totalProducts,
       totalOrders,
       totalRevenue: revenueData[0]?.revenue || 0,
+      recentOrders,
+      revenueTimeline
     });
   } catch (error) {
     next(error);
