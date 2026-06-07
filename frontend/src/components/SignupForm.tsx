@@ -28,6 +28,13 @@ export default function SignupForm() {
       if (response.ok) {
         setSuccess(true);
       } else {
+        if (body.details && body.details.fieldErrors) {
+          const errors = Object.values(body.details.fieldErrors).flat();
+          if (errors.length > 0) {
+            setMessage(errors.join(', '));
+            return;
+          }
+        }
         setMessage(body.message || 'Failed to create account');
       }
     } catch {

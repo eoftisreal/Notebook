@@ -52,7 +52,7 @@ async function generateAuthResponse(user) {
 const signupSchema = z.object({
   body: z.object({
     email: z.string().email(),
-    username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+    username: z.string().min(3).regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores (no spaces)'),
     password: z.string().min(8),
     name: z.string().optional()
   })
