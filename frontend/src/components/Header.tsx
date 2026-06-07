@@ -68,9 +68,9 @@ export default function Header() {
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-8 py-4">
           {/* Mobile Menu Icon */}
-          <div className="md:hidden flex items-center flex-1">
+          <div className="md:hidden flex items-center flex-none w-[20%]">
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -ml-2 text-foreground focus:outline-none" title="Menu">
-              <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/Menu%20(Hamburger).png" alt="Menu" className="h-8 w-8 object-contain" />
+              <img src="/icons/menu.png" alt="Menu" className="h-8 w-8 object-contain" />
             </button>
           </div>
 
@@ -81,15 +81,15 @@ export default function Header() {
             <Link to="/about" className={linkClass}>About</Link>
           </nav>
 
-          <Link to="/" className="flex justify-center flex-1 shrink-0 min-w-0">
+          <Link to="/" className="flex justify-center flex-1 w-[60%] md:w-auto shrink-0 min-w-0">
             <img
-              src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/web%20logo.png"
+              src="/logo.png"
               alt="Kapda Kraft"
-              className="h-6 md:h-10 object-contain mix-blend-multiply"
+              className="h-8 md:h-10 w-full object-contain mix-blend-multiply"
         />
           </Link>
 
-          <nav className="flex items-center justify-end gap-4 md:gap-6 flex-1">
+          <nav className="flex items-center justify-end gap-4 md:gap-6 flex-none w-[20%] md:flex-1">
             {isAdmin && (
               <Link to="/admin" className={`${linkClass} hidden sm:inline-block`} title="Admin">Admin</Link>
             )}
@@ -97,19 +97,19 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link to="/account" className={`${linkClass} flex items-center`} title="Account">
-                  <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/UserCircle.png" alt="Account" className="h-9 w-9 object-contain" />
+                  <img src="/icons/user.png" alt="Account" className="h-9 w-9 object-contain" />
                 </Link>
                 <button onClick={handleLogout} className={`${linkClass} hidden sm:flex items-center`} title="Logout">
-                  <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/logout.png" alt="Logout" className="h-9 w-9 object-contain" />
+                  <img src="/icons/logout.png" alt="Logout" className="h-9 w-9 object-contain" />
                 </button>
               </>
             ) : (
               <Link to="/auth/login" className={`${linkClass} flex items-center`} title="Log In">
-                <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/login.png" alt="Log In" className="h-9 w-9 object-contain" />
+                <img src="/icons/login.png" alt="Log In" className="h-9 w-9 object-contain" />
               </Link>
             )}
             <Link to="/cart" className={`${linkClass} flex items-center relative`} title="Cart">
-              <img src="https://pub-8c7eefa9a8044a569bef9e3d0b743d59.r2.dev/HOMEPAGE/ICONS/cart.png" alt="Cart" className="h-9 w-9 object-contain" />
+              <img src="/icons/cart.png" alt="Cart" className="h-9 w-9 object-contain" />
               {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-foreground text-white text-[10px] font-bold h-4 min-w-[16px] flex items-center justify-center rounded-full px-1">
                   {cartItemCount}
