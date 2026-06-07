@@ -227,7 +227,7 @@ export default function CheckoutForm() {
 
               <div className="flex items-center justify-between mb-2 pt-4 border-t border-slate-200">
                 <h2 className="text-lg font-semibold text-foreground">Review Details</h2>
-                <button onClick={() => setStep(0)} className="text-sm font-medium text-pink-600 hover:text-pink-700">Edit Details</button>
+                <button onClick={() => setStep(0)} className="text-sm font-medium text-foreground hover:underline">Edit Details</button>
               </div>
               <div className="text-sm text-slate-600 space-y-1">
                 <p><span className="font-medium text-slate-800">Name:</span> {formData.name || 'Not provided'}</p>
@@ -286,7 +286,7 @@ export default function CheckoutForm() {
                     Apply
                   </button>
                 </div>
-                {promoMessage && <p className={`mt-2 text-sm ${discountAmount > 0 ? 'text-green-600' : 'text-red-500'}`}>{promoMessage}</p>}
+                {promoMessage && <p className={`mt-2 text-sm ${discountAmount > 0 ? 'text-foreground' : 'text-secondary-text'}`}>{promoMessage}</p>}
               </div>
             ) : (
               <div className="border-t pt-4">
@@ -299,9 +299,9 @@ export default function CheckoutForm() {
       </section>
       <div className="flex gap-3">
         <button disabled={step === 0} onClick={() => setStep((current) => current - 1)} className="rounded border px-5 py-2 disabled:opacity-50">Back</button>
-        <button onClick={handleNext} className="rounded bg-pink-600 px-5 py-2 font-semibold text-white">{step === steps.length - 1 ? 'Place Order' : 'Next'}</button>
+        <button onClick={handleNext} className="rounded bg-foreground hover:bg-black px-5 py-2 font-semibold text-white">{step === steps.length - 1 ? 'Place Order' : 'Next'}</button>
       </div>
-      {message ? <p className="rounded-md bg-emerald-100 p-3 text-sm text-emerald-900">{message}</p> : null}
+      {message ? <p className="rounded-md bg-white p-3 text-sm border border-secondary-bg">{message}</p> : null}
     </div>
   );
 }

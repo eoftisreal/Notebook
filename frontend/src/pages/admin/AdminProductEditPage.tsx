@@ -202,7 +202,7 @@ export default function AdminProductEditPage() {
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(idx)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded p-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 bg-foreground text-white rounded p-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   Remove
                 </button>
@@ -329,7 +329,7 @@ export default function AdminProductEditPage() {
             <button disabled={submitting} className="w-full rounded bg-foreground hover:bg-black px-4 py-3 font-semibold text-white disabled:opacity-50">
               {submitting ? 'Saving...' : 'Save Changes'}
             </button>
-            {message && <p className="mt-3 text-sm text-center font-medium text-green-600">{message}</p>}
+            {message && <p className="mt-3 text-sm text-center font-medium text-foreground">{message}</p>}
           </div>
         </form>
 

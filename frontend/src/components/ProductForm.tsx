@@ -170,7 +170,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         </div>
         {uploadedUrl && (
           <div className="mt-2">
-            <p className="text-xs text-green-600 mb-1">Image uploaded successfully!</p>
+            <p className="text-xs text-foreground mb-1">Image uploaded successfully!</p>
             {}
             <img src={uploadedUrl} alt="Uploaded preview" className="max-h-32 rounded object-cover border" />
           </div>

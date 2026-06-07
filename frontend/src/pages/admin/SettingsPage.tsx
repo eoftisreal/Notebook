@@ -59,7 +59,7 @@ export default function SettingsPage() {
   };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (error) return <div className="text-secondary-text">{error}</div>;
 
   return (
     <div>

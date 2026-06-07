@@ -112,7 +112,7 @@ export default function BrandsPage() {
                     <td className="px-4 py-3 font-medium text-slate-900">{brand.name}</td>
                     <td className="px-4 py-3 text-slate-500">{brand.description || '-'}</td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleDelete(brand._id)} className="text-red-500 hover:text-red-700 p-1">
+                      <button onClick={() => handleDelete(brand._id)} className="text-secondary-text hover:text-foreground p-1">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>

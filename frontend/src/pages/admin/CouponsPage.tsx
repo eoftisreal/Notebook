@@ -138,7 +138,7 @@ export default function CouponsPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-500">₹{coupon.minOrderValue}</td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleDelete(coupon._id)} className="text-red-500 hover:text-red-700 p-1">
+                      <button onClick={() => handleDelete(coupon._id)} className="text-secondary-text hover:text-foreground p-1">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>

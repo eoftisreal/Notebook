@@ -179,7 +179,7 @@ export default function CategoriesPage() {
             </div>
             {uploadedUrl && (
               <div className="mt-2">
-                <p className="text-xs text-green-600 mb-1">Image uploaded successfully!</p>
+                <p className="text-xs text-foreground mb-1">Image uploaded successfully!</p>
                 <img src={uploadedUrl} alt="Uploaded preview" className="max-h-24 rounded object-cover border" />
               </div>
             )}
@@ -233,10 +233,10 @@ export default function CategoriesPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleEdit(cat)} className="text-blue-500 hover:text-blue-700 p-1 mr-2 text-sm font-medium">
+                      <button onClick={() => handleEdit(cat)} className="text-foreground hover:underline p-1 mr-2 text-sm font-medium">
                         Edit
                       </button>
-                      <button onClick={() => handleDelete(cat._id)} className="text-red-500 hover:text-red-700 p-1">
+                      <button onClick={() => handleDelete(cat._id)} className="text-secondary-text hover:text-foreground p-1">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>

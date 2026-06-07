@@ -66,10 +66,10 @@ export default function LoginForm() {
         <button className="w-full rounded bg-foreground hover:bg-black px-4 py-2 font-semibold text-white">Log In</button>
       </form>
 
-      {message ? <p className="mt-3 text-sm text-center text-red-500">{message}</p> : null}
+      {message ? <p className="mt-3 text-sm text-center text-secondary-text">{message}</p> : null}
 
       <div className="mt-6 border-t pt-4 text-center text-sm space-y-2 flex flex-col">
-        <Link to="/auth/magic-link" className="text-foreground hover:underline font-semibold">Login without password (Magic Link)</Link>
+        <Link to="/auth/magic-link" className="text-foreground hover:underline font-semibold">Login without password only</Link>
         <Link to="/auth/forgot-password" className="text-slate-500 hover:underline">Forgot password?</Link>
         <Link to="/auth/signup" className="text-slate-500 hover:underline">Don't have an account? Sign up</Link>
       </div>
