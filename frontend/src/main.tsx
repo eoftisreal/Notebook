@@ -31,6 +31,7 @@ const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const AdminsPage = lazy(() => import('./pages/admin/AdminsPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/OrdersPage'));
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -42,6 +43,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route index element={<HomePage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:id" element={<ProductPage />} />
+          <Route path="about" element={<AboutPage />} />
 
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
