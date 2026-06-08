@@ -166,6 +166,13 @@ export default function CheckoutForm() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">Checkout</h1>
+
+      {!isLoggedIn && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md p-3 text-sm mb-4">
+          <strong>Guest Checkout:</strong> You are checking out as a guest. You will receive an email confirmation for your order, but you will not have an order history saved to an account. <a href="/auth/login" className="underline font-semibold">Log in</a> to save your order details.
+        </div>
+      )}
+
       <div className="flex gap-2">
         {steps.map((name, index) => (
           <div key={name} className={`rounded-full px-4 py-2 text-sm font-semibold ${index <= step ? 'bg-foreground hover:bg-black text-white' : 'bg-slate-200 text-slate-700'}`}>
