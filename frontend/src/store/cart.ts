@@ -191,32 +191,9 @@ export const useCartStore = create<CartState>()(
     const token = getAuthToken();
     if (!token) return;
 
-    // Get from Zustand's persisted state, fallback to old key if needed
-    const localItems = get().items.length > 0 ? get().items : getCartItems();
-    if (localItems.length === 0) {
-      // If nothing to sync, still fetch to get the existing backend cart
-      await get().fetchCart();
-      return;
-    }
-
-    try {
-      const res = await fetchWithAuth(`${apiBase}/cart/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ items: localItems }),
-      });
-
-      if (res.ok) {
-        // Clear local storage cart once synced
-        setCartItems([]);
-        await get().fetchCart();
-      }
-    } catch (err) {
-      console.error('Failed to sync cart to backend', err);
-    }
+    // Discard local items upon login and fetch the user's saved backend cart
+    setCartItems([]);
+    await get().fetchCart();
   },
 
       clearLocalCart: () => {
