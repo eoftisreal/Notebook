@@ -132,7 +132,7 @@ export default function CheckoutForm() {
     if (step === 0 && isLoggedIn) {
       // Save profile updates before moving to step 1
       try {
-        await fetch(`${apiBase}/auth/profile`, {
+        const res = await fetch(`${apiBase}/auth/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -151,13 +151,58 @@ export default function CheckoutForm() {
             }
           })
         });
+        if (!res.ok) {
+          if (res.status === 401) {
+            setMessage('Your session has expired. Please log in again to save your profile.');
+          } else {
+            setMessage('Failed to update profile.');
+          }
+          return;
+        }
       } catch (err) {
         console.error('Failed to update profile', err);
+        setMessage('Failed to update profile due to a network error.');
+        return;
       }
     }
 
     if (step === steps.length - 1) {
-      setMessage('Order placed. Complete payment via Razorpay checkout using the backend /api/checkout/create endpoint.');
+      try {
+        setMessage('Processing order...');
+        const res = await fetch(`${apiBase}/checkout/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify({
+            shippingAddress: {
+              line1: formData.line1,
+              line2: formData.line2,
+              city: formData.city,
+              state: formData.state,
+              postalCode: formData.postalCode,
+              country: formData.country
+            },
+            deliveryMethod: formData.deliveryMethod,
+            promoCode: promoCode || undefined
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setMessage('Order placed successfully!');
+          // Call clear local cart and redirect to orders
+          useCartStore.getState().clearLocalCart();
+          window.location.href = '/orders';
+        } else {
+          setMessage(data.message || 'Failed to place order');
+        }
+      } catch (err) {
+        console.error('Checkout error:', err);
+        setMessage('An error occurred while placing the order.');
+      }
       return;
     }
     setStep((current) => Math.min(current + 1, steps.length - 1));
@@ -169,7 +214,7 @@ export default function CheckoutForm() {
 
       {!isLoggedIn && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md p-3 text-sm mb-4">
-          <strong>Guest Checkout:</strong> You are checking out as a guest. You will receive an email confirmation for your order, but you will not have an order history saved to an account. <a href="/auth/login" className="underline font-semibold">Log in</a> to save your order details.
+          <strong>Authentication Required:</strong> Please <a href="/auth/login" className="underline font-semibold">log in</a> or <a href="/auth/signup" className="underline font-semibold">create an account</a> to place an order.
         </div>
       )}
 
@@ -302,11 +347,24 @@ export default function CheckoutForm() {
             )}
           </div>
         ) : null}
-        {step === 2 ? <p>Razorpay integration endpoint is ready on backend: <code>/api/checkout/create</code>.</p> : null}
+        {step === 2 ? (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Payment Method</h2>
+            <div className="p-4 border border-border rounded-md bg-secondary-bg">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="radio" checked readOnly className="w-4 h-4 text-foreground focus:ring-foreground" />
+                <span className="font-medium text-foreground">Razorpay (Cards, UPI, NetBanking)</span>
+              </label>
+              <p className="mt-2 text-sm text-secondary-text ml-7">
+                You will be redirected to the secure Razorpay payment gateway to complete your purchase.
+              </p>
+            </div>
+          </div>
+        ) : null}
       </section>
       <div className="flex gap-3">
         <button disabled={step === 0} onClick={() => setStep((current) => current - 1)} className="rounded border px-5 py-2 disabled:opacity-50">Back</button>
-        <button onClick={handleNext} className="rounded bg-foreground hover:bg-black px-5 py-2 font-semibold text-white">{step === steps.length - 1 ? 'Place Order' : 'Next'}</button>
+        <button disabled={!isLoggedIn && step === 0} onClick={handleNext} className="rounded bg-foreground hover:bg-black px-5 py-2 font-semibold text-white disabled:opacity-50">{step === steps.length - 1 ? 'Place Order' : 'Next'}</button>
       </div>
       {message ? <p className="rounded-md bg-white p-3 text-sm border border-secondary-bg">{message}</p> : null}
     </div>

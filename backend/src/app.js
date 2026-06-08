@@ -24,7 +24,10 @@ app.set('trust proxy', 1);
 app.use(helmet({
   contentSecurityPolicy: false, // Sometimes needed for Vite/React if assets are loaded dynamically, but better to keep it false or configure it
 }));
-app.use(cors());
+app.use(cors({
+  origin: env.nodeEnv === 'production' ? env.appUrl : '*',
+  credentials: true
+}));
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 app.use(

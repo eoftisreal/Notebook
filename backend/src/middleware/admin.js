@@ -1,5 +1,5 @@
 function adminOnly(req, _res, next) {
-  if (!req.user?.isAdmin) {
+  if (req.user?.role !== 'admin' && req.user?.role !== 'master_admin') {
     const err = new Error('Admin access required');
     err.statusCode = 403;
     return next(err);
