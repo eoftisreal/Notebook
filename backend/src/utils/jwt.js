@@ -2,15 +2,19 @@ const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 
 function signAccessToken(payload) {
-  return jwt.sign(payload, env.jwtSecret, { expiresIn: '15m' }); // 15 minutes as per doc
+  return jwt.sign(payload, env.jwtAccessSecret, { expiresIn: '15m' }); // 15 minutes as per doc
 }
 
 function signRefreshToken(payload) {
-  return jwt.sign(payload, env.jwtSecret, { expiresIn: env.jwtRefreshExpiresIn }); // 30 days
+  return jwt.sign(payload, env.jwtRefreshSecret, { expiresIn: env.jwtRefreshExpiresIn }); // 30 days
 }
 
-function verifyToken(token) {
-  return jwt.verify(token, env.jwtSecret);
+function verifyAccessToken(token) {
+  return jwt.verify(token, env.jwtAccessSecret);
 }
 
-module.exports = { signAccessToken, signRefreshToken, verifyToken, verifyAccessToken: verifyToken };
+function verifyRefreshToken(token) {
+  return jwt.verify(token, env.jwtRefreshSecret);
+}
+
+module.exports = { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken };

@@ -9,7 +9,7 @@ const ResetToken = require('../models/ResetToken');
 const MagicLink = require('../models/MagicLink');
 const env = require('../config/env');
 const { sendVerificationEmail, sendMagicLinkEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
-const { signAccessToken, signRefreshToken, verifyToken } = require('../utils/jwt');
+const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/jwt');
 
 const router = express.Router();
 
@@ -175,7 +175,7 @@ router.post('/refresh', validate(refreshSchema), async (req, res, next) => {
   try {
     const { refreshToken } = req.validated.body;
 
-    const payload = verifyToken(refreshToken);
+    const payload = verifyRefreshToken(refreshToken);
     const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
     const validToken = await RefreshToken.findOne({ tokenHash, userId: payload.sub });
 

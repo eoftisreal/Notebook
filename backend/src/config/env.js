@@ -6,7 +6,8 @@ const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),
   mongoUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ecommerce',
-  jwtSecret: process.env.JWT_SECRET || 'dev-secret',
+  jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   appUrl: (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, ''),
   sendgridApiKey: process.env.SENDGRID_API_KEY || '',
@@ -26,5 +27,13 @@ const env = {
   resendApiKey: process.env.RESEND_API_KEY || '',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
 };
+
+if (!env.jwtAccessSecret) {
+  throw new Error('JWT_ACCESS_SECRET is required in environment variables');
+}
+
+if (!env.jwtRefreshSecret) {
+  throw new Error('JWT_REFRESH_SECRET is required in environment variables');
+}
 
 module.exports = env;
