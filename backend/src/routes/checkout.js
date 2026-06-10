@@ -4,8 +4,11 @@ const auth = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const Cart = require('../models/Cart');
 const Order = require('../models/Order');
+const OrderStatusHistory = require('../models/OrderStatusHistory');
+const Setting = require('../models/Setting');
+const { getAdminSettings } = require('../utils/admin');
 const Coupon = require('../models/Coupon');
-const { createRazorpayOrder, verifyRazorpaySignature } = require('../utils/payment');
+// Removed Razorpay
 
 const router = express.Router();
 
@@ -66,14 +69,37 @@ router.post('/create', auth, validate(checkoutSchema), async (req, res, next) =>
       }
     }
 
+
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const tax = Number((discountedSubtotal * 0.18).toFixed(2));
-    const total = Number((discountedSubtotal + tax).toFixed(2));
+    const baseTotal = Number((discountedSubtotal + tax).toFixed(2));
 
-    const paymentOrder = await createRazorpayOrder({
-      amount: Math.round(total * 100),
-      receipt: `ord_${Date.now()}`,
-    });
+    // Calculate unique payment amount
+    let paymentAmount = baseTotal;
+    let isUnique = false;
+    let attempts = 0;
+    while (!isUnique && attempts < 10) {
+      // Add a random fraction between 0.01 and 0.99
+      const randomFraction = Math.floor(Math.random() * 99) + 1;
+      const amountWithFraction = Number((Math.floor(baseTotal) + randomFraction / 100).toFixed(2));
+
+      const existing = await Order.findOne({
+        paymentAmount: amountWithFraction,
+        status: { $in: ['pending_payment', 'awaiting_verification'] }
+      });
+
+      if (!existing) {
+        paymentAmount = amountWithFraction;
+        isUnique = true;
+      }
+      attempts++;
+    }
+
+    if (!isUnique) {
+      const err = new Error('Could not generate a unique payment amount. Please try again.');
+      err.statusCode = 500;
+      throw err;
+    }
 
     const items = cart.items.map((item) => ({
       productId: item.productId.id,
@@ -89,33 +115,27 @@ router.post('/create', auth, validate(checkoutSchema), async (req, res, next) =>
       items,
       subtotal,
       tax,
-      total,
+      total: baseTotal, // keep base total
+      paymentAmount,
       shippingAddress: req.validated.body.shippingAddress,
       deliveryMethod: req.validated.body.deliveryMethod || 'email',
       promoCode: req.validated.body.promoCode || undefined,
       payment: {
-        provider: 'razorpay',
-        orderId: paymentOrder.id,
-        status: paymentOrder.status || 'created',
+        provider: 'upi',
+        status: 'pending',
       },
-      timeline: [{ status: 'created', note: 'Order created and awaiting payment' }],
+      status: 'pending_payment',
+      timeline: [{ status: 'pending_payment', note: 'Order created and awaiting manual payment' }],
     });
 
-    res.status(201).json({ order, paymentOrder });
+    res.status(201).json({ order });
   } catch (error) {
+
     next(error);
   }
 });
 
-const verifySchema = z.object({
-  body: z.object({
-    orderId: z.string(),
-    paymentId: z.string(),
-    signature: z.string(),
-  }),
-  query: z.object({}),
-  params: z.object({}),
-});
+
 
 
 const validateCouponSchema = z.object({
@@ -160,37 +180,5 @@ router.post('/validate-coupon', auth, validate(validateCouponSchema), async (req
   }
 });
 
-router.post('/verify', auth, validate(verifySchema), async (req, res, next) => {
-  try {
-    const { orderId, paymentId, signature } = req.validated.body;
-    const valid = verifyRazorpaySignature({ orderId, paymentId, signature });
-
-    if (!valid) {
-      const err = new Error('Payment signature verification failed');
-      err.statusCode = 400;
-      throw err;
-    }
-
-    const order = await Order.findOne({ 'payment.orderId': orderId, userId: req.user.id });
-    if (!order) {
-      const err = new Error('Order not found');
-      err.statusCode = 404;
-      throw err;
-    }
-
-    order.payment.paymentId = paymentId;
-    order.payment.signature = signature;
-    order.payment.status = 'captured';
-    order.status = 'payment_confirmed';
-    order.timeline.push({ status: 'payment_confirmed', note: 'Payment confirmed' });
-    await order.save();
-
-    await Cart.findOneAndUpdate({ userId: req.user.id }, { $set: { items: [] } });
-
-    res.json(order);
-  } catch (error) {
-    next(error);
-  }
-});
 
 module.exports = router;

@@ -15,7 +15,13 @@ function assertAdmin(user) {
 function getAdminSettings() {
   return {
     cloudflareR2Enabled: isR2Configured(),
-    paymentGateway: 'razorpay',
+    paymentGateway: 'upi',
+    upiId: '',
+    upiPayeeName: '',
+    qrExpiryMinutes: 10,
+    verificationTimeout: 60,
+    utrEnabled: true,
+    screenshotEnabled: true,
     authMode: 'magic-link',
   };
 }

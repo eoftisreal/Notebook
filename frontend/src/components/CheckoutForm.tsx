@@ -193,9 +193,9 @@ export default function CheckoutForm() {
 
         if (res.ok) {
           setMessage('Order placed successfully!');
-          // Call clear local cart and redirect to orders
+          // Call clear local cart and redirect to order detail page for payment
           useCartStore.getState().clearLocalCart();
-          window.location.href = '/orders';
+          window.location.href = '/orders/' + data.order._id;
         } else {
           setMessage(data.message || 'Failed to place order');
         }
@@ -353,10 +353,10 @@ export default function CheckoutForm() {
             <div className="p-4 border border-border rounded-md bg-secondary-bg">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="radio" checked readOnly className="w-4 h-4 text-foreground focus:ring-foreground" />
-                <span className="font-medium text-foreground">Razorpay (Cards, UPI, NetBanking)</span>
+                <span className="font-medium text-foreground">Manual UPI QR</span>
               </label>
               <p className="mt-2 text-sm text-secondary-text ml-7">
-                You will be redirected to the secure Razorpay payment gateway to complete your purchase.
+                You will generate a unique UPI QR code after placing the order to complete payment securely.
               </p>
             </div>
           </div>

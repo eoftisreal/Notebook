@@ -14,7 +14,7 @@ describe('admin utilities', () => {
   it('returns admin settings payload', () => {
     const settings = getAdminSettings();
     expect(settings).toMatchObject({
-      paymentGateway: 'razorpay',
+      paymentGateway: 'upi',
       authMode: 'magic-link',
     });
     expect(typeof settings.cloudflareR2Enabled).toBe('boolean');
