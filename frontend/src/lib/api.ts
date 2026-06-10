@@ -8,6 +8,24 @@ export async function apiGet<T>(path: string): Promise<T> {
   return response.json();
 }
 
+
+export async function apiPost<T>(path: string, body: any): Promise<T> {
+  const token = localStorage.getItem('kapdakraft_token'); // from getAuthToken logic normally
+  const response = await fetch(`${apiBase}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `API request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
 export type Product = {
   _id: string;
   title: string;

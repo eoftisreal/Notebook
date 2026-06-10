@@ -4,6 +4,9 @@ const adminOnly = require('../middleware/admin');
 const Product = require('../models/Product');
 const multer = require('multer');
 const Order = require('../models/Order');
+
+const OrderStatusHistory = require('../models/OrderStatusHistory');
+
 const User = require('../models/User');
 const Setting = require('../models/Setting');
 const { getAdminSettings } = require('../utils/admin');
@@ -159,6 +162,68 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
     const url = getObjectUrl(key);
 
     res.json({ key, url });
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+router.post('/orders/:id/approve', async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.status !== 'awaiting_verification') {
+      return res.status(400).json({ message: 'Order must be awaiting verification to approve' });
+    }
+
+    const oldStatus = order.status;
+    order.status = 'payment_verified';
+    order.verifiedAt = new Date();
+    order.approvedBy = req.user.id;
+    order.timeline.push({ status: 'payment_verified', note: 'Payment manually verified by admin' });
+    await order.save();
+
+    await OrderStatusHistory.create({
+      orderId: order._id,
+      oldStatus,
+      newStatus: order.status,
+      changedBy: req.user.id
+    });
+
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/orders/:id/reject', async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.status !== 'awaiting_verification') {
+      return res.status(400).json({ message: 'Order must be awaiting verification to reject' });
+    }
+
+    const oldStatus = order.status;
+    order.status = 'rejected';
+    order.rejectionReason = req.body.reason || 'Payment could not be verified.';
+    order.timeline.push({ status: 'rejected', note: order.rejectionReason });
+    await order.save();
+
+    await OrderStatusHistory.create({
+      orderId: order._id,
+      oldStatus,
+      newStatus: order.status,
+      changedBy: req.user.id
+    });
+
+    res.json(order);
   } catch (error) {
     next(error);
   }
