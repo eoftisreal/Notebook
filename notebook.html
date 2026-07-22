@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍 Python Notebook</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --accent-color: #58a6ff;
+            --success-color: #3fb950;
+            --error-color: #f85149;
+            --warning-color: #d29922;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ──────────────────────────────────────────────────────────────── */
+        /* Header / Navbar */
+        /* ──────────────────────────────────────────────────────────────── */
+
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .notebook-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .header-center {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            color: var(--bg-primary);
+            border-color: var(--accent-color);
+        }
+
+        .btn.primary {
+            background: var(--accent-color);
+            color: var(--bg-primary);
+            border-color: var(--accent-color);
+        }
+
+        .btn.success {
+            background: var(--success-color);
+            color: var(--bg-primary);
+            border-color: var(--success-color);
+        }
+
+        .btn.danger {
+            background: var(--error-color);
+            color: var(--bg-primary);
+            border-color: var(--error-color);
+        }
+
+        .header-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success-color);
+            display: inline-block;
+        }
+
+        .status-indicator.error {
+            background: var(--error-color);
+        }
+
+        /* ──────────────────────────────────────────────────────────────── */
+        /* Main Content Area */
+        /* ──────────────────────────────────────────────────────────────── */
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .notebook {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* ──────────────────────────────────────────────────────────────── */
+        /* Cells */
+        /* ──────────────────────────────────────────────────────────────── */
+
+        .cell {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .cell:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1);
+        }
+
+        .cell.selected {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+        }
+
+        .cell-header {
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .cell-type {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--accent-color);
+            color: var(--bg-primary);
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .cell-type.markdown {
+            background: #7d4e9a;
+        }
+
+        .cell-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .cell-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 4px;
+            transition: color 0.2s;
+        }
+
+        .cell-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .cell-content {
+            padding: 12px;
+        }
+
+        /* Code Editor */
+        .codemirror {
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .CodeMirror {
+            background: var(--bg-tertiary) !important;
+            color: var(--text-primary) !important;
+            height: auto !important;
+            border: none !important;
+        }
+
+        .CodeMirror-gutters {
+            background: var(--bg-secondary) !important;
+            border-right: 1px solid var(--border-color) !important;
+        }
+
+        .CodeMirror-linenumber {
+            color: var(--text-secondary) !important;
+        }
+
+        .CodeMirror-cursor {
+            border-left-color: var(--accent-color) !important;
+        }
+
+        /* Cell Output */
+        .cell-output {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            padding: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .output-section {
+            margin-bottom: 12px;
+        }
+
+        .output-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .output-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .stdout {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-left: 3px solid var(--success-color);
+            border-radius: 3px;
+            font-family: "Monaco", "Menlo", monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--text-primary);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .stderr {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-left: 3px solid var(--error-color);
+            border-radius: 3px;
+            font-family: "Monaco", "Menlo", monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--error-color);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .execution-info {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Loading Indicator */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: -2px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .cell-executing .spinner {
+            display: inline-block;
+        }
+
+        /* ──────────────────────────────────────────────────────────────── */
+        /* Sidebar */
+        /* ──────────────────────────────────────────────────────────────── */
+
+        .sidebar {
+            position: fixed;
+            right: 20px;
+            top: 70px;
+            width: 250px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar.show {
+            display: block;
+        }
+
+        .sidebar-section {
+            margin-bottom: 16px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-item {
+            padding: 6px 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: var(--accent-color);
+            color: var(--bg-primary);
+        }
+
+        /* ──────────────────────────────────────────────────────────────── */
+        /* Footer */
+        /* ──────────────────────────────────────────────────────────────── */
+
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ──────────────────────────────────────────────────────────────── */
+        /* Utilities */
+        /* ──────────────────────────────────────────────────────────────── */
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        .text-success {
+            color: var(--success-color);
+        }
+
+        .text-error {
+            color: var(--error-color);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <div class="logo">🐍 Notebook</div>
+                <div class="notebook-title">Untitled</div>
+            </div>
+            <div class="header-center">
+                <button class="btn" id="addCellBtn" title="Add new code cell">+ Code</button>
+                <button class="btn" id="addMarkdownBtn" title="Add markdown cell">+ Markdown</button>
+                <button class="btn primary" id="runAllBtn" title="Run all cells">▶ Run All</button>
+            </div>
+            <div class="header-right">
+                <span class="status-indicator" id="statusIndicator" title="Server status"></span>
+                <span id="statusText" class="text-muted">Ready</span>
+            </div>
+        </header>
+
+        <!-- Main Notebook Area -->
+        <div class="content">
+            <div class="notebook" id="notebook"></div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <span>Python Notebook v3.0 | <span id="cellCount">0</span> cells | Last updated: <span id="lastUpdated">Never</span></span>
+            <span>💾 <a href="#" style="color: var(--text-secondary);">Save as JSON</a></span>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.js"></script>
+
+    <script>
+        // ─────────────────────────────────────────────────────────────────────
+        // Notebook State Management
+        // ─────────────────────────────────────────────────────────────────────
+
+        class Notebook {
+            constructor() {
+                this.cells = [];
+                this.nextId = 0;
+                this.executing = new Set();
+                this.serverUrl = "";
+            }
+
+            addCell(type = "code", content = "") {
+                const cell = {
+                    id: this.nextId++,
+                    type,
+                    content,
+                    output: null,
+                    error: null,
+                    executionTime: null,
+                    executionCount: null,
+                };
+                this.cells.push(cell);
+                this.render();
+                return cell.id;
+            }
+
+            deleteCell(id) {
+                this.cells = this.cells.filter(c => c.id !== id);
+                this.render();
+            }
+
+            getCell(id) {
+                return this.cells.find(c => c.id === id);
+            }
+
+            async executeCell(id, packages = []) {
+                const cell = this.getCell(id);
+                if (!cell) return;
+
+                if (cell.type !== "code") return;
+
+                this.executing.add(id);
+                this.updateCellUI(id, "executing");
+
+                try {
+                    const response = await fetch("/api/run", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            code: cell.content,
+                            timeout: 60,
+                            packages,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    cell.output = data.stdout || "";
+                    cell.error = data.stderr || "";
+                    cell.returncode = data.returncode || 0;
+                    cell.executionTime = data.execution_time || 0;
+                    cell.executionCount = (cell.executionCount || 0) + 1;
+
+                    this.updateCellUI(id, "done");
+                    updateStatus("Ready", false);
+                } catch (err) {
+                    cell.error = err.message;
+                    this.updateCellUI(id, "error");
+                    updateStatus("Error", true);
+                } finally {
+                    this.executing.delete(id);
+                    updateFooter();
+                }
+            }
+
+            updateCellUI(id, state) {
+                const el = document.getElementById(`cell-${id}`);
+                if (!el) return;
+
+                el.classList.remove("cell-executing");
+                if (state === "executing") {
+                    el.classList.add("cell-executing");
+                }
+                this.renderCellOutput(id);
+            }
+
+            renderCellOutput(id) {
+                const cell = this.getCell(id);
+                const el = document.getElementById(`cell-output-${id}`);
+                if (!el) return;
+
+                let html = "";
+
+                if (cell.output) {
+                    html += `
+                        <div class="output-section">
+                            <div class="output-label">Output</div>
+                            <div class="stdout">${escapeHtml(cell.output)}</div>
+                        </div>
+                    `;
+                }
+
+                if (cell.error && cell.returncode !== 0) {
+                    html += `
+                        <div class="output-section">
+                            <div class="output-label">Error</div>
+                            <div class="stderr">${escapeHtml(cell.error)}</div>
+                        </div>
+                    `;
+                }
+
+                if (cell.executionTime !== null) {
+                    html += `
+                        <div class="execution-info">
+                            ⏱ Executed in ${cell.executionTime.toFixed(3)}s
+                            ${cell.executionCount ? ` | Run #${cell.executionCount}` : ""}
+                        </div>
+                    `;
+                }
+
+                el.innerHTML = html;
+                el.style.display = html ? "block" : "none";
+            }
+
+            render() {
+                const notebookEl = document.getElementById("notebook");
+                notebookEl.innerHTML = "";
+
+                this.cells.forEach(cell => {
+                    const cellEl = document.createElement("div");
+                    cellEl.className = "cell";
+                    cellEl.id = `cell-${cell.id}`;
+                    cellEl.innerHTML = `
+                        <div class="cell-header">
+                            <span class="cell-type ${cell.type}">${cell.type.toUpperCase()}</span>
+                            <div class="cell-controls">
+                                ${cell.type === "code" ? `<button class="cell-btn" onclick="notebook.executeCell(${cell.id})">▶ Run</button>` : ""}
+                                <button class="cell-btn" onclick="notebook.deleteCell(${cell.id})">✕ Delete</button>
+                            </div>
+                        </div>
+                        <div class="cell-content">
+                            <textarea id="cell-editor-${cell.id}" data-cell-id="${cell.id}">${escapeHtml(cell.content)}</textarea>
+                        </div>
+                        <div class="cell-output" id="cell-output-${cell.id}"></div>
+                    `;
+                    notebookEl.appendChild(cellEl);
+
+                    // Initialize CodeMirror
+                    setTimeout(() => {
+                        const textarea = document.getElementById(`cell-editor-${cell.id}`);
+                        if (textarea && !textarea.dataset.codemirror) {
+                            const editor = CodeMirror.fromTextArea(textarea, {
+                                mode: "python",
+                                theme: "dracula",
+                                lineNumbers: true,
+                                indentUnit: 4,
+                                indentWithTabs: false,
+                                lineWrapping: true,
+                                matchBrackets: true,
+                                autoCloseBrackets: true,
+                            });
+                            editor.on("change", () => {
+                                cell.content = editor.getValue();
+                            });
+                            textarea.dataset.codemirror = true;
+                            cell._editor = editor;
+                        }
+                    }, 0);
+
+                    this.renderCellOutput(cell.id);
+                });
+
+                updateFooter();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // UI Functions
+        // ─────────────────────────────────────────────────────────────────────
+
+        const notebook = new Notebook();
+
+        function updateStatus(text, isError = false) {
+            const indicator = document.getElementById("statusIndicator");
+            const statusText = document.getElementById("statusText");
+            indicator.classList.toggle("error", isError);
+            statusText.textContent = text;
+            statusText.className = isError ? "text-error" : "text-muted";
+        }
+
+        function updateFooter() {
+            const cellCount = document.getElementById("cellCount");
+            const lastUpdated = document.getElementById("lastUpdated");
+            cellCount.textContent = notebook.cells.length;
+            lastUpdated.textContent = new Date().toLocaleTimeString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Event Listeners
+        // ─────────────────────────────────────────────────────────────────────
+
+        document.getElementById("addCellBtn").addEventListener("click", () => {
+            notebook.addCell("code", "# Your code here\nprint('Hello, World!')");
+        });
+
+        document.getElementById("addMarkdownBtn").addEventListener("click", () => {
+            notebook.addCell("markdown", "# Heading\n\nSome text here");
+        });
+
+        document.getElementById("runAllBtn").addEventListener("click", async () => {
+            updateStatus("Running all cells...", false);
+            for (const cell of notebook.cells) {
+                if (cell.type === "code") {
+                    await notebook.executeCell(cell.id);
+                }
+            }
+            updateStatus("Done", false);
+        });
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Initialization
+        // ─────────────────────────────────────────────────────────────────────
+
+        window.addEventListener("DOMContentLoaded", () => {
+            // Check server health
+            fetch("/api/health")
+                .then(r => r.json())
+                .then(data => {
+                    updateStatus("Ready", false);
+                })
+                .catch(() => {
+                    updateStatus("Server unavailable", true);
+                });
+
+            // Add initial cells
+            notebook.addCell("code", "# Welcome to Python Notebook!\n# Write your Python code here\nprint('Hello, World!')");
+            notebook.addCell("code", "# Try installing packages with !pip install\nimport math\nprint(math.pi)");
+
+            updateFooter();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.key === "Enter") {
+                // Ctrl+Enter to run current cell
+                document.querySelector(".cell:hover .cell-btn")?.click();
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === "Enter") {
+                // Ctrl+Shift+Enter to run all cells
+                document.getElementById("runAllBtn").click();
+            }
+        });
+    </script>
+</body>
+</html>
