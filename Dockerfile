@@ -1,25 +1,34 @@
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    chromium \
-    chromium-driver \
-    ca-certificates \
-    fonts-liberation \
-    && rm -rf /var/lib/apt/lists/*
+LABEL maintainer="Python Notebook Team"
+LABEL description="Python Notebook - Execute Python Code in Browser"
 
 WORKDIR /app
-COPY requirements.txt ./
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy application files
+COPY notebook_server.py .
+COPY notebook.html .
 
-ENV CHROME_BIN=/usr/bin/chromium \
-    CHROMEDRIVER_PATH=/usr/bin/chromedriver \
-    PORT=8080
+# Create non-root user
+RUN useradd -m -u 1000 notebook && chown -R notebook:notebook /app
+USER notebook
 
-EXPOSE 8080
+# Expose port
+EXPOSE 5000
 
-CMD ["python", "server_v2.py"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/api/health || exit 1
+
+# Run application
+CMD ["python", "notebook_server.py"]
