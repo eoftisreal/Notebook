@@ -2,3 +2,7 @@
 Flask==2.3.3
 Flask-CORS==4.0.0
 Werkzeug==2.3.7
+
+# Optional: For the original link resolver functionality
+selenium==4.15.2
+webdriver-manager==4.0.1

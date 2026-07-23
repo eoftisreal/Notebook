@@ -358,6 +358,8 @@ Werkzeug==2.3.7        # WSGI utilities (500KB)
 
 **Optional (for advanced features):**
 ```
+selenium==4.15.2       # Web automation
+webdriver-manager==4.0.1  # Driver management
 gunicorn==21.2.0       # Production server
 ```
 

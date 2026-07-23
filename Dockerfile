@@ -6,9 +6,18 @@ LABEL description="Python Notebook - Execute Python Code in Browser"
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
+    wget \
+    unzip \
+    libnss3 libgconf-2-4 libxi6 libxcursor1 \
+    libxdamage1 libxrandr2 libxcomposite1 libasound2t64 libatk1.0-0 \
+    libatk-bridge2.0-0 libcups2 libdrm2 libgbm1 libpango-1.0-0 \
+    libpangocairo-1.0-0 libgtk-3-0 fonts-liberation \
+    && wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && apt-get install -y /tmp/chrome.deb \
+    && rm /tmp/chrome.deb \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
