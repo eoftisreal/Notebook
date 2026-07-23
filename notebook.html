@@ -143,7 +143,7 @@
 
         .notebook {
             width: 100%;
-            max-width: 900px;
+            max-width: 1400px;
         }
 
         /* ──────────────────────────────────────────────────────────────── */
@@ -218,8 +218,24 @@
             color: var(--accent-color);
         }
 
+        .cell-body {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
         .cell-content {
             padding: 12px;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .cell-body {
+                flex-direction: column;
+            }
         }
 
         /* Code Editor */
@@ -235,6 +251,8 @@
             background: var(--bg-tertiary) !important;
             color: var(--text-primary) !important;
             height: auto !important;
+            min-height: 100px;
+            flex: 1;
             border: none !important;
         }
 
@@ -254,10 +272,20 @@
         /* Cell Output */
         .cell-output {
             background: var(--bg-tertiary);
-            border-top: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
             padding: 12px;
             max-height: 400px;
             overflow-y: auto;
+            flex: 1;
+            min-width: 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .cell-output {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
         }
 
         .output-section {
@@ -783,7 +811,8 @@
                 }
 
                 el.innerHTML = html;
-                el.style.display = html ? "block" : "none";
+                el.style.display = html ? "flex" : "none";
+                if (html) el.style.flexDirection = "column";
 
                 // Wire up Enter-to-submit for the input box, if present
                 const inputBox = document.getElementById(`cell-input-box-${cell.id}`);
@@ -814,10 +843,12 @@
                                 <button class="cell-btn" onclick="notebook.deleteCell(${cell.id})">✕ Delete</button>
                             </div>
                         </div>
+                        <div class="cell-body">
                         <div class="cell-content">
                             <textarea id="cell-editor-${cell.id}" data-cell-id="${cell.id}">${escapeHtml(cell.content)}</textarea>
                         </div>
                         <div class="cell-output" id="cell-output-${cell.id}"></div>
+                        </div>
                     `;
                     notebookEl.appendChild(cellEl);
 
