@@ -164,6 +164,11 @@
             box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1);
         }
 
+        .cell-waiting-input {
+            border-color: var(--warning-color);
+            box-shadow: 0 0 0 2px rgba(210, 153, 34, 0.15);
+        }
+
         .cell.selected {
             border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
@@ -305,6 +310,65 @@
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid var(--border-color);
+        }
+
+        /* Interactive input() prompt */
+        .input-request {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-primary);
+            border-left: 3px solid var(--warning-color);
+            border-radius: 3px;
+            padding: 8px;
+            margin-top: 8px;
+            font-family: "Monaco", "Menlo", monospace;
+            font-size: 12px;
+        }
+
+        .input-request .input-marker {
+            color: var(--warning-color);
+            flex-shrink: 0;
+        }
+
+        .input-request input[type="text"] {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--warning-color);
+            border-radius: 3px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 12px;
+            padding: 5px 8px;
+            outline: none;
+        }
+
+        .input-request input[type="text"]:focus {
+            border-color: var(--accent-color);
+        }
+
+        .input-request button {
+            background: var(--warning-color);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 3px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .input-request button:hover {
+            opacity: 0.85;
+        }
+
+        .cell-stop-btn {
+            display: none;
+        }
+
+        .cell-executing .cell-stop-btn {
+            display: inline-block;
         }
 
         /* Loading Indicator */
@@ -490,6 +554,8 @@
                     error: null,
                     executionTime: null,
                     executionCount: null,
+                    sessionId: null,
+                    execStatus: "idle", // idle | running | waiting_input | finished
                 };
                 this.cells.push(cell);
                 this.render();
@@ -508,14 +574,16 @@
             async executeCell(id, packages = []) {
                 const cell = this.getCell(id);
                 if (!cell) return;
-
                 if (cell.type !== "code") return;
 
                 this.executing.add(id);
+                cell.output = "";
+                cell.error = "";
+                cell.execStatus = "starting";
                 this.updateCellUI(id, "executing");
 
                 try {
-                    const response = await fetch("/api/run", {
+                    const startResp = await fetch("/api/run/start", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -524,19 +592,27 @@
                             packages,
                         }),
                     });
+                    const startData = await startResp.json();
 
-                    const data = await response.json();
+                    if (!startResp.ok || startData.error) {
+                        cell.error = startData.error || "Failed to start execution.";
+                        cell.stdout = startData.stdout || "";
+                        cell.execStatus = "finished";
+                        cell.returncode = 1;
+                        this.updateCellUI(id, "error");
+                        updateStatus("Error", true);
+                        return;
+                    }
 
-                    cell.output = data.stdout || "";
-                    cell.error = data.stderr || "";
-                    cell.returncode = data.returncode || 0;
-                    cell.executionTime = data.execution_time || 0;
-                    cell.executionCount = (cell.executionCount || 0) + 1;
+                    cell.sessionId = startData.session_id;
+                    updateStatus("Running…", false);
 
-                    this.updateCellUI(id, "done");
-                    updateStatus("Ready", false);
+                    // Poll until the session finishes, errors out, or is stopped.
+                    await this.pollSession(id);
+
                 } catch (err) {
                     cell.error = err.message;
+                    cell.execStatus = "finished";
                     this.updateCellUI(id, "error");
                     updateStatus("Error", true);
                 } finally {
@@ -545,15 +621,117 @@
                 }
             }
 
+            async pollSession(id) {
+                const cell = this.getCell(id);
+                if (!cell || !cell.sessionId) return;
+
+                const terminal = new Set(["finished", "error", "timeout", "stopped"]);
+
+                // eslint-disable-next-line no-constant-condition
+                while (true) {
+                    let data;
+                    try {
+                        const resp = await fetch(`/api/run/poll/${cell.sessionId}`);
+                        data = await resp.json();
+                        if (!resp.ok) {
+                            cell.error = data.error || "Lost connection to session.";
+                            cell.execStatus = "finished";
+                            this.updateCellUI(id, "error");
+                            break;
+                        }
+                    } catch (err) {
+                        cell.error = err.message;
+                        cell.execStatus = "finished";
+                        this.updateCellUI(id, "error");
+                        break;
+                    }
+
+                    cell.output = data.stdout || "";
+                    cell.error = data.stderr || "";
+                    cell.execStatus = data.status;
+
+                    if (data.status === "waiting_input") {
+                        this.updateCellUI(id, "waiting_input");
+                        // Stop polling; will resume once submitCellInput() posts a reply
+                        // and re-enters the loop via resumePolling().
+                        cell._resolvePoll = null;
+                        await new Promise(resolve => { cell._resolvePoll = resolve; });
+                        continue;
+                    }
+
+                    if (terminal.has(data.status)) {
+                        cell.returncode = data.returncode ?? 0;
+                        cell.executionTime = data.execution_time || 0;
+                        cell.executionCount = (cell.executionCount || 0) + 1;
+                        this.updateCellUI(id, data.status === "finished" && cell.returncode === 0 ? "done" : "error");
+                        updateStatus(data.status === "timeout" ? "Timed out" : "Ready", data.status !== "finished");
+                        break;
+                    }
+
+                    this.updateCellUI(id, "executing");
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+            }
+
+            async submitCellInput(id, value) {
+                const cell = this.getCell(id);
+                if (!cell || !cell.sessionId) return;
+
+                try {
+                    await fetch("/api/run/input", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ session_id: cell.sessionId, value }),
+                    });
+                } catch (err) {
+                    cell.error = (cell.error || "") + `\n[Failed to send input: ${err.message}]`;
+                }
+
+                cell.execStatus = "running";
+                this.updateCellUI(id, "executing");
+
+                // Resume the polling loop that's parked waiting on this input.
+                if (cell._resolvePoll) {
+                    const resolve = cell._resolvePoll;
+                    cell._resolvePoll = null;
+                    resolve();
+                }
+            }
+
+            async stopCell(id) {
+                const cell = this.getCell(id);
+                if (!cell || !cell.sessionId) return;
+                try {
+                    await fetch(`/api/run/stop/${cell.sessionId}`, { method: "POST" });
+                } catch (err) {
+                    // ignore
+                }
+                if (cell._resolvePoll) {
+                    const resolve = cell._resolvePoll;
+                    cell._resolvePoll = null;
+                    resolve();
+                }
+            }
+
             updateCellUI(id, state) {
                 const el = document.getElementById(`cell-${id}`);
                 if (!el) return;
 
-                el.classList.remove("cell-executing");
-                if (state === "executing") {
+                el.classList.remove("cell-executing", "cell-waiting-input");
+                if (state === "executing" || state === "waiting_input") {
                     el.classList.add("cell-executing");
                 }
+                if (state === "waiting_input") {
+                    el.classList.add("cell-waiting-input");
+                }
                 this.renderCellOutput(id);
+
+                if (state === "waiting_input") {
+                    // Focus the newly-rendered input box for immediate typing
+                    setTimeout(() => {
+                        document.getElementById(`cell-input-box-${id}`)?.focus();
+                    }, 0);
+                }
             }
 
             renderCellOutput(id) {
@@ -581,7 +759,21 @@
                     `;
                 }
 
-                if (cell.executionTime !== null) {
+                if (cell.execStatus === "waiting_input") {
+                    html += `
+                        <div class="input-request">
+                            <span class="input-marker">⌨</span>
+                            <input type="text" id="cell-input-box-${cell.id}"
+                                   placeholder="Type a reply and press Enter…" autocomplete="off" />
+                            <button onclick="notebook.submitCellInput(${cell.id}, document.getElementById('cell-input-box-${cell.id}').value)">Send</button>
+                        </div>
+                    `;
+                } else if (cell.execStatus === "running" || cell.execStatus === "starting") {
+                    html += `<div class="execution-info"><span class="spinner"></span> Running…</div>`;
+                }
+
+                if (cell.executionTime !== null && cell.executionTime !== undefined
+                    && cell.execStatus !== "running" && cell.execStatus !== "waiting_input") {
                     html += `
                         <div class="execution-info">
                             ⏱ Executed in ${cell.executionTime.toFixed(3)}s
@@ -592,6 +784,17 @@
 
                 el.innerHTML = html;
                 el.style.display = html ? "block" : "none";
+
+                // Wire up Enter-to-submit for the input box, if present
+                const inputBox = document.getElementById(`cell-input-box-${cell.id}`);
+                if (inputBox) {
+                    inputBox.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            this.submitCellInput(cell.id, inputBox.value);
+                        }
+                    });
+                }
             }
 
             render() {
@@ -607,6 +810,7 @@
                             <span class="cell-type ${cell.type}">${cell.type.toUpperCase()}</span>
                             <div class="cell-controls">
                                 ${cell.type === "code" ? `<button class="cell-btn" onclick="notebook.executeCell(${cell.id})">▶ Run</button>` : ""}
+                                ${cell.type === "code" ? `<button class="cell-btn cell-stop-btn" onclick="notebook.stopCell(${cell.id})">■ Stop</button>` : ""}
                                 <button class="cell-btn" onclick="notebook.deleteCell(${cell.id})">✕ Delete</button>
                             </div>
                         </div>
