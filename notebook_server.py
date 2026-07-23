@@ -57,7 +57,7 @@ CORS(app)
 
 # Configuration
 _DEFAULT_RUN_TIMEOUT = 30
-_MAX_RUN_TIMEOUT = 300
+_MAX_RUN_TIMEOUT = 1800
 _MAX_OUTPUT_BYTES = 100000
 _VALID_PKG_RE = re.compile(r"^[a-zA-Z0-9._\-\[\]<>=!~;]+$")
 

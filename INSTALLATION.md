@@ -201,8 +201,6 @@ pip install Flask-CORS==4.0.0
 pip install Werkzeug==2.3.7
 
 # Optional: for Selenium automation
-pip install selenium==4.15.2
-pip install webdriver-manager==4.0.1
 
 # Optional: for production
 pip install gunicorn==21.2.0
