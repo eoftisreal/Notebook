@@ -575,4 +575,37 @@ with FileManager('test.txt', 'w') as f:
 
 ---
 
+## 🕷️ Web Scraping with Selenium
+
+### Basic Setup and Usage (Colab/Kaggle style)
+```python
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+# Setup Chrome options for the sandboxed notebook environment
+chrome_options = Options()
+chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--disable-gpu")
+chrome_options.binary_location = "/usr/bin/google-chrome"
+
+print("Starting Chrome...")
+driver = webdriver.Chrome(options=chrome_options)
+
+try:
+    print("Navigating to example.com...")
+    driver.get("https://example.com")
+    print(f"Page title: {driver.title}")
+
+    # Save a screenshot
+    driver.save_screenshot("screenshot.png")
+    print("Saved screenshot to workspace!")
+finally:
+    driver.quit()
+```
+
+---
+
 **Happy learning! 🐍**
