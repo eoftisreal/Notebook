@@ -32,6 +32,7 @@ import tempfile
 import threading
 import time
 import uuid
+import signal
 from typing import Any
 
 from flask import Flask, jsonify, request, send_from_directory, render_template_string
@@ -244,7 +245,10 @@ def _watchdog_thread(session_id: str, timeout: int) -> None:
             with SESSIONS_LOCK:
                 session["timed_out"] = True
             try:
-                proc.kill()
+                if os.name == "posix":
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                else:
+                    proc.kill()
             except OSError:
                 pass
             return
@@ -301,6 +305,10 @@ def _start_session(code: str, timeout: int, packages: list[str]) -> tuple[str | 
         tmp_f.write(wrapped)
         tmp_script = tmp_f.name
 
+    kwargs = {}
+    if os.name == "posix":
+        kwargs["start_new_session"] = True
+
     try:
         proc = subprocess.Popen(
             [sys.executable, "-u", tmp_script],
@@ -309,6 +317,7 @@ def _start_session(code: str, timeout: int, packages: list[str]) -> tuple[str | 
             stdin=subprocess.PIPE,
             text=True,
             bufsize=1,
+            **kwargs
         )
     except OSError as exc:
         os.unlink(tmp_script)
@@ -485,17 +494,26 @@ def api_run_code() -> tuple[dict, int]:
 
         # Execute in subprocess
         logger.info(f"Executing code ({len(code)} bytes, timeout={timeout}s)")
+
+        kwargs = {}
+        if os.name == "posix":
+            kwargs["start_new_session"] = True
+
         with subprocess.Popen(
             [sys.executable, "-u", tmp_script],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdin=subprocess.PIPE,
             text=True,
+            **kwargs
         ) as proc:
             try:
                 stdout, stderr = proc.communicate(input=stdin_text or None, timeout=timeout)
             except subprocess.TimeoutExpired:
-                proc.kill()
+                if os.name == "posix":
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                else:
+                    proc.kill()
                 try:
                     stdout, stderr = proc.communicate(timeout=5)
                 except subprocess.TimeoutExpired:
@@ -640,7 +658,10 @@ def api_run_stop(session_id: str) -> tuple[dict, int]:
         session["status"] = "stopped"
         proc = session["proc"]
     try:
-        proc.kill()
+        if os.name == "posix":
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        else:
+            proc.kill()
     except OSError:
         pass
     return jsonify({"ok": True}), 200
