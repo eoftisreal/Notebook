@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 LABEL maintainer="Python Notebook Team"
 LABEL description="Python Notebook - Execute Python Code in Browser"
