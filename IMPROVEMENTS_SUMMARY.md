@@ -22,7 +22,7 @@ Your portfolio notebook backend has been **completely redesigned and extended** 
 - **Type hints** throughout for better IDE support
 - **Comprehensive logging** for debugging
 - **Improved package installation** with validation
-- **Better timeout handling** (5-300 seconds configurable)
+- **Better timeout handling** (5-1800 seconds configurable)
 - **Output size limits** to prevent browser freeze
 - **Magic command support** (!pip install syntax)
 - **Execution timing** to track performance
@@ -212,7 +212,7 @@ print(df.describe())
 - Code execution: <100ms (simple code)
 - Package installation: 5-30s (package size dependent)
 - Output rendering: Real-time
-- Timeout handling: 5-300 seconds configurable
+- Timeout handling: 5-1800 seconds configurable
 
 ### Scalability
 - Single-process execution (sequential)

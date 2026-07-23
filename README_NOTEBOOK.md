@@ -29,7 +29,7 @@ A beautiful, modern, **fully-functional Python notebook** web application with a
 - **Real-Time Output** — Capture stdout and stderr
 - **Error Tracebacks** — Full error messages when code fails
 - **Execution Counter** — Track how many times each cell has run
-- **Timeout Protection** — Configurable timeout for long-running code (default 30s, max 300s)
+- **Timeout Protection** — Configurable timeout for long-running code (default 30s, max 1800s)
 - **Maximum Output** — Output capped at 100KB to prevent browser freeze
 
 ### Magic Commands
@@ -82,7 +82,7 @@ Edit `notebook_server.py` to adjust:
 
 ```python
 _DEFAULT_RUN_TIMEOUT = 30          # Default timeout in seconds
-_MAX_RUN_TIMEOUT = 300             # Maximum timeout allowed
+_MAX_RUN_TIMEOUT = 1800             # Maximum timeout allowed
 _MAX_OUTPUT_BYTES = 100000         # Max output size (bytes)
 ```
 
@@ -196,7 +196,7 @@ curl -X POST http://localhost:5000/api/run \
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `code` | string | — | **Required.** Python code to execute |
-| `timeout` | integer | 30 | Execution timeout in seconds (5–300) |
+| `timeout` | integer | 30 | Execution timeout in seconds (5–1800) |
 | `stdin` | string | "" | Input for `input()` calls |
 | `packages` | array | [] | Packages to install before running |
 
@@ -282,7 +282,7 @@ curl -X POST http://localhost:5000/api/run \
 - Increase timeout in code: `POST` with `"timeout": 120`
 - Break code into smaller cells
 - Optimize code performance
-- Max timeout is 300 seconds
+- Max timeout is 1800 seconds
 
 ### Output truncated
 

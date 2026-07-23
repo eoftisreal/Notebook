@@ -181,7 +181,7 @@ PORT=8080 FLASK_DEBUG=1 python notebook_server.py
 
 ### Code Execution Settings
 
-API call with custom timeout (5-300 seconds):
+API call with custom timeout (5-1800 seconds):
 ```json
 {
   "code": "import time; time.sleep(10); print('Done!')",
@@ -358,8 +358,6 @@ Werkzeug==2.3.7        # WSGI utilities (500KB)
 
 **Optional (for advanced features):**
 ```
-selenium==4.15.2       # Web automation
-webdriver-manager==4.0.1  # Driver management
 gunicorn==21.2.0       # Production server
 ```
 

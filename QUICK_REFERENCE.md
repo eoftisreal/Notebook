@@ -212,7 +212,7 @@ print(f"Circle area: {area:.2f}")
 - **Process isolation:** Each run shares same Python process
 - **Resource cleanup:** Automatic temp file cleanup
 - **Output size:** Max 100KB per execution
-- **Timeout:** Default 30s, max 300s
+- **Timeout:** Default 30s, max 1800s
 
 ---
 
