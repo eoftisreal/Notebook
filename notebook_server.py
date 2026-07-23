@@ -267,19 +267,25 @@ def _start_session(code: str, timeout: int, packages: list[str]) -> tuple[str | 
         return None, {"error": "Too many packages (max 20)."}
 
     tmp_pkg_dir: str | None = None
+    pip_stdout = ""
+    pip_stderr = ""
+
     if packages:
         tmp_pkg_dir = tempfile.mkdtemp(prefix="pyrunner_pkgs_")
         try:
             pip_proc = subprocess.run(
                 [
                     sys.executable, "-m", "pip", "install",
-                    "--quiet", "--target", tmp_pkg_dir,
+                    "--target", tmp_pkg_dir,
                     "--disable-pip-version-check",
                     "--no-warn-script-location",
                     *packages,
                 ],
                 capture_output=True, text=True, timeout=120,
             )
+            pip_stdout = pip_proc.stdout
+            pip_stderr = pip_proc.stderr
+
             if pip_proc.returncode != 0:
                 shutil.rmtree(tmp_pkg_dir, ignore_errors=True)
                 return None, {
@@ -330,8 +336,8 @@ def _start_session(code: str, timeout: int, packages: list[str]) -> tuple[str | 
     session = {
         "proc": proc,
         "status": "running",
-        "stdout": "",
-        "stderr": "",
+        "stdout": pip_stdout[:_MAX_OUTPUT_BYTES],
+        "stderr": pip_stderr[:_MAX_OUTPUT_BYTES],
         "returncode": None,
         "start_time": now,
         "deadline": now + timeout,
@@ -447,16 +453,20 @@ def api_run_code() -> tuple[dict, int]:
     tmp_script: str | None = None
     start_time = time.time()
 
+    pip_stdout = ""
+    pip_stderr = ""
+
     try:
         # Install packages if needed
         if validated_packages:
             tmp_pkg_dir = tempfile.mkdtemp(prefix="pyrunner_pkgs_")
             logger.info(f"Installing packages: {', '.join(validated_packages)}")
             try:
+                # Remove --quiet to ensure pip outputs the logs.
                 pip_proc = subprocess.run(
                     [
                         sys.executable, "-m", "pip", "install",
-                        "--quiet", "--target", tmp_pkg_dir,
+                        "--target", tmp_pkg_dir,
                         "--disable-pip-version-check",
                         "--no-warn-script-location",
                         *validated_packages
@@ -465,6 +475,9 @@ def api_run_code() -> tuple[dict, int]:
                     text=True,
                     timeout=120,
                 )
+                pip_stdout = pip_proc.stdout
+                pip_stderr = pip_proc.stderr
+
                 if pip_proc.returncode != 0:
                     shutil.rmtree(tmp_pkg_dir, ignore_errors=True)
                     return jsonify({
@@ -527,9 +540,14 @@ def api_run_code() -> tuple[dict, int]:
                 }), 408
 
         execution_time = time.time() - start_time
+
+        # Prepend pip output if it exists
+        final_stdout = pip_stdout + stdout if pip_stdout else stdout
+        final_stderr = pip_stderr + stderr if pip_stderr else stderr
+
         return jsonify({
-            "stdout": stdout[:_MAX_OUTPUT_BYTES],
-            "stderr": stderr[:_MAX_OUTPUT_BYTES],
+            "stdout": final_stdout[:_MAX_OUTPUT_BYTES],
+            "stderr": final_stderr[:_MAX_OUTPUT_BYTES],
             "returncode": proc.returncode,
             "execution_time": round(execution_time, 3),
         })
